@@ -1,0 +1,198 @@
+/* ============================================================================
+   Sistem tampilan bersama — Katalog & PST BPS Kutai Kartanegara
+   Dipakai index.html, admin.html, sahabat.html
+   ========================================================================== */
+
+:root {
+  --bg:#FBFBFA; --panel:#FFFFFF; --sunk:#F1F1EF; --line:#E2E2DE; --line-2:#C9C9C3;
+  --ink:#16181C; --ink-2:#4B4F57; --ink-3:#757A83;
+  --link:#2F5FA8; --link-wash:#E8EFF9;
+  --s-ada:#1C7048;   --s-ada-bg:#E2F1E9;
+  --s-mohon:#8C5A08; --s-mohon-bg:#F8EEDA;
+  --s-tidak:#8C3030; --s-tidak-bg:#F7E5E5;
+  --s-lain:#55595F;  --s-lain-bg:#ECECEA;
+  --s-prov:#2F5FA8;  --s-prov-bg:#E8EFF9;
+  --f-disp:"Newsreader",Georgia,serif;
+  --f-ui:"Public Sans",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --f-mono:"Spline Sans Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#141619; --panel:#1C1F23; --sunk:#232629; --line:#2C3035; --line-2:#3F444A;
+  --ink:#ECEDEE; --ink-2:#B0B5BB; --ink-3:#838890;
+  --link:#7FA9E8; --link-wash:#1B2836;
+  --s-ada:#62C295;   --s-ada-bg:#163024;
+  --s-mohon:#E0AE5A; --s-mohon-bg:#33280F;
+  --s-tidak:#E28D8D; --s-tidak-bg:#331E1E;
+  --s-lain:#9AA0A8;  --s-lain-bg:#26292D;
+  --s-prov:#7FA9E8;  --s-prov-bg:#1B2836;
+} }
+:root[data-theme="dark"] {
+  --bg:#141619; --panel:#1C1F23; --sunk:#232629; --line:#2C3035; --line-2:#3F444A;
+  --ink:#ECEDEE; --ink-2:#B0B5BB; --ink-3:#838890;
+  --link:#7FA9E8; --link-wash:#1B2836;
+  --s-ada:#62C295;   --s-ada-bg:#163024;
+  --s-mohon:#E0AE5A; --s-mohon-bg:#33280F;
+  --s-tidak:#E28D8D; --s-tidak-bg:#331E1E;
+  --s-lain:#9AA0A8;  --s-lain-bg:#26292D;
+  --s-prov:#7FA9E8;  --s-prov-bg:#1B2836;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--f-ui);
+  font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:1000px; margin-inline:auto; padding-inline:22px; }
+.wrap--wide { max-width:1180px; }
+
+/* ---------------- bilah navigasi ---------------- */
+.nav { border-bottom:1px solid var(--line); background:var(--panel); }
+.nav__in {
+  max-width:1180px; margin-inline:auto; padding:0 22px;
+  display:flex; align-items:center; gap:4px; min-height:46px; flex-wrap:wrap;
+}
+.nav__brand {
+  font-family:var(--f-mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-3); margin-right:16px; white-space:nowrap;
+}
+.nav a {
+  font-size:13px; font-weight:500; color:var(--ink-2); text-decoration:none;
+  padding:6px 11px; border:1px solid transparent; white-space:nowrap;
+}
+.nav a:hover { color:var(--link); border-color:var(--line-2); }
+.nav a[aria-current="page"] { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.nav__right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.nav__who { font-family:var(--f-mono); font-size:11px; color:var(--ink-3); }
+
+/* ---------------- kepala halaman ---------------- */
+.head { padding:42px 0 26px; }
+.head__kicker {
+  font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); margin-bottom:14px;
+}
+.head h1 {
+  font-family:var(--f-disp); font-weight:500; font-size:clamp(1.9rem,5vw,2.7rem);
+  line-height:1.08; letter-spacing:-.015em; margin:0 0 14px; text-wrap:balance;
+}
+.head p { margin:0; max-width:66ch; color:var(--ink-2); font-size:15.5px; }
+
+h2.sec {
+  font-family:var(--f-disp); font-weight:500; font-size:1.4rem; letter-spacing:-.01em;
+  margin:0 0 4px;
+}
+.sec__note { color:var(--ink-3); font-size:13.5px; margin:0 0 18px; max-width:70ch; }
+
+/* ---------------- kartu & panel ---------------- */
+.card { background:var(--panel); border:1px solid var(--line); padding:20px; }
+.card + .card { margin-top:14px; }
+.card__title {
+  font-family:var(--f-mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-3); margin-bottom:14px;
+}
+.grid { display:grid; gap:14px; }
+.grid--2 { grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+.grid--3 { grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); }
+
+/* ---------------- angka ringkas ---------------- */
+.summary { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--line); background:var(--panel); }
+.summary > div { padding:15px 17px; border-right:1px solid var(--line); }
+.summary > div:last-child { border-right:0; }
+.summary .n {
+  font-family:var(--f-disp); font-size:1.9rem; font-weight:600; line-height:1;
+  letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+}
+.summary .l { font-size:12px; color:var(--ink-3); margin-top:5px; line-height:1.35; }
+.summary .n.ada{color:var(--s-ada)} .summary .n.mohon{color:var(--s-mohon)}
+.summary .n.tidak{color:var(--s-tidak)} .summary .n.prov{color:var(--s-prov)}
+
+/* ---------------- kendali form ---------------- */
+label.fl {
+  display:block; font-family:var(--f-mono); font-size:10px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3); margin:0 0 5px;
+}
+input[type=text], input[type=email], input[type=password], input[type=tel],
+input[type=search], input[type=date], input[type=number], select, textarea {
+  width:100%; padding:9px 11px; font-family:var(--f-ui); font-size:14px;
+  color:var(--ink); background:var(--panel); border:1px solid var(--line-2); border-radius:0;
+}
+textarea { min-height:82px; resize:vertical; line-height:1.55; }
+select { appearance:none; background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 17px,calc(100% - 10px) 17px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:32px; }
+input:focus, select:focus, textarea:focus { outline:2px solid var(--link); outline-offset:-1px; border-color:var(--link); }
+input::placeholder, textarea::placeholder { color:var(--ink-3); }
+.field { margin-bottom:14px; }
+.field__hint { font-size:12px; color:var(--ink-3); margin-top:4px; line-height:1.45; }
+.checks { display:flex; flex-wrap:wrap; gap:6px; }
+.checks label {
+  display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-2);
+  border:1px solid var(--line-2); padding:5px 10px; cursor:pointer; user-select:none;
+}
+.checks label:has(input:checked) { border-color:var(--ink); background:var(--sunk); color:var(--ink); font-weight:500; }
+.checks input { accent-color:var(--link); margin:0; }
+
+/* ---------------- tombol ---------------- */
+.btn {
+  font-family:var(--f-ui); font-size:13.5px; font-weight:600; padding:9px 16px;
+  background:var(--ink); color:var(--bg); border:1px solid var(--ink); cursor:pointer;
+  transition:.15s; text-decoration:none; display:inline-block; text-align:center;
+}
+.btn:hover { background:var(--link); border-color:var(--link); color:#fff; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn--ghost { background:transparent; color:var(--ink-2); border-color:var(--line-2); }
+.btn--ghost:hover { background:transparent; color:var(--link); border-color:var(--link); }
+.btn--sm { font-size:12px; padding:5px 11px; font-weight:500; }
+.btn--danger { background:transparent; color:var(--s-tidak); border-color:var(--s-tidak); }
+.btn--danger:hover { background:var(--s-tidak-bg); color:var(--s-tidak); border-color:var(--s-tidak); }
+.btnrow { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+/* ---------------- lencana ---------------- */
+.pill { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; white-space:nowrap; }
+.pill.ada{background:var(--s-ada-bg);color:var(--s-ada)}
+.pill.mohon{background:var(--s-mohon-bg);color:var(--s-mohon)}
+.pill.tidak{background:var(--s-tidak-bg);color:var(--s-tidak)}
+.pill.lain{background:var(--s-lain-bg);color:var(--s-lain)}
+.pill.prov{background:var(--s-prov-bg);color:var(--s-prov)}
+.tag {
+  display:inline-block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.05em;
+  color:var(--ink-3); border:1px solid var(--line-2); padding:1px 6px; margin-right:4px;
+}
+.kode {
+  font-family:var(--f-mono); font-size:12.5px; letter-spacing:.04em; font-weight:500;
+  background:var(--sunk); border:1px solid var(--line-2); padding:2px 7px; color:var(--ink);
+}
+
+/* ---------------- tabel ---------------- */
+.tbl-scroll { overflow-x:auto; }
+table.tbl { width:100%; border-collapse:collapse; font-size:13.5px; }
+table.tbl th {
+  text-align:left; font-family:var(--f-mono); font-size:10px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--ink-3); font-weight:400;
+  border-bottom:1px solid var(--line-2); padding:8px 10px 7px; white-space:nowrap;
+}
+table.tbl td { border-bottom:1px solid var(--line); padding:10px; vertical-align:top; color:var(--ink-2); }
+table.tbl tr:hover td { background:var(--sunk); }
+table.tbl td b { color:var(--ink); font-weight:600; }
+
+/* ---------------- pesan ---------------- */
+.msg { padding:10px 13px; font-size:13.5px; border:1px solid var(--line-2); margin-bottom:14px; line-height:1.5; }
+.msg--ok { border-color:var(--s-ada); background:var(--s-ada-bg); color:var(--s-ada); }
+.msg--err { border-color:var(--s-tidak); background:var(--s-tidak-bg); color:var(--s-tidak); }
+.msg--warn { border-color:var(--s-mohon); background:var(--s-mohon-bg); color:var(--s-mohon); }
+.msg--info { border-color:var(--link); background:var(--link-wash); color:var(--link); }
+.empty { padding:40px 20px; text-align:center; color:var(--ink-3); font-size:14.5px; }
+
+/* ---------------- kaki ---------------- */
+.colophon {
+  margin-top:42px; padding-top:18px; border-top:1px solid var(--line);
+  font-family:var(--f-mono); font-size:11.5px; line-height:1.75; color:var(--ink-3); padding-bottom:70px;
+}
+.colophon p { margin:0 0 10px; }
+.colophon a, a.lnk { color:var(--link); text-underline-offset:2px; }
+
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+@media (max-width:780px){
+  .summary { grid-template-columns:repeat(2,1fr); }
+  .summary > div:nth-child(2) { border-right:0; }
+  .summary > div:nth-child(1), .summary > div:nth-child(2) { border-bottom:1px solid var(--line); }
+}
+@media (prefers-reduced-motion: reduce){ * { transition-duration:.01ms !important; } }

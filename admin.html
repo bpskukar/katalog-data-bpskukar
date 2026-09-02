@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ruang Pegawai PST — BPS Kukar</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2316181C'/><rect x='22' y='26' width='56' height='13' rx='3' fill='%232F5FA8'/><rect x='22' y='44' width='56' height='13' rx='3' fill='%236B8FC9'/><rect x='22' y='62' width='36' height='13' rx='3' fill='%23A9BEDD'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+.tabs { display:flex; gap:2px; border-bottom:1px solid var(--line-2); margin:26px 0 22px; flex-wrap:wrap; }
+.tabs button {
+  font-family:var(--f-ui); font-size:13.5px; font-weight:500; padding:9px 15px;
+  background:transparent; border:1px solid transparent; border-bottom:0; color:var(--ink-3); cursor:pointer;
+  margin-bottom:-1px;
+}
+.tabs button:hover { color:var(--link); }
+.tabs button[aria-selected="true"] {
+  color:var(--ink); font-weight:600; background:var(--panel);
+  border-color:var(--line-2); border-bottom:1px solid var(--panel);
+}
+.panel[hidden] { display:none; }
+
+.cocok { border:1px solid var(--line); background:var(--sunk); margin-top:8px; }
+.cocok__i { padding:9px 12px; border-bottom:1px solid var(--line); font-size:13px; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+.cocok__i:last-child { border-bottom:0; }
+.cocok__n { font-weight:600; color:var(--ink); }
+.cocok__a { font-size:12px; color:var(--link); text-decoration:none; }
+.cocok__a:hover { text-decoration:underline; }
+.cocok__meta { font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3); }
+.chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+.chip { display:inline-flex; gap:6px; align-items:center; font-size:12px; border:1px solid var(--line-2); padding:3px 8px; background:var(--panel); }
+.chip button { background:none; border:0; color:var(--ink-3); cursor:pointer; font-size:14px; line-height:1; padding:0; }
+.chip button:hover { color:var(--s-tidak); }
+
+.tiketbox { border:2px solid var(--s-ada); background:var(--s-ada-bg); padding:18px 20px; margin-bottom:18px; }
+.tiketbox .k { font-family:var(--f-mono); font-size:1.6rem; font-weight:500; color:var(--s-ada); letter-spacing:.06em; }
+.tiketbox p { margin:6px 0 0; font-size:13px; color:var(--s-ada); }
+
+.qa { border:1px solid var(--line); background:var(--panel); margin-bottom:12px; }
+.qa__h { padding:14px 16px; cursor:pointer; display:flex; gap:12px; align-items:flex-start; }
+.qa__h:hover { background:var(--sunk); }
+.qa__t { font-weight:600; font-size:14.5px; color:var(--ink); flex:1; line-height:1.4; }
+.qa__m { font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3); margin-top:4px; font-weight:400; }
+.qa__b { display:none; padding:0 16px 16px; border-top:1px solid var(--line); }
+.qa.is-open .qa__b { display:block; }
+.jwb { border-left:2px solid var(--line-2); padding:11px 0 11px 14px; margin-top:12px; font-size:13.5px; color:var(--ink-2); }
+.jwb.is-best { border-left-color:var(--s-ada); background:var(--s-ada-bg); padding-left:14px; }
+.jwb__m { font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3); margin-bottom:5px; }
+
+.bar { display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:13px; }
+.bar__l { width:210px; flex-shrink:0; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.bar__t { flex:1; background:var(--sunk); height:17px; position:relative; }
+.bar__f { background:var(--link); height:100%; }
+.bar__n { font-family:var(--f-mono); font-size:11.5px; color:var(--ink-3); width:34px; text-align:right; }
+
+.rank { display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--line); }
+.rank__no { font-family:var(--f-disp); font-size:1.5rem; color:var(--ink-3); width:30px; font-variant-numeric:tabular-nums; }
+.rank__nm { flex:1; }
+.rank__nm b { display:block; color:var(--ink); font-size:14.5px; }
+.rank__nm span { font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3); }
+.rank__p { font-family:var(--f-disp); font-size:1.5rem; font-weight:600; color:var(--s-ada); font-variant-numeric:tabular-nums; }
+.rank:nth-child(1) .rank__no { color:var(--s-mohon); }
+
+.masuk { max-width:400px; margin:70px auto; }
+@media (max-width:700px){ .bar__l { width:120px; } }
+</style>
+</head>
+<body>
+<div id="navbar"></div>
+<div id="spanduk"></div>
+
+<div class="wrap wrap--wide">
+
+  <!-- ============ LOGIN ============ -->
+  <section id="scMasuk" hidden>
+    <div class="masuk">
+      <div class="head" style="padding:0 0 22px">
+        <div class="head__kicker">BPS Kukar · Pelayanan Statistik Terpadu</div>
+        <h1 style="font-size:1.9rem">Ruang pegawai</h1>
+        <p style="font-size:14px">Masuk untuk mencatat kunjungan sahabat data, membantu menjawab kebutuhan yang belum terjawab, dan melihat rekap.</p>
+      </div>
+      <div class="card">
+        <div id="msgMasuk"></div>
+        <form id="formMasuk">
+          <div class="field"><label class="fl" for="mEmail">Surel dinas</label>
+            <input type="email" id="mEmail" required autocomplete="username" placeholder="nama@bps.go.id"></div>
+          <div class="field"><label class="fl" for="mSandi">Kata sandi</label>
+            <input type="password" id="mSandi" required autocomplete="current-password"></div>
+          <button class="btn" style="width:100%" type="submit">Masuk</button>
+        </form>
+        <p class="field__hint" style="margin-top:14px">Akun dibuat oleh admin. Sahabat data (konsumen data) masuk lewat <a class="lnk" href="sahabat.html">halaman sahabat data</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RUANG PEGAWAI ============ -->
+  <section id="scRuang" hidden>
+    <header class="head" style="padding:34px 0 0">
+      <div class="head__kicker">Pelayanan Statistik Terpadu · <span id="hariIni"></span></div>
+      <h1 style="font-size:2.1rem">Ruang pegawai</h1>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" data-p="pCatat"   aria-selected="true">Catat kunjungan</button>
+      <button role="tab" data-p="pTiket"   aria-selected="false">Daftar tiket</button>
+      <button role="tab" data-p="pTanya"   aria-selected="false">Papan tanya</button>
+      <button role="tab" data-p="pRekap"   aria-selected="false">Rekap kebutuhan</button>
+      <button role="tab" data-p="pPeringkat" aria-selected="false">Peringkat petugas</button>
+    </div>
+
+    <!-- ---- catat kunjungan ---- -->
+    <div class="panel" id="pCatat">
+      <div id="hasilTiket"></div>
+      <div id="msgCatat"></div>
+      <form id="formCatat">
+        <div class="grid grid--2">
+          <div class="card">
+            <div class="card__title">Kebutuhan sahabat data</div>
+            <div class="field">
+              <label class="fl" for="cKebutuhan">Apa yang diminta</label>
+              <textarea id="cKebutuhan" required placeholder="Tulis apa adanya, misal: minta jumlah penduduk miskin per kecamatan tahun 2024 untuk skripsi"></textarea>
+              <div class="field__hint">Ketik di sini — katalog akan menampilkan ragam data yang cocok beserta status dan tautannya.</div>
+            </div>
+            <div id="cocokan"></div>
+            <div class="field" style="margin-top:14px">
+              <label class="fl">Ragam data yang dirujuk</label>
+              <div class="chips" id="chipKatalog"></div>
+              <div class="field__hint" id="chipKosong">Klik “rujuk” pada hasil pencocokan di atas untuk menandai ragam datanya.</div>
+            </div>
+            <div class="field">
+              <label class="fl" for="cLayanan">Jenis layanan yang digunakan</label>
+              <div class="checks" id="cLayanan"></div>
+            </div>
+            <div class="grid grid--2" style="gap:12px">
+              <div class="field"><label class="fl" for="cStatus">Hasil pelayanan</label>
+                <select id="cStatus"></select></div>
+              <div class="field"><label class="fl" for="cSarana">Sarana layanan</label>
+                <select id="cSarana"></select></div>
+            </div>
+            <div class="field"><label class="fl" for="cHasil">Catatan petugas</label>
+              <textarea id="cHasil" style="min-height:60px" placeholder="Apa yang sudah diberikan atau dijelaskan, atau apa yang masih kurang"></textarea></div>
+            <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink-2)">
+              <input type="checkbox" id="cSurat" style="margin-top:3px;width:auto"> Memerlukan surat permintaan resmi
+            </label>
+          </div>
+
+          <div class="card">
+            <div class="card__title">Profil sahabat data</div>
+            <div class="field"><label class="fl" for="cNama">Nama</label><input type="text" id="cNama" required></div>
+            <div class="grid grid--2" style="gap:12px">
+              <div class="field"><label class="fl" for="cHp">Nomor HP</label>
+                <input type="tel" id="cHp" placeholder="08xxxxxxxxxx">
+                <div class="field__hint">Dipakai sahabat data untuk memeriksa status tiketnya.</div></div>
+              <div class="field"><label class="fl" for="cEmail">Surel</label><input type="email" id="cEmail"></div>
+            </div>
+            <div class="grid grid--2" style="gap:12px">
+              <div class="field"><label class="fl" for="cJk">Jenis kelamin</label><select id="cJk"></select></div>
+              <div class="field"><label class="fl" for="cPendidikan">Pendidikan tertinggi</label><select id="cPendidikan"></select></div>
+            </div>
+            <div class="field"><label class="fl" for="cPekerjaan">Pekerjaan utama</label><select id="cPekerjaan"></select></div>
+            <div class="field"><label class="fl" for="cKategori">Kategori instansi</label><select id="cKategori"></select></div>
+            <div class="field"><label class="fl" for="cInstansi">Nama instansi / kampus</label><input type="text" id="cInstansi"></div>
+            <div class="field"><label class="fl" for="cPemanfaatan">Pemanfaatan utama</label><select id="cPemanfaatan"></select></div>
+          </div>
+        </div>
+
+        <div class="btnrow" style="margin-top:16px">
+          <button class="btn" type="submit" id="btnSimpan">Simpan &amp; terbitkan kode tiket</button>
+          <button class="btn btn--ghost" type="reset">Kosongkan</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ---- daftar tiket ---- -->
+    <div class="panel" id="pTiket" hidden>
+      <div class="btnrow" style="margin-bottom:14px">
+        <select id="fStatus" style="width:auto;min-width:210px"></select>
+        <input type="search" id="fCari" placeholder="Cari nama, instansi, kebutuhan, kode tiket" style="width:auto;flex:1;min-width:220px">
+      </div>
+      <div id="msgTiket"></div>
+      <div class="card" style="padding:0"><div class="tbl-scroll"><table class="tbl" id="tblTiket"></table></div></div>
+      <div id="detailTiket" style="margin-top:14px"></div>
+    </div>
+
+    <!-- ---- papan tanya ---- -->
+    <div class="panel" id="pTanya" hidden>
+      <div class="grid grid--2" style="align-items:start">
+        <div>
+          <h2 class="sec">Pertanyaan yang menunggu jawaban</h2>
+          <p class="sec__note">Kebutuhan yang tidak bisa dijawab di meja PST diangkat ke sini. Menjawab dan mendapat tanda “paling membantu” menambah poin keaktifan.</p>
+          <div id="daftarTanya"></div>
+        </div>
+        <div class="card">
+          <div class="card__title">Angkat pertanyaan baru</div>
+          <div id="msgTanya"></div>
+          <form id="formTanya">
+            <div class="field"><label class="fl" for="tJudul">Pertanyaannya</label>
+              <input type="text" id="tJudul" required placeholder="Apakah ada data panjang jalan per desa?"></div>
+            <div class="field"><label class="fl" for="tIsi">Latar belakang</label>
+              <textarea id="tIsi" placeholder="Siapa yang meminta, untuk apa, dan apa yang sudah dicoba"></textarea></div>
+            <div class="field"><label class="fl" for="tTopik">Topik</label><select id="tTopik"></select></div>
+            <div class="field"><label class="fl" for="tTiket">Kaitkan dengan tiket</label><select id="tTiket"></select></div>
+            <button class="btn" type="submit" style="width:100%">Kirim ke papan</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- rekap ---- -->
+    <div class="panel" id="pRekap" hidden>
+      <div class="summary" style="margin-bottom:20px">
+        <div><div class="n" id="rTotal">0</div><div class="l">kunjungan tercatat</div></div>
+        <div><div class="n ada" id="rSelesai">0</div><div class="l">selesai di tempat</div></div>
+        <div><div class="n mohon" id="rProses">0</div><div class="l">masih berjalan</div></div>
+        <div><div class="n prov" id="rBulan">0</div><div class="l">bulan ini</div></div>
+      </div>
+      <div class="grid grid--2" style="align-items:start">
+        <div class="card"><div class="card__title">Kebutuhan data terbanyak</div><div id="rTopik"></div></div>
+        <div class="card"><div class="card__title">Asal sahabat data</div><div id="rInstansi"></div></div>
+        <div class="card"><div class="card__title">Tujuan pemanfaatan</div><div id="rGuna"></div></div>
+        <div class="card"><div class="card__title">Jenis layanan</div><div id="rLayanan"></div></div>
+        <div class="card"><div class="card__title">Kunjungan per bulan</div><div id="rBulanan"></div></div>
+        <div class="card"><div class="card__title">Ragam data paling sering diminta</div><div id="rKatalog"></div></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="card__title">Bahan penyiapan data</div>
+        <div id="rSaran"></div>
+      </div>
+      <div class="btnrow" style="margin-top:14px">
+        <button class="btn btn--ghost btn--sm" id="btnUnduh">Unduh rekap (CSV)</button>
+      </div>
+    </div>
+
+    <!-- ---- peringkat ---- -->
+    <div class="panel" id="pPeringkat" hidden>
+      <h2 class="sec">Papan peringkat petugas PST</h2>
+      <p class="sec__note">Poin dihitung dari: mencatat kunjungan (2), mengangkat pertanyaan (1), menjawab (3), jawaban ditandai paling membantu (7), menuntaskan tiket tertunda (5).</p>
+      <div class="card" style="padding:0" id="papanPeringkat"></div>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <p><b>Kerahasiaan</b> &mdash; Halaman ini memuat nama dan kontak orang. Jangan dibagikan ke luar kantor.
+      Keterangan yang dapat mengidentifikasi responden survei tetap dilindungi Pasal 21 dan 24 Undang-Undang Nomor 16 Tahun 1997.</p>
+    <p><b>Klasifikasi isian</b> &mdash; Mengikuti Blok I kuesioner Survei Kebutuhan Data (VKD25) agar rekap PST sebanding dengan hasil SKD BPS pusat.</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/katalog.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>

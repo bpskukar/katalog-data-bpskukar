@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Katalog ketersediaan data BPS Kabupaten Kutai Kartanegara: ragam data, level wilayah terendah, periode, sumber survei, dan cara memperolehnya.">
+<meta name="description" content="Katalog ketersediaan data BPS Kabupaten Kutai Kartanegara: ragam data, level wilayah terendah, periode, sumber survei, tautan langsung, dan cara memperolehnya.">
 <meta name="theme-color" content="#2F5FA8">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Katalog Ketersediaan Data Kukar">
@@ -15,381 +15,85 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/theme.css">
 
 <style>
-/* ---------------- token: terang ---------------- */
-:root {
-  --bg:      #FBFBFA;
-  --panel:   #FFFFFF;
-  --sunk:    #F1F1EF;
-  --line:    #E2E2DE;
-  --line-2:  #C9C9C3;
+.draft { background:var(--s-mohon-bg); border-bottom:1px solid var(--line); color:var(--ink); }
+.draft__in { max-width:1000px; margin-inline:auto; padding:12px 22px; display:flex; gap:12px; align-items:flex-start; font-size:13.5px; line-height:1.55; }
+.draft__tag { font-family:var(--f-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--s-mohon); border:1px solid var(--s-mohon); padding:2px 7px; flex-shrink:0; margin-top:2px; }
 
-  --ink:   #16181C;
-  --ink-2: #4B4F57;
-  --ink-3: #757A83;
+.controls { position:sticky; top:0; z-index:15; background:var(--bg); border-bottom:1px solid var(--line); padding:14px 0 12px; margin-top:30px; }
+.searchbox { position:relative; margin-bottom:11px; }
+.searchbox input { padding-left:38px; padding-top:11px; padding-bottom:11px; font-size:15px; }
+.searchbox svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--ink-3); pointer-events:none; }
+.filterrow { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+.fgroup { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+.fgroup__lbl { font-family:var(--f-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin-right:3px; }
+.fbtn { font-family:var(--f-ui); font-size:12.5px; font-weight:500; padding:4px 10px; background:transparent; border:1px solid var(--line-2); color:var(--ink-2); cursor:pointer; transition:.15s; }
+.fbtn:hover { border-color:var(--link); color:var(--link); }
+.fbtn[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:var(--bg); }
+.fbtn:focus-visible { outline:2px solid var(--link); outline-offset:2px; }
+.countline { font-family:var(--f-mono); font-size:11.5px; color:var(--ink-3); margin-left:auto; white-space:nowrap; }
 
-  --link:      #2F5FA8;
-  --link-wash: #E8EFF9;
+.grouptitle { font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); padding:26px 0 8px; border-bottom:1px solid var(--line-2); }
+.grouptitle.is-off { display:none; }
 
-  --s-ada:      #1C7048;
-  --s-ada-bg:   #E2F1E9;
-  --s-mohon:    #8C5A08;
-  --s-mohon-bg: #F8EEDA;
-  --s-tidak:    #8C3030;
-  --s-tidak-bg: #F7E5E5;
-  --s-lain:     #55595F;
-  --s-lain-bg:  #ECECEA;
+.row { display:grid; grid-template-columns:1fr 108px 118px 112px; gap:16px; align-items:baseline; padding:13px 0; border-bottom:1px solid var(--line); cursor:pointer; }
+.row:hover { background:var(--sunk); }
+.row.is-off { display:none; }
+.row:focus-visible { outline:2px solid var(--link); outline-offset:-2px; }
+.row__name { font-weight:600; font-size:14.5px; color:var(--ink); line-height:1.35; }
+.row__src { font-family:var(--f-mono); font-size:11px; color:var(--ink-3); margin-top:2px; }
+.row__flag { display:inline-block; font-family:var(--f-mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--s-mohon); border-bottom:1px dotted var(--s-mohon); margin-left:7px; vertical-align:1px; }
+.row__tautan { display:inline-block; font-family:var(--f-mono); font-size:9.5px; letter-spacing:.06em; color:var(--s-ada); margin-left:7px; vertical-align:1px; }
+.cell { font-family:var(--f-mono); font-size:11.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  --f-disp: "Newsreader", Georgia, serif;
-  --f-ui:   "Public Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --f-mono: "Spline Sans Mono", ui-monospace, Consolas, monospace;
+.detail { grid-column:1/-1; display:none; padding:6px 0 12px; font-size:14px; color:var(--ink-2); max-width:78ch; line-height:1.6; }
+.row.is-open .detail { display:block; }
+.row.is-open { background:var(--sunk); }
+.detail__menu { font-family:var(--f-mono); font-size:11px; color:var(--ink-3); margin-top:9px; }
+.detail__ln { margin-top:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-start; }
+.detail__ln a { font-size:13px; color:var(--link); text-decoration:none; border-bottom:1px solid var(--link-wash); padding-bottom:1px; }
+.detail__ln a:hover { border-bottom-color:var(--link); }
+.detail__ln a::before { content:"→ "; opacity:.6; }
+
+.kecgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); }
+.kecgrid a { background:var(--panel); padding:10px 12px; font-size:13px; color:var(--ink-2); text-decoration:none; display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+.kecgrid a:hover { background:var(--sunk); color:var(--link); }
+.kecgrid span { font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3); }
+
+.legend { margin-top:44px; padding-top:24px; border-top:2px solid var(--ink); }
+.legend h2 { font-family:var(--f-disp); font-weight:500; font-size:1.35rem; margin:0 0 16px; letter-spacing:-.01em; }
+.legend__grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; }
+.legend__item { font-size:13.5px; color:var(--ink-2); line-height:1.55; }
+.legend__item .pill { margin-bottom:6px; }
+
+.ajakan { margin-top:40px; border:1px solid var(--line); background:var(--panel); padding:22px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+.ajakan p { margin:0; max-width:52ch; font-size:14px; color:var(--ink-2); }
+.ajakan b { color:var(--ink); }
+
+@media (max-width:780px){
+  .row { grid-template-columns:1fr auto; gap:8px 12px; }
+  .row .cell.lvl { grid-row:2; font-size:11px; }
+  .row .cell.per { grid-row:2; text-align:right; }
+  .row .stat { grid-row:1; grid-column:2; }
+  .countline { margin-left:0; width:100%; }
 }
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg:      #141619;
-    --panel:   #1C1F23;
-    --sunk:    #232629;
-    --line:    #2C3035;
-    --line-2:  #3F444A;
-
-    --ink:   #ECEDEE;
-    --ink-2: #B0B5BB;
-    --ink-3: #838890;
-
-    --link:      #7FA9E8;
-    --link-wash: #1B2836;
-
-    --s-ada:      #62C295;
-    --s-ada-bg:   #163024;
-    --s-mohon:    #E0AE5A;
-    --s-mohon-bg: #33280F;
-    --s-tidak:    #E28D8D;
-    --s-tidak-bg: #331E1E;
-    --s-lain:     #9AA0A8;
-    --s-lain-bg:  #26292D;
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg:      #141619;
-  --panel:   #1C1F23;
-  --sunk:    #232629;
-  --line:    #2C3035;
-  --line-2:  #3F444A;
-
-  --ink:   #ECEDEE;
-  --ink-2: #B0B5BB;
-  --ink-3: #838890;
-
-  --link:      #7FA9E8;
-  --link-wash: #1B2836;
-
-  --s-ada:      #62C295;
-  --s-ada-bg:   #163024;
-  --s-mohon:    #E0AE5A;
-  --s-mohon-bg: #33280F;
-  --s-tidak:    #E28D8D;
-  --s-tidak-bg: #331E1E;
-  --s-lain:     #9AA0A8;
-  --s-lain-bg:  #26292D;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--f-ui);
-  font-size: 15px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-.wrap { max-width: 1000px; margin-inline: auto; padding-inline: 22px; }
-
-/* ---------------- spanduk draf ---------------- */
-
-.draft {
-  background: var(--s-mohon-bg);
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
-}
-.draft__in {
-  max-width: 1000px;
-  margin-inline: auto;
-  padding: 12px 22px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  font-size: 13.5px;
-  line-height: 1.55;
-}
-.draft__tag {
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--s-mohon);
-  border: 1px solid var(--s-mohon);
-  padding: 2px 7px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.draft b { font-weight: 700; }
-
-/* ---------------- kepala ---------------- */
-
-.head { padding: 46px 0 28px; }
-.head__kicker {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-bottom: 14px;
-}
-.head h1 {
-  font-family: var(--f-disp);
-  font-weight: 500;
-  font-size: clamp(2rem, 5vw, 2.85rem);
-  line-height: 1.08;
-  letter-spacing: -.015em;
-  margin: 0 0 14px;
-  text-wrap: balance;
-}
-.head p {
-  margin: 0;
-  max-width: 64ch;
-  color: var(--ink-2);
-  font-size: 15.5px;
-}
-
-/* ringkasan angka */
-.summary {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 1px solid var(--line);
-  background: var(--panel);
-  margin-top: 28px;
-}
-.summary > div { padding: 15px 17px; border-right: 1px solid var(--line); }
-.summary > div:last-child { border-right: 0; }
-.summary .n {
-  font-family: var(--f-disp);
-  font-size: 1.9rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -.02em;
-  font-variant-numeric: tabular-nums;
-}
-.summary .l {
-  font-size: 12px;
-  color: var(--ink-3);
-  margin-top: 5px;
-  line-height: 1.35;
-}
-.summary .n.ada   { color: var(--s-ada); }
-.summary .n.mohon { color: var(--s-mohon); }
-.summary .n.tidak { color: var(--s-tidak); }
-
-/* ---------------- kontrol ---------------- */
-
-.controls {
-  position: sticky;
-  top: 0;
-  z-index: 15;
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
-  padding: 14px 0 12px;
-  margin-top: 34px;
-}
-
-.searchbox { position: relative; margin-bottom: 11px; }
-.searchbox input {
-  width: 100%;
-  padding: 11px 14px 11px 38px;
-  font-family: var(--f-ui);
-  font-size: 15px;
-  color: var(--ink);
-  background: var(--panel);
-  border: 1px solid var(--line-2);
-  border-radius: 0;
-}
-.searchbox input::placeholder { color: var(--ink-3); }
-.searchbox input:focus { outline: 2px solid var(--link); outline-offset: -1px; border-color: var(--link); }
-.searchbox svg {
-  position: absolute; left: 13px; top: 50%;
-  transform: translateY(-50%);
-  width: 15px; height: 15px; color: var(--ink-3);
-  pointer-events: none;
-}
-
-.filterrow { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-.fgroup { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
-.fgroup__lbl {
-  font-family: var(--f-mono);
-  font-size: 10px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-right: 3px;
-}
-.fbtn {
-  font-family: var(--f-ui);
-  font-size: 12.5px;
-  font-weight: 500;
-  padding: 4px 10px;
-  background: transparent;
-  border: 1px solid var(--line-2);
-  color: var(--ink-2);
-  cursor: pointer;
-  transition: .15s;
-}
-.fbtn:hover { border-color: var(--link); color: var(--link); }
-.fbtn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-.fbtn:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
-
-.countline {
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  color: var(--ink-3);
-  margin-left: auto;
-  white-space: nowrap;
-}
-
-/* ---------------- daftar ---------------- */
-
-.grouptitle {
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  padding: 26px 0 8px;
-  border-bottom: 1px solid var(--line-2);
-}
-.grouptitle.is-off { display: none; }
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 108px 118px 96px;
-  gap: 16px;
-  align-items: baseline;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
-}
-.row:hover { background: var(--sunk); }
-.row.is-off { display: none; }
-.row:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
-
-.row__name { font-weight: 600; font-size: 14.5px; color: var(--ink); line-height: 1.35; }
-.row__src { font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); margin-top: 2px; }
-.row__flag {
-  display: inline-block;
-  font-family: var(--f-mono);
-  font-size: 9.5px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--s-mohon);
-  border-bottom: 1px dotted var(--s-mohon);
-  margin-left: 7px;
-  vertical-align: 1px;
-}
-
-.cell {
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  color: var(--ink-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pill {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  white-space: nowrap;
-}
-.pill.ada   { background: var(--s-ada-bg);   color: var(--s-ada); }
-.pill.mohon { background: var(--s-mohon-bg); color: var(--s-mohon); }
-.pill.tidak { background: var(--s-tidak-bg); color: var(--s-tidak); }
-.pill.lain  { background: var(--s-lain-bg);  color: var(--s-lain); }
-
-.detail {
-  grid-column: 1 / -1;
-  display: none;
-  padding: 4px 0 8px;
-  font-size: 14px;
-  color: var(--ink-2);
-  max-width: 74ch;
-  line-height: 1.6;
-}
-.row.is-open .detail { display: block; }
-.row.is-open { background: var(--sunk); }
-
-.empty {
-  padding: 46px 20px;
-  text-align: center;
-  color: var(--ink-3);
-  font-size: 14.5px;
-  border-bottom: 1px solid var(--line);
-}
-
-/* ---------------- keterangan & kaki ---------------- */
-
-.legend { margin-top: 40px; padding-top: 24px; border-top: 2px solid var(--ink); }
-.legend h2 {
-  font-family: var(--f-disp);
-  font-weight: 500;
-  font-size: 1.35rem;
-  margin: 0 0 16px;
-  letter-spacing: -.01em;
-}
-.legend__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 18px; }
-.legend__item { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
-.legend__item .pill { margin-bottom: 6px; }
-
-.colophon {
-  margin-top: 42px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  line-height: 1.75;
-  color: var(--ink-3);
-  padding-bottom: 70px;
-}
-.colophon p { margin: 0 0 10px; }
-.colophon a { color: var(--link); text-underline-offset: 2px; }
-
-@media (max-width: 780px) {
-  .summary { grid-template-columns: repeat(2, 1fr); }
-  .summary > div:nth-child(2) { border-right: 0; }
-  .summary > div:nth-child(1), .summary > div:nth-child(2) { border-bottom: 1px solid var(--line); }
-  .row { grid-template-columns: 1fr auto; gap: 8px 12px; }
-  .row .cell.lvl { grid-row: 2; font-size: 11px; }
-  .row .cell.per { grid-row: 2; text-align: right; }
-  .row .stat { grid-row: 1; grid-column: 2; }
-  .countline { margin-left: 0; width: 100%; }
-}
-
-@media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
 </style>
 </head>
 <body>
+
+<div id="navbar"></div>
+
 <div class="draft" id="draftBanner">
   <div class="draft__in">
     <span class="draft__tag">Rancangan</span>
     <span>
-      <b>Isi katalog ini belum diverifikasi petugas.</b> Daftar disusun dari publikasi BPS yang terbit
-      dan pola keluaran baku survei BPS. Baris yang ditandai <span style="color:var(--s-mohon);font-family:var(--f-mono);font-size:11px;letter-spacing:.06em">PERLU CEK</span>
-      wajib dipastikan lebih dulu sebelum katalog dipublikasikan ke pengguna luar.
+      <b>Sebagian isi katalog masih menunggu pengesahan petugas.</b> Baris bertanda
+      <span style="color:var(--s-mohon);font-family:var(--f-mono);font-size:11px;letter-spacing:.06em">PERLU CEK</span>
+      belum dipastikan dan sebaiknya tidak dijanjikan ke pengguna sebelum dikonfirmasi.
+      Sisanya sudah ditautkan langsung ke publikasi atau tabel yang terbit di
+      <a class="lnk" href="https://kukarkab.bps.go.id">kukarkab.bps.go.id</a>.
     </span>
   </div>
 </div>
@@ -400,37 +104,32 @@ body {
     <div class="head__kicker">BPS Kabupaten Kutai Kartanegara · Pelayanan Statistik Terpadu</div>
     <h1>Katalog ketersediaan data</h1>
     <p>
-      Daftar ragam data yang dapat diperoleh dari BPS Kabupaten Kutai Kartanegara, beserta
-      level wilayah terendah yang tersedia dan cara memperolehnya. Periksa di sini lebih dulu
-      sebelum mengajukan permintaan data.
+      Ragam data yang dapat diperoleh dari BPS Kabupaten Kutai Kartanegara, beserta level wilayah
+      terendah yang tersedia, cara memperolehnya, dan tautan langsung ke publikasi atau tabelnya.
+      Petugas piket dapat menjawab di tempat tanpa perlu bertanya ke pegawai lain.
     </p>
 
     <div class="summary">
       <div><div class="n" id="nTotal">0</div><div class="l">ragam data terdaftar</div></div>
-      <div><div class="n ada" id="nAda">0</div><div class="l">tersedia langsung di web</div></div>
+      <div><div class="n ada" id="nAda">0</div><div class="l">bisa diunduh langsung</div></div>
       <div><div class="n mohon" id="nMohon">0</div><div class="l">melalui permintaan resmi</div></div>
-      <div><div class="n tidak" id="nTidak">0</div><div class="l">tidak dapat disediakan</div></div>
+      <div><div class="n tidak" id="nTidak">0</div><div class="l">tidak tersedia di kabupaten</div></div>
     </div>
   </header>
 
   <div class="controls">
     <div class="searchbox">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
-      <input type="search" id="q" placeholder="Cari ragam data — misal: kemiskinan, penduduk, PDRB, desa" aria-label="Cari ragam data">
+      <input type="search" id="q" placeholder="Cari ragam data — misal: kemiskinan, penduduk, PDRB, desa, upah" aria-label="Cari ragam data">
     </div>
-
     <div class="filterrow">
-      <div class="fgroup" id="fTopik">
-        <span class="fgroup__lbl">Topik</span>
-        <button class="fbtn" data-v="all" aria-pressed="true">Semua</button>
-      </div>
-      <div class="fgroup" id="fLevel">
-        <span class="fgroup__lbl">Level</span>
+      <div class="fgroup" id="fTopik"><span class="fgroup__lbl">Topik</span>
+        <button class="fbtn" data-v="all" aria-pressed="true">Semua</button></div>
+      <div class="fgroup" id="fLevel"><span class="fgroup__lbl">Level</span>
         <button class="fbtn" data-v="all" aria-pressed="true">Semua</button>
         <button class="fbtn" data-v="Desa" aria-pressed="false">Desa</button>
         <button class="fbtn" data-v="Kecamatan" aria-pressed="false">Kecamatan</button>
-        <button class="fbtn" data-v="Kabupaten" aria-pressed="false">Kabupaten</button>
-      </div>
+        <button class="fbtn" data-v="Kabupaten" aria-pressed="false">Kabupaten</button></div>
       <span class="countline" id="countLine">0 dari 0</span>
     </div>
   </div>
@@ -438,287 +137,175 @@ body {
   <main id="list"></main>
   <div class="empty" id="empty" hidden>Tidak ada ragam data yang cocok dengan pencarian atau saringan tersebut.</div>
 
+  <section class="legend" style="border-top-width:1px">
+    <h2>Kecamatan Dalam Angka</h2>
+    <p class="sec__note">
+      Satu-satunya publikasi rutin yang turun sampai level desa dan kelurahan. Bila sahabat data
+      meminta angka per desa, mulailah dari sini — pilih kecamatannya.
+    </p>
+    <div class="kecgrid" id="kecgrid"></div>
+  </section>
+
+  <div class="ajakan">
+    <p><b>Tidak ketemu di daftar ini?</b> Catat kebutuhannya di ruang pegawai. Pertanyaan yang belum
+      terjawab akan muncul di papan tanya supaya pegawai yang paham dapat membantu, dan sahabat data
+      dapat memantau sendiri lewat kode tiketnya.</p>
+    <div class="btnrow">
+      <a class="btn" href="admin.html">Ruang pegawai</a>
+      <a class="btn btn--ghost" href="sahabat.html">Cek status permintaan</a>
+    </div>
+  </div>
+
   <section class="legend">
     <h2>Keterangan status</h2>
     <div class="legend__grid">
-      <div class="legend__item">
-        <span class="pill ada">Unduh di web</span>
-        <div>Sudah diterbitkan dan dapat diunduh sendiri dari laman BPS tanpa mengajukan permintaan.</div>
-      </div>
-      <div class="legend__item">
-        <span class="pill mohon">Permintaan resmi</span>
-        <div>Tersedia tetapi belum diterbitkan dalam bentuk siap unduh. Ajukan melalui Pelayanan Statistik Terpadu.</div>
-      </div>
-      <div class="legend__item">
-        <span class="pill tidak">Tidak tersedia</span>
-        <div>Tidak dikumpulkan sampai level tersebut, atau dilindungi kerahasiaan menurut Undang-Undang Nomor 16 Tahun 1997 tentang Statistik.</div>
-      </div>
-      <div class="legend__item">
-        <span class="pill lain">Data sektoral</span>
-        <div>Dihimpun oleh perangkat daerah, bukan BPS. BPS menayangkannya kembali dalam publikasi, tetapi sumber resminya ada di dinas terkait.</div>
-      </div>
+      <div class="legend__item"><span class="pill ada">Unduh di web</span>
+        <div>Sudah terbit dan dapat diunduh sendiri dari laman BPS. Buka tautan pada baris tersebut.</div></div>
+      <div class="legend__item"><span class="pill mohon">Permintaan resmi</span>
+        <div>Ada, tetapi belum berbentuk siap unduh. Ajukan lewat Pelayanan Statistik Terpadu.</div></div>
+      <div class="legend__item"><span class="pill prov">Level provinsi</span>
+        <div>Tidak dihasilkan untuk kabupaten, tetapi tersedia di tingkat provinsi atau nasional.</div></div>
+      <div class="legend__item"><span class="pill tidak">Tidak tersedia</span>
+        <div>Tidak dikumpulkan sampai level tersebut, atau dilindungi Undang-Undang Nomor 16 Tahun 1997.</div></div>
+      <div class="legend__item"><span class="pill lain">Data sektoral</span>
+        <div>Dihimpun perangkat daerah. BPS menayangkan ulang, tetapi sumber resminya di dinas terkait.</div></div>
     </div>
   </section>
 
   <footer class="colophon">
-    <p>
-      <b>Catatan level wilayah</b> &mdash; Level terendah menunjukkan sampai satuan wilayah mana angka
-      masih layak disajikan. Survei berbasis sampel seperti Susenas dan Sakernas dirancang mewakili
-      tingkat kabupaten, sehingga angkanya tidak dapat diturunkan ke kecamatan atau desa meskipun
-      respondennya tersebar di sana.
-    </p>
-    <p>
-      <b>Sumber penyusunan</b> &mdash; Daftar publikasi BPS Kabupaten Kutai Kartanegara pada
-      <a href="https://kukarkab.bps.go.id">kukarkab.bps.go.id</a>, serta ragam keluaran baku
-      Susenas, Sakernas, Podes, Sensus Penduduk 2020, Sensus Pertanian 2023, dan penghitungan PDRB.
-    </p>
-    <p>
-      <b>Status halaman</b> &mdash; Rancangan awal untuk diverifikasi. Bukan publikasi resmi Badan Pusat Statistik.
-    </p>
+    <p><b>Catatan level wilayah</b> &mdash; Level terendah menunjukkan sampai satuan wilayah mana angka masih
+      layak disajikan. Survei berbasis sampel seperti Susenas dan Sakernas dirancang mewakili tingkat
+      kabupaten, sehingga angkanya tidak dapat diturunkan ke kecamatan atau desa meskipun respondennya
+      tersebar di sana.</p>
+    <p><b>Sumber penyusunan</b> &mdash; Publikasi dan tabel statistik pada
+      <a href="https://kukarkab.bps.go.id">kukarkab.bps.go.id</a>,
+      <a href="https://pst.bps.go.id">Standar Pelayanan Statistik Terpadu BPS</a>, serta ragam keluaran baku
+      Susenas, Sakernas, Podes, Sensus Penduduk 2020, Sensus Pertanian 2023, dan penghitungan PDRB.</p>
+    <p><b>Status halaman</b> &mdash; Alat bantu internal PST, bukan publikasi resmi Badan Pusat Statistik.
+      Untuk keperluan resmi gunakan publikasi asli dari laman BPS.</p>
   </footer>
 
 </div>
 
+<script src="assets/config.js"></script>
+<script src="assets/katalog.js"></script>
+<script src="assets/app.js"></script>
 <script>
 (function () {
   "use strict";
 
-  /* Ubah ke false setelah seluruh baris diverifikasi petugas.
-     Spanduk rancangan dan penanda PERLU CEK akan hilang. */
   var MODE_RANCANGAN = true;
-
-  /* status: ada | mohon | tidak | lain
-     cek:    true bila isian ini masih perlu dipastikan petugas */
-  var DATA = [
-    { t:"Kependudukan", n:"Jumlah penduduk menurut jenis kelamin", lv:"Kecamatan", pd:"2020–2025", sm:"Proyeksi SP2020", st:"ada",
-      d:"Disajikan dalam Kabupaten Kutai Kartanegara Dalam Angka dan seri Kecamatan Dalam Angka. Angka merupakan hasil proyeksi penduduk pertengahan tahun, bukan pencatatan administrasi kependudukan." },
-    { t:"Kependudukan", n:"Kepadatan penduduk per kilometer persegi", lv:"Kecamatan", pd:"2020–2025", sm:"Proyeksi SP2020", st:"ada",
-      d:"Tersedia dalam publikasi Dalam Angka pada bagian geografi dan kependudukan." },
-    { t:"Kependudukan", n:"Laju pertumbuhan penduduk", lv:"Kabupaten", pd:"2020–2025", sm:"Proyeksi SP2020", st:"ada",
-      d:"Dihitung dari perbandingan antarperiode proyeksi. Untuk level kecamatan perlu dihitung sendiri dari angka penduduk tiap tahun." },
-    { t:"Kependudukan", n:"Rasio jenis kelamin", lv:"Kecamatan", pd:"2020–2025", sm:"Proyeksi SP2020", st:"ada",
-      d:"Menunjukkan jumlah penduduk laki-laki untuk setiap 100 penduduk perempuan." },
-    { t:"Kependudukan", n:"Komposisi penduduk menurut kelompok umur", lv:"Kabupaten", pd:"2020–2025", sm:"Proyeksi SP2020", st:"ada",
-      d:"Termasuk persentase penduduk usia produktif, lansia, dan pengelompokan menurut generasi." },
-    { t:"Kependudukan", n:"Jumlah penduduk menurut desa dan kelurahan", lv:"Desa", pd:"2020", sm:"Sensus Penduduk 2020", st:"mohon", cek:true,
-      d:"Angka level desa tersedia dari hasil Sensus Penduduk 2020. Perlu dipastikan tahun terakhir yang dapat dilayani dan bentuk penyajiannya." },
-
-    { t:"Ketenagakerjaan", n:"Tingkat Partisipasi Angkatan Kerja (TPAK)", lv:"Kabupaten", pd:"2015–2025", sm:"Sakernas Agustus", st:"ada",
-      d:"Sakernas dirancang mewakili tingkat kabupaten pada pencacahan Agustus. Angka Februari hanya representatif sampai tingkat provinsi." },
-    { t:"Ketenagakerjaan", n:"Tingkat Pengangguran Terbuka (TPT)", lv:"Kabupaten", pd:"2015–2025", sm:"Sakernas Agustus", st:"ada",
-      d:"Persentase penganggur terhadap seluruh angkatan kerja." },
-    { t:"Ketenagakerjaan", n:"Penduduk bekerja menurut lapangan usaha", lv:"Kabupaten", pd:"2015–2025", sm:"Sakernas Agustus", st:"ada",
-      d:"Rincian menurut sektor. Semakin rinci pengelompokannya, semakin besar galat sampelnya, sehingga rincian tertentu mungkin tidak dapat disajikan." },
-    { t:"Ketenagakerjaan", n:"Penduduk bekerja menurut status pekerjaan", lv:"Kabupaten", pd:"2015–2025", sm:"Sakernas Agustus", st:"ada",
-      d:"Membedakan pekerja formal dan informal, berusaha sendiri, buruh, dan pekerja keluarga." },
-    { t:"Ketenagakerjaan", n:"Rata-rata upah pekerja", lv:"Kabupaten", pd:"—", sm:"Sakernas Agustus", st:"mohon", cek:true,
-      d:"Perlu dipastikan ketersediaan seri dan tingkat kerincian yang dapat dilayani di tingkat kabupaten." },
-    { t:"Ketenagakerjaan", n:"Ketenagakerjaan tingkat kecamatan", lv:"—", pd:"—", sm:"Sakernas", st:"tidak",
-      d:"Sakernas berbasis sampel yang dirancang mewakili tingkat kabupaten. Angka kecamatan tidak dapat diturunkan darinya, berapa pun jumlah responden yang kebetulan berada di kecamatan tersebut." },
-
-    { t:"Kemiskinan dan pemerataan", n:"Persentase penduduk miskin (P0)", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Angka 2025 sebesar 6,72 persen. Tersedia dalam publikasi Statistik Kesejahteraan Rakyat dan Booklet Indikator Strategis." },
-    { t:"Kemiskinan dan pemerataan", n:"Jumlah penduduk miskin", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Disajikan dalam ribu jiwa, sejalan dengan persentase penduduk miskin." },
-    { t:"Kemiskinan dan pemerataan", n:"Indeks kedalaman kemiskinan (P1)", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Mengukur seberapa jauh rata-rata pengeluaran penduduk miskin berada di bawah garis kemiskinan." },
-    { t:"Kemiskinan dan pemerataan", n:"Indeks keparahan kemiskinan (P2)", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Mengukur ketimpangan pengeluaran di antara sesama penduduk miskin." },
-    { t:"Kemiskinan dan pemerataan", n:"Garis kemiskinan", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Tahun 2025 sebesar Rp705.397 per kapita per bulan." },
-    { t:"Kemiskinan dan pemerataan", n:"Gini Ratio", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Mengukur ketimpangan pengeluaran penduduk pada skala nol sampai satu." },
-    { t:"Kemiskinan dan pemerataan", n:"Pengeluaran per kapita per bulan", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Termasuk rincian menurut kelompok makanan dan bukan makanan." },
-    { t:"Kemiskinan dan pemerataan", n:"Kemiskinan tingkat kecamatan atau desa", lv:"—", pd:"—", sm:"Susenas", st:"tidak",
-      d:"Susenas dirancang mewakili tingkat kabupaten. Angka kemiskinan kecamatan hanya pernah dihasilkan melalui kajian khusus dengan metode estimasi area kecil, bukan keluaran rutin. Untuk penyasaran bantuan, rujukannya adalah basis data terpadu di Dinas Sosial." },
-    { t:"Kemiskinan dan pemerataan", n:"Daftar nama dan alamat penduduk miskin", lv:"—", pd:"—", sm:"Susenas", st:"tidak",
-      d:"Keterangan yang dapat mengidentifikasi responden dilindungi Undang-Undang Nomor 16 Tahun 1997 tentang Statistik dan tidak dapat diberikan kepada siapa pun, termasuk instansi pemerintah." },
-
-    { t:"Pembangunan manusia", n:"Indeks Pembangunan Manusia (IPM)", lv:"Kabupaten", pd:"2010–2025", sm:"Penghitungan BPS", st:"ada",
-      d:"Angka 2025 sebesar 77,25, tergolong kategori tinggi." },
-    { t:"Pembangunan manusia", n:"Umur Harapan Hidup saat lahir", lv:"Kabupaten", pd:"2010–2025", sm:"Penghitungan BPS", st:"ada",
-      d:"Salah satu komponen penyusun IPM pada dimensi kesehatan." },
-    { t:"Pembangunan manusia", n:"Harapan Lama Sekolah dan Rata-Rata Lama Sekolah", lv:"Kabupaten", pd:"2010–2025", sm:"Susenas", st:"ada",
-      d:"Dua komponen IPM pada dimensi pendidikan. Harapan Lama Sekolah dihitung untuk penduduk usia tujuh tahun, Rata-Rata Lama Sekolah untuk penduduk 25 tahun ke atas." },
-    { t:"Pembangunan manusia", n:"Pengeluaran per kapita disesuaikan", lv:"Kabupaten", pd:"2010–2025", sm:"Susenas", st:"ada",
-      d:"Komponen IPM pada dimensi standar hidup layak, dinyatakan dalam rupiah per tahun dan telah disesuaikan dengan paritas daya beli." },
-    { t:"Pembangunan manusia", n:"Indeks Pembangunan Gender dan Indeks Ketimpangan Gender", lv:"Kabupaten", pd:"—", sm:"Penghitungan BPS", st:"mohon", cek:true,
-      d:"Perlu dipastikan tahun terakhir yang tersedia di tingkat kabupaten dan apakah sudah diterbitkan dalam publikasi daerah." },
-
-    { t:"Ekonomi dan PDRB", n:"PDRB menurut lapangan usaha", lv:"Kabupaten", pd:"2010–2025", sm:"Penghitungan PDRB", st:"ada",
-      d:"Tersedia atas dasar harga berlaku dan harga konstan, dengan rincian tujuh belas kategori lapangan usaha. Diterbitkan sebagai publikasi tahunan tersendiri." },
-    { t:"Ekonomi dan PDRB", n:"PDRB menurut pengeluaran", lv:"Kabupaten", pd:"2010–2025", sm:"Penghitungan PDRB", st:"ada",
-      d:"Memerinci PDRB menurut konsumsi rumah tangga, pemerintah, investasi, dan perdagangan luar wilayah." },
-    { t:"Ekonomi dan PDRB", n:"Laju pertumbuhan ekonomi", lv:"Kabupaten", pd:"2010–2025", sm:"Penghitungan PDRB", st:"ada",
-      d:"Dihitung dari PDRB atas dasar harga konstan. Tersedia secara tahunan dan triwulanan." },
-    { t:"Ekonomi dan PDRB", n:"PDRB per kapita", lv:"Kabupaten", pd:"2010–2025", sm:"Penghitungan PDRB", st:"ada",
-      d:"Nilai produksi wilayah dibagi jumlah penduduk. Bukan ukuran pendapatan yang diterima penduduk." },
-    { t:"Ekonomi dan PDRB", n:"PDRB tingkat kecamatan", lv:"—", pd:"—", sm:"Penghitungan PDRB", st:"tidak",
-      d:"Penghitungan PDRB memerlukan data produksi yang tidak tersedia sampai tingkat kecamatan. Tidak dihasilkan secara rutin." },
-    { t:"Ekonomi dan PDRB", n:"Inflasi dan Indeks Harga Konsumen", lv:"—", pd:"—", sm:"Survei Harga Konsumen", st:"mohon", cek:true,
-      d:"Indeks Harga Konsumen hanya dihitung untuk kota terpilih sebagai wilayah pencacahan. Perlu dipastikan apakah Kutai Kartanegara termasuk cakupan setelah perluasan wilayah penghitungan, atau pengguna perlu diarahkan ke angka provinsi." },
-
-    { t:"Pertanian", n:"Jumlah usaha pertanian", lv:"Kecamatan", pd:"2023", sm:"Sensus Pertanian 2023", st:"ada",
-      d:"Hasil pencacahan lengkap Sensus Pertanian 2023 telah diterbitkan untuk Kabupaten Kutai Kartanegara." },
-    { t:"Pertanian", n:"Jumlah rumah tangga usaha pertanian", lv:"Kecamatan", pd:"2013, 2023", sm:"Sensus Pertanian", st:"ada",
-      d:"Tersedia dari dua putaran sensus, sehingga dapat dibandingkan antardekade." },
-    { t:"Pertanian", n:"Luas panen dan produksi padi", lv:"Kecamatan", pd:"2018–2025", sm:"Kerangka Sampel Area", st:"mohon", cek:true,
-      d:"Perlu dipastikan level terendah yang dapat dilayani. Metode kerangka sampel area dirancang untuk tingkat kabupaten, sedangkan angka kecamatan dalam publikasi umumnya bersumber dari laporan dinas." },
-    { t:"Pertanian", n:"Populasi ternak dan produksi peternakan", lv:"Kecamatan", pd:"—", sm:"Laporan dinas", st:"lain",
-      d:"Ditayangkan dalam publikasi Dalam Angka, tetapi dikumpulkan oleh dinas yang membidangi peternakan. Sumber resminya ada di dinas tersebut." },
-    { t:"Pertanian", n:"Luas dan produksi perkebunan", lv:"Kecamatan", pd:"—", sm:"Laporan dinas", st:"lain",
-      d:"Termasuk kelapa sawit dan komoditas perkebunan lain. Bersumber dari dinas yang membidangi perkebunan." },
-
-    { t:"Potensi desa dan wilayah", n:"Wilayah administrasi kecamatan, desa, dan kelurahan", lv:"Desa", pd:"terkini", sm:"Podes", st:"ada",
-      d:"Termasuk jumlah dan nama satuan wilayah, tersedia dalam publikasi Dalam Angka." },
-    { t:"Potensi desa dan wilayah", n:"Fasilitas pendidikan menurut desa", lv:"Desa", pd:"2021, 2024", sm:"Podes", st:"mohon",
-      d:"Pendataan Potensi Desa mencatat keberadaan fasilitas di tiap desa. Diselenggarakan setiap tiga tahun." },
-    { t:"Potensi desa dan wilayah", n:"Fasilitas kesehatan menurut desa", lv:"Desa", pd:"2021, 2024", sm:"Podes", st:"mohon",
-      d:"Mencakup keberadaan puskesmas, poskesdes, posyandu, serta tenaga kesehatan yang tinggal di desa." },
-    { t:"Potensi desa dan wilayah", n:"Kondisi jalan dan akses transportasi desa", lv:"Desa", pd:"2021, 2024", sm:"Podes", st:"mohon",
-      d:"Mencakup jenis permukaan jalan utama, keterjangkauan kendaraan roda empat, dan moda transportasi antardesa." },
-    { t:"Potensi desa dan wilayah", n:"Sarana ekonomi desa", lv:"Desa", pd:"2021, 2024", sm:"Podes", st:"mohon",
-      d:"Mencakup keberadaan pasar, minimarket, koperasi, dan lembaga keuangan di tiap desa." },
-    { t:"Potensi desa dan wilayah", n:"Desa menurut kejadian bencana alam", lv:"Desa", pd:"2021, 2024", sm:"Podes", st:"mohon", cek:true,
-      d:"Podes mencatat kejadian bencana dalam tiga tahun terakhir. Perlu dipastikan kerincian yang dapat dilayani." },
-
-    { t:"Pendidikan, kesehatan, perumahan", n:"Angka Partisipasi Sekolah", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Tersedia menurut kelompok umur, bersama Angka Partisipasi Murni dan Angka Partisipasi Kasar." },
-    { t:"Pendidikan, kesehatan, perumahan", n:"Angka melek huruf", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Persentase penduduk yang dapat membaca dan menulis, umumnya disajikan untuk usia 15 tahun ke atas." },
-    { t:"Pendidikan, kesehatan, perumahan", n:"Penolong kelahiran oleh tenaga kesehatan", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Persentase kelahiran yang ditolong tenaga kesehatan terlatih." },
-    { t:"Pendidikan, kesehatan, perumahan", n:"Akses air minum dan sanitasi layak", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Persentase rumah tangga dengan akses terhadap sumber air minum layak dan sanitasi layak." },
-    { t:"Pendidikan, kesehatan, perumahan", n:"Kondisi tempat tinggal rumah tangga", lv:"Kabupaten", pd:"2015–2025", sm:"Susenas Maret", st:"ada",
-      d:"Mencakup jenis lantai, dinding, atap, luas lantai per kapita, dan status kepemilikan." },
-    { t:"Pendidikan, kesehatan, perumahan", n:"Jumlah sekolah, guru, dan murid", lv:"Kecamatan", pd:"—", sm:"Laporan dinas", st:"lain",
-      d:"Ditayangkan dalam publikasi Dalam Angka, tetapi dihimpun oleh dinas yang membidangi pendidikan. Untuk data terbaru dan rinci, rujuk dinas terkait." },
-
-    { t:"Data terbatas", n:"Data mikro Susenas dan Sakernas", lv:"—", pd:"—", sm:"BPS RI", st:"tidak",
-      d:"Tidak dilayani di kantor kabupaten. Permohonan data mikro diajukan kepada BPS RI melalui layanan yang disediakan, dengan persyaratan dan ketentuan penggunaan tersendiri." },
-    { t:"Data terbatas", n:"Daftar nama dan alamat responden survei", lv:"—", pd:"—", sm:"Seluruh survei", st:"tidak",
-      d:"Dilindungi Undang-Undang Nomor 16 Tahun 1997 tentang Statistik. Keterangan yang dapat mengidentifikasi responden tidak dapat diberikan dalam keadaan apa pun." },
-    { t:"Data terbatas", n:"Daftar nama dan alamat pelaku usaha", lv:"—", pd:"—", sm:"Sensus Ekonomi", st:"tidak",
-      d:"Sama seperti data rumah tangga, keterangan yang mengidentifikasi unit usaha bersifat rahasia. Yang dapat disajikan hanya angka agregat." }
-  ];
-
-  var LABEL = { ada:"Unduh di web", mohon:"Permintaan resmi", tidak:"Tidak tersedia", lain:"Data sektoral" };
-
+  var DATA = window.KATALOG.DATA, LABEL = window.KATALOG.LABEL, KEC = window.KATALOG.KECAMATAN;
+  var esc = PST.esc;
   var state = { q:"", topik:"all", level:"all" };
 
+  document.getElementById("navbar").innerHTML = PST.nav("index.html", null);
   if (!MODE_RANCANGAN) document.getElementById("draftBanner").remove();
 
-  function esc(s) {
-    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  }
-
-  /* tombol saring topik */
+  /* saringan topik */
   var topik = [];
   DATA.forEach(function (d) { if (topik.indexOf(d.t) === -1) topik.push(d.t); });
   var fTopik = document.getElementById("fTopik");
   topik.forEach(function (t) {
     var b = document.createElement("button");
-    b.className = "fbtn";
-    b.dataset.v = t;
-    b.setAttribute("aria-pressed", "false");
-    b.textContent = t;
+    b.className = "fbtn"; b.dataset.v = t;
+    b.setAttribute("aria-pressed", "false"); b.textContent = t;
     fTopik.appendChild(b);
   });
 
-  /* susun daftar */
-  var list = document.getElementById("list");
+  /* daftar */
   var html = "";
   topik.forEach(function (t) {
     html += '<div class="grouptitle" data-group="' + esc(t) + '">' + esc(t) + "</div>";
     DATA.forEach(function (d, i) {
       if (d.t !== t) return;
       var flag = (MODE_RANCANGAN && d.cek) ? '<span class="row__flag">perlu cek</span>' : "";
+      var pt = (d.ln && d.ln.length) ? '<span class="row__tautan">' + d.ln.length + ' tautan</span>' : "";
+      var tautan = "";
+      if (d.ln && d.ln.length) {
+        tautan = '<div class="detail__ln">' + d.ln.map(function (x) {
+          return '<a href="' + esc(x.u) + '" target="_blank" rel="noopener">' + esc(x.l) + "</a>";
+        }).join("") + "</div>";
+      }
+      var menu = d.mn ? '<div class="detail__menu">Letak di laman BPS: ' + esc(d.mn) + "</div>" : "";
       html +=
         '<div class="row" data-i="' + i + '" data-topik="' + esc(d.t) + '" data-level="' + esc(d.lv) + '"' +
-        ' data-cari="' + esc((d.n + " " + d.t + " " + d.sm + " " + d.d).toLowerCase()) + '"' +
+        ' data-cari="' + esc((d.n + " " + d.t + " " + d.sm + " " + d.d + " " + (d.mn||"")).toLowerCase()) + '"' +
         ' tabindex="0" role="button" aria-expanded="false">' +
-          '<div><div class="row__name">' + esc(d.n) + flag + "</div>" +
+          '<div><div class="row__name">' + esc(d.n) + flag + pt + "</div>" +
             '<div class="row__src">' + esc(d.sm) + "</div></div>" +
           '<div class="cell lvl">' + esc(d.lv) + "</div>" +
           '<div class="cell per">' + esc(d.pd) + "</div>" +
           '<div class="stat"><span class="pill ' + d.st + '">' + LABEL[d.st] + "</span></div>" +
-          '<div class="detail">' + esc(d.d) + "</div>" +
+          '<div class="detail">' + esc(d.d) + menu + tautan + "</div>" +
         "</div>";
     });
   });
+  var list = document.getElementById("list");
   list.innerHTML = html;
 
-  /* buka tutup rincian */
-  list.addEventListener("click", function (e) {
-    var row = e.target.closest(".row");
-    if (!row) return;
+  function buka(e) {
+    if (e.target.tagName === "A") return;
+    var row = e.target.closest(".row"); if (!row) return;
     var open = row.classList.toggle("is-open");
     row.setAttribute("aria-expanded", String(open));
-  });
+  }
+  list.addEventListener("click", buka);
   list.addEventListener("keydown", function (e) {
     if (e.key !== "Enter" && e.key !== " ") return;
-    var row = e.target.closest(".row");
-    if (!row) return;
-    e.preventDefault();
-    var open = row.classList.toggle("is-open");
-    row.setAttribute("aria-expanded", String(open));
+    if (e.target.tagName === "A") return;
+    e.preventDefault(); buka(e);
   });
+
+  /* daftar kecamatan */
+  document.getElementById("kecgrid").innerHTML = KEC.map(function (k) {
+    return '<a href="' + esc(k[2]) + '" target="_blank" rel="noopener">' + esc(k[0]) +
+           "<span>" + esc(k[1]) + "</span></a>";
+  }).join("");
 
   /* saring */
   function saring() {
     var tampil = 0;
-    document.querySelectorAll(".row").forEach(function (row) {
+    PST.qa(".row").forEach(function (row) {
       var ok =
         (state.topik === "all" || row.dataset.topik === state.topik) &&
         (state.level === "all" || row.dataset.level === state.level) &&
         (!state.q || row.dataset.cari.indexOf(state.q) !== -1);
       row.classList.toggle("is-off", !ok);
-      if (!ok) { row.classList.remove("is-open"); row.setAttribute("aria-expanded", "false"); }
+      if (!ok) { row.classList.remove("is-open"); row.setAttribute("aria-expanded","false"); }
       if (ok) tampil++;
     });
-
-    document.querySelectorAll(".grouptitle").forEach(function (g) {
-      var ada = false, el = g.nextElementSibling;
-      while (el && el.classList.contains("row")) {
-        if (!el.classList.contains("is-off")) { ada = true; break; }
-        el = el.nextElementSibling;
+    PST.qa(".grouptitle").forEach(function (g) {
+      var ada = false, n = g.nextElementSibling;
+      while (n && n.classList.contains("row")) {
+        if (!n.classList.contains("is-off")) { ada = true; break; }
+        n = n.nextElementSibling;
       }
       g.classList.toggle("is-off", !ada);
     });
-
     document.getElementById("countLine").textContent = tampil + " dari " + DATA.length + " ragam data";
     document.getElementById("empty").hidden = tampil > 0;
   }
 
-  function pasangSaring(id, kunci) {
+  function pasang(id, kunci) {
     document.getElementById(id).addEventListener("click", function (e) {
-      var b = e.target.closest(".fbtn");
-      if (!b) return;
+      var b = e.target.closest(".fbtn"); if (!b) return;
       state[kunci] = b.dataset.v;
-      this.querySelectorAll(".fbtn").forEach(function (x) {
-        x.setAttribute("aria-pressed", String(x === b));
-      });
+      this.querySelectorAll(".fbtn").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
       saring();
     });
   }
-  pasangSaring("fTopik", "topik");
-  pasangSaring("fLevel", "level");
-
+  pasang("fTopik", "topik"); pasang("fLevel", "level");
   document.getElementById("q").addEventListener("input", function () {
-    state.q = this.value.trim().toLowerCase();
-    saring();
+    state.q = this.value.trim().toLowerCase(); saring();
   });
 
-  /* ringkasan angka */
-  var hitung = { ada:0, mohon:0, tidak:0, lain:0 };
-  DATA.forEach(function (d) { hitung[d.st]++; });
+  var h = { ada:0, mohon:0, tidak:0, lain:0, prov:0 };
+  DATA.forEach(function (d) { h[d.st]++; });
   document.getElementById("nTotal").textContent = DATA.length;
-  document.getElementById("nAda").textContent = hitung.ada;
-  document.getElementById("nMohon").textContent = hitung.mohon;
-  document.getElementById("nTidak").textContent = hitung.tidak;
-
+  document.getElementById("nAda").textContent = h.ada;
+  document.getElementById("nMohon").textContent = h.mohon;
+  document.getElementById("nTidak").textContent = h.tidak + h.prov;
   saring();
 })();
 </script>

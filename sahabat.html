@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Periksa status permintaan data Anda ke BPS Kabupaten Kutai Kartanegara dengan kode tiket PST.">
+<title>Sahabat Data — PST BPS Kutai Kartanegara</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2316181C'/><rect x='22' y='26' width='56' height='13' rx='3' fill='%232F5FA8'/><rect x='22' y='44' width='56' height='13' rx='3' fill='%236B8FC9'/><rect x='22' y='62' width='36' height='13' rx='3' fill='%23A9BEDD'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+.lini { border-left:2px solid var(--line-2); margin-left:9px; padding-left:20px; }
+.lini__i { position:relative; padding-bottom:20px; }
+.lini__i::before { content:""; position:absolute; left:-27px; top:4px; width:11px; height:11px; border-radius:50%; background:var(--line-2); border:2px solid var(--bg); }
+.lini__i.on::before { background:var(--s-ada); }
+.lini__t { font-weight:600; color:var(--ink); font-size:14px; }
+.lini__d { font-size:13px; color:var(--ink-3); margin-top:2px; }
+.tukar { font-size:13px; color:var(--link); background:none; border:0; cursor:pointer; padding:0; text-decoration:underline; text-underline-offset:2px; }
+.riw { border:1px solid var(--line); background:var(--panel); padding:15px 17px; margin-bottom:10px; }
+.riw__h { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:7px; }
+</style>
+</head>
+<body>
+<div id="navbar"></div>
+<div id="spanduk"></div>
+
+<div class="wrap">
+  <header class="head">
+    <div class="head__kicker">BPS Kabupaten Kutai Kartanegara · Pelayanan Statistik Terpadu</div>
+    <h1>Sahabat data</h1>
+    <p>
+      Permintaan data yang tidak dapat dijawab langsung di meja pelayanan diberi kode tiket.
+      Masukkan kode itu di sini untuk melihat sejauh mana permintaan Anda diproses,
+      tanpa perlu menelepon atau datang lagi.
+    </p>
+  </header>
+
+  <div class="grid grid--2" style="align-items:start;margin-top:8px">
+
+    <!-- ---- cek tiket tanpa akun ---- -->
+    <div class="card">
+      <div class="card__title">Periksa dengan kode tiket</div>
+      <div id="msgCek"></div>
+      <form id="formCek">
+        <div class="field"><label class="fl" for="kKode">Kode tiket</label>
+          <input type="text" id="kKode" required placeholder="PST-2609-0042" autocomplete="off"></div>
+        <div class="field"><label class="fl" for="kHp">Empat digit terakhir nomor HP</label>
+          <input type="text" id="kHp" required inputmode="numeric" maxlength="4" placeholder="1234">
+          <div class="field__hint">Nomor yang Anda berikan kepada petugas saat mengisi buku tamu.</div></div>
+        <button class="btn" type="submit" style="width:100%">Lihat status</button>
+      </form>
+      <div id="hasilCek" style="margin-top:18px"></div>
+    </div>
+
+    <!-- ---- akun ---- -->
+    <div class="card" id="kotakAkun">
+      <div class="card__title" id="judulAkun">Masuk ke akun sahabat data</div>
+      <p class="field__hint" style="margin:-6px 0 14px">
+        Akun bersifat pilihan. Berguna bila Anda sering meminta data — seluruh riwayat permintaan
+        tersimpan dalam satu tempat dan Anda dapat mengajukan permintaan baru tanpa datang ke kantor.
+      </p>
+      <div id="msgAkun"></div>
+
+      <form id="formAkunMasuk">
+        <div class="field"><label class="fl" for="aEmail">Surel</label>
+          <input type="email" id="aEmail" required autocomplete="username"></div>
+        <div class="field"><label class="fl" for="aSandi">Kata sandi</label>
+          <input type="password" id="aSandi" required autocomplete="current-password"></div>
+        <button class="btn" type="submit" style="width:100%">Masuk</button>
+        <p style="margin:12px 0 0;font-size:13px;color:var(--ink-3)">Belum punya akun?
+          <button type="button" class="tukar" id="keDaftar">Daftar di sini</button></p>
+      </form>
+
+      <form id="formAkunDaftar" hidden>
+        <div class="field"><label class="fl" for="dNama">Nama lengkap</label><input type="text" id="dNama" required></div>
+        <div class="field"><label class="fl" for="dEmail">Surel aktif</label><input type="email" id="dEmail" required></div>
+        <div class="field"><label class="fl" for="dHp">Nomor HP</label><input type="tel" id="dHp"></div>
+        <div class="field"><label class="fl" for="dKategori">Kategori instansi</label><select id="dKategori"></select></div>
+        <div class="field"><label class="fl" for="dInstansi">Nama instansi / kampus</label><input type="text" id="dInstansi"></div>
+        <div class="field"><label class="fl" for="dSandi">Kata sandi</label>
+          <input type="password" id="dSandi" required minlength="6" autocomplete="new-password">
+          <div class="field__hint">Minimal enam karakter.</div></div>
+        <button class="btn" type="submit" style="width:100%">Buat akun</button>
+        <p style="margin:12px 0 0;font-size:13px;color:var(--ink-3)">Sudah punya akun?
+          <button type="button" class="tukar" id="keMasuk">Masuk di sini</button></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ---- ruang pengguna ---- -->
+  <section id="scAkun" hidden style="margin-top:30px">
+    <h2 class="sec">Permintaan Anda</h2>
+    <p class="sec__note">Termasuk yang dicatat petugas saat Anda datang ke PST, bila nomor HP-nya sama.</p>
+    <div id="riwayat"></div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="card__title">Ajukan permintaan baru</div>
+      <div id="msgAjukan"></div>
+      <form id="formAjukan">
+        <div class="field"><label class="fl" for="pKebutuhan">Data yang dibutuhkan</label>
+          <textarea id="pKebutuhan" required placeholder="Sebutkan indikatornya, wilayah sampai level apa, dan tahun berapa saja"></textarea>
+          <div class="field__hint">Semakin jelas level wilayah dan tahunnya, semakin cepat dapat dijawab.</div></div>
+        <div class="field"><label class="fl" for="pGuna">Pemanfaatan utama</label><select id="pGuna"></select></div>
+        <button class="btn" type="submit">Kirim permintaan</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:30px">
+    <div class="card__title">Sebelum mengajukan</div>
+    <div class="grid grid--3" style="font-size:13.5px;color:var(--ink-2);line-height:1.6">
+      <div><b style="color:var(--ink)">Periksa katalog lebih dulu</b><br>
+        Banyak data sudah terbit dan dapat diunduh sendiri tanpa mengajukan permintaan.
+        <a class="lnk" href="index.html">Buka katalog ketersediaan data</a>.</div>
+      <div><b style="color:var(--ink)">Konsultasi dan perpustakaan gratis</b><br>
+        Tidak memerlukan surat. Cukup datang dengan kartu identitas pada
+        <span id="jamLayanan"></span>. Penjualan publikasi dan data mikro berbayar dan wajib surat permintaan.</div>
+      <div><b style="color:var(--ink)">Yang tidak dapat diberikan</b><br>
+        Nama dan alamat responden atau pelaku usaha bersifat rahasia menurut Pasal 21 dan 24
+        Undang-Undang Nomor 16 Tahun 1997 tentang Statistik, dan tidak dapat diberikan kepada siapa pun.</div>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <p id="kontak"></p>
+    <p>Layanan resmi BPS secara daring: <a href="https://pst.bps.go.id">pst.bps.go.id</a> ·
+      data mikro <a href="https://silastik.bps.go.id">silastik.bps.go.id</a> ·
+      rekomendasi kegiatan statistik <a href="https://romantik.web.bps.go.id">romantik.web.bps.go.id</a>.</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/katalog.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/sahabat.js"></script>
+</body>
+</html>

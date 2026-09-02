@@ -1,108 +1,144 @@
-# Katalog Ketersediaan Data — BPS Kabupaten Kutai Kartanegara
+# Katalog & Sistem PST — BPS Kabupaten Kutai Kartanegara
 
-Daftar telusur ragam data yang dapat diperoleh dari BPS Kabupaten Kutai Kartanegara, beserta
-level wilayah terendah yang tersedia, periode yang tercakup, sumber survei, dan cara memperolehnya.
+Alat bantu Pelayanan Statistik Terpadu: katalog ketersediaan data yang bisa dibuka siapa
+saja, ditambah ruang kerja pegawai untuk mencatat kunjungan, saling membantu menjawab,
+dan merekap kebutuhan sahabat data.
 
-🔗 **Demo:** https://mrafiraamadhan.github.io/katalog-data-kukar/
-
-> ⚠️ **Status saat ini: rancangan awal.** Isi katalog belum diverifikasi petugas.
-> Baca bagian [Sebelum dipublikasikan](#sebelum-dipublikasikan) di bawah.
+🔗 <https://bpskukar.github.io/katalog-data-bpskukar/>
 
 ---
 
-## Latar belakang
+## Masalah yang dipecahkan
 
-Alur permintaan data saat ini punya dua langkah yang sebenarnya bisa dihapus:
+Petugas piket PST berganti tiap hari, sementara pemahaman tentang data tidak merata.
+Ketika peneliti, pemerintah daerah, atau mahasiswa datang, petugas yang belum hafal
+akan menelepon pegawai yang paham. Akibatnya beban menumpuk pada beberapa orang saja,
+dan jawaban yang sama diulang terus tanpa pernah tersimpan.
 
-```
-butuh data → tidak tahu BPS punya atau tidak → tanya lewat WhatsApp/datang ke PST
-           → petugas menjawab → baru mengajukan permintaan resmi
-```
+Sistem ini memindahkan pengetahuan itu keluar dari kepala beberapa orang:
 
-Dua langkah di tengah itu murni gesekan. Akibatnya petugas menjelaskan hal yang sama berulang kali,
-dan sebagian permintaan yang masuk sudah keliru sejak awal — meminta data sampai level desa untuk
-indikator yang hanya representatif sampai kabupaten, atau meminta angka tahun berjalan yang belum dirilis.
+| Bagian | Untuk siapa | Menjawab |
+|---|---|---|
+| **Katalog** (`index.html`) | Siapa saja | Datanya ada atau tidak, sampai level apa, bisa diunduh sendiri atau harus bersurat, dan tautannya di mana |
+| **Ruang pegawai** (`admin.html`) | Pegawai BPS | Siapa yang datang, minta apa, sudah ditangani atau belum, kebutuhan apa yang paling sering muncul |
+| **Sahabat data** (`sahabat.html`) | Konsumen data | Permintaan saya sudah sampai mana |
 
-Katalog ini memindahkan jawaban itu ke depan, sehingga pengguna bisa memeriksa sendiri sebelum bertanya.
+## Isi katalog
 
-## Yang membedakan dari daftar data biasa
+83 ragam data pada sebelas topik, masing-masing dengan level wilayah terendah, periode,
+sumber survei, letak di menu laman BPS, dan tautan langsung ke publikasi atau tabelnya.
+Ditambah tautan 20 publikasi Kecamatan Dalam Angka — satu-satunya sumber rutin
+yang turun sampai level desa.
 
-Katalog ini **juga memuat data yang tidak tersedia**, lengkap dengan alasannya. Banyak katalog data
-pemerintah hanya memuat yang ada, sehingga pengguna tetap bingung ketika yang dicari tidak ketemu:
-belum diunggah, tidak dikumpulkan, atau memang tidak boleh dibuka?
-
-Empat status yang dipakai:
+Lima status dipakai:
 
 | Status | Arti |
 |---|---|
-| **Unduh di web** | Sudah diterbitkan, bisa diunduh sendiri tanpa mengajukan permintaan |
-| **Permintaan resmi** | Tersedia tetapi belum berbentuk siap unduh; ajukan lewat PST |
-| **Tidak tersedia** | Tidak dikumpulkan sampai level itu, atau dilindungi kerahasiaan UU No. 16 Tahun 1997 |
-| **Data sektoral** | Dihimpun perangkat daerah, bukan BPS; sumber resminya di dinas terkait |
+| **Unduh di web** | Sudah terbit, bisa diunduh sendiri tanpa mengajukan permintaan |
+| **Permintaan resmi** | Ada tetapi belum siap unduh; ajukan lewat PST |
+| **Level provinsi** | Tidak dihasilkan untuk kabupaten, tersedia di tingkat provinsi atau nasional |
+| **Tidak tersedia** | Tidak dikumpulkan sampai level itu, atau dilindungi UU No. 16 Tahun 1997 |
+| **Data sektoral** | Dihimpun perangkat daerah; sumber resminya di dinas terkait |
 
-## Fitur
+Yang membedakan dari daftar data biasa: katalog ini **juga memuat data yang tidak tersedia
+beserta alasannya**. Bagian itulah yang paling menghemat waktu, karena menjawab pertanyaan
+yang paling sering membuat petugas menelepon rekannya.
 
-- **Pencarian** menyeluruh atas nama data, topik, sumber survei, dan keterangannya
-- **Penyaring** berdasarkan topik dan level wilayah terendah
-- **Rincian per baris** yang menjelaskan cakupan dan batasan datanya
-- **Ringkasan angka** di kepala halaman
-- **Mode gelap** mengikuti preferensi peramban
-- Satu berkas HTML, tanpa peladen dan tanpa proses build
+## Yang bisa dilakukan pegawai
 
-## Cakupan saat ini
+- **Mencatat kunjungan** dengan isian yang mengikuti Blok I kuesioner Survei Kebutuhan
+  Data (VKD25), sehingga rekapnya sebanding dengan SKD BPS pusat.
+- **Pencocokan katalog otomatis** — begitu kebutuhan sahabat data diketik, katalog
+  menampilkan ragam data yang cocok beserta status dan tautannya. Ini inti alatnya:
+  petugas menjawab di tempat tanpa menelepon siapa pun.
+- **Kode tiket otomatis** untuk permintaan yang belum tuntas, beserta tenggat yang
+  dihitung dari Standar Pelayanan PST (3 hari kerja konsultasi, 10 hari penjualan,
+  30 hari rekomendasi kegiatan statistik).
+- **Papan tanya** untuk kebutuhan yang tidak terjawab di meja, dengan penandaan jawaban
+  paling membantu.
+- **Poin keaktifan dan papan peringkat** — mencatat kunjungan 2, mengangkat pertanyaan 1,
+  menjawab 3, jawaban terbaik 7, menuntaskan tiket 5.
+- **Rekap kebutuhan** — kebutuhan terbanyak, asal instansi, tujuan pemanfaatan, jenis
+  layanan, tren bulanan, ragam data paling sering diminta, dan ekspor CSV.
 
-52 ragam data pada sembilan topik: kependudukan, ketenagakerjaan, kemiskinan dan pemerataan,
-pembangunan manusia, ekonomi dan PDRB, pertanian, potensi desa dan wilayah,
-pendidikan-kesehatan-perumahan, serta data terbatas.
+## Yang bisa dilakukan sahabat data
 
-## Sebelum dipublikasikan
+Memeriksa status permintaan cukup dengan **kode tiket dan empat digit terakhir nomor HP** —
+tanpa membuat akun. Akun tersedia sebagai pilihan bagi pengguna rutin, untuk melihat
+seluruh riwayat dan mengajukan permintaan baru tanpa datang ke kantor.
 
-Katalog ini disusun dari publikasi BPS Kukar yang sudah terbit dan pola keluaran baku survei BPS.
-**Isinya harus diverifikasi petugas lebih dulu**, karena kesalahan di sini berakibat langsung:
-pengguna datang menagih data yang sebenarnya tidak ada.
+## Susunan berkas
 
-**Langkah verifikasi:**
+```
+index.html              katalog publik
+admin.html              ruang pegawai
+sahabat.html            portal konsumen data
+assets/
+  config.js             sambungan Supabase & klasifikasi baku BPS  ← satu-satunya yang perlu diisi
+  katalog.js            isi katalog: 83 ragam data + 20 kecamatan
+  theme.css             sistem tampilan bersama
+  app.js                lapisan data (Supabase, dengan cadangan mode demo)
+  admin.js              logika ruang pegawai
+  sahabat.js            logika portal sahabat data
+supabase/schema.sql     tabel, tampilan, pemicu poin, keamanan baris
+PANDUAN-PASANG.md       cara memasang, menguji, dan memelihara
+IDE-PENGEMBANGAN.md     usulan pengembangan lanjutan
+```
 
-1. Buka `index.html`, cari array `DATA` di dalam `<script>`.
-2. Periksa baris yang ditandai `cek: true` — enam baris, ditampilkan dengan penanda **PERLU CEK**.
-   Baris inilah yang paling rawan keliru, terutama soal Indeks Harga Konsumen dan level terendah
-   data pertanian.
-3. Periksa juga kolom `lv` (level terendah) dan `pd` (periode) pada baris lain, khususnya seri
-   tahun yang tersedia.
-4. Setelah semua dipastikan, hapus `cek: true` pada baris yang sudah benar.
-5. Ubah `var MODE_RANCANGAN = true;` menjadi `false`. Spanduk rancangan dan penanda PERLU CEK
-   akan hilang dengan sendirinya.
+Tidak ada proses build. Cukup `git push`, GitHub Pages menerbitkannya.
 
-**Saran cakupan:** jangan kejar lengkap. Katalog berisi 50 baris yang akurat jauh lebih berguna
-daripada 300 baris yang separuhnya belum diperiksa. Tambahkan ragam data baru hanya setelah
-benar-benar dipastikan.
+## Memasang
 
-## Cara menambah ragam data
+Ringkasnya: buat proyek Supabase gratis, jalankan `supabase/schema.sql`, isi dua baris
+di `assets/config.js`, buat akun pegawai. Langkah rincinya ada di
+[PANDUAN-PASANG.md](PANDUAN-PASANG.md).
 
-Tambahkan objek baru pada array `DATA`:
+Selama `config.js` masih kosong, situs berjalan dalam **mode demo** — seluruh fitur bisa
+dicoba dengan `admin@bps.go.id` / `demo1234`, tetapi data hanya tersimpan di peramban
+yang sedang dipakai. Berguna untuk memperagakan alurnya ke pimpinan lebih dulu.
+
+## Sebelum katalog dipakai melayani
+
+Lima baris masih ditandai **PERLU CEK** dan harus dipastikan petugas lebih dulu:
+
+1. Penduduk menurut agama, suku, dan bahasa — kerincian yang boleh disajikan
+2. Rata-rata upah pekerja — tahun terakhir yang dapat dilayani
+3. Indeks Ketimpangan Gender — tahun terakhir yang tersedia di tingkat kabupaten
+4. Inflasi dan Indeks Harga Konsumen — apakah Kukar sudah masuk cakupan penghitungan
+5. Luas panen dan produksi padi — level terendah yang dapat dilayani
+
+Cara memeriksanya: buka `assets/katalog.js`, cari `cek: true`, betulkan isinya, lalu hapus
+penanda itu. Setelah semuanya beres, ubah `MODE_RANCANGAN` menjadi `false` di `index.html`
+agar spanduk rancangan hilang.
+
+## Menambah ragam data
 
 ```js
 {
-  t:  "Kependudukan",           // topik — tombol saring dibuat otomatis
+  t:  "Kependudukan",
   n:  "Nama ragam data",
-  lv: "Kecamatan",              // Desa | Kecamatan | Kabupaten | —
-  pd: "2020–2025",              // periode tersedia
-  sm: "Proyeksi SP2020",        // sumber survei atau penghitungan
-  st: "ada",                    // ada | mohon | tidak | lain
-  cek: true,                    // opsional, tandai bila belum diverifikasi
-  d:  "Keterangan yang muncul saat baris diklik."
+  lv: "Kecamatan",                    // Desa | Kecamatan | Kabupaten | —
+  pd: "2020–2025",
+  sm: "Proyeksi SP2020",
+  st: "ada",                          // ada | mohon | prov | tidak | lain
+  mn: "Produk › Publikasi",           // jejak menu di laman BPS
+  ln: [L("https://…", "Judul publikasi")],
+  d:  "Keterangan yang muncul saat baris dibuka."
 }
 ```
 
 ## Sumber penyusunan
 
-- Daftar publikasi BPS Kabupaten Kutai Kartanegara — <https://kukarkab.bps.go.id>
+- Publikasi dan tabel statistik BPS Kabupaten Kutai Kartanegara — <https://kukarkab.bps.go.id>
+- Standar Pelayanan Statistik Terpadu BPS dan panduan Survei Kebutuhan Data (VKD25)
+- Undang-Undang Nomor 16 Tahun 1997 tentang Statistik, Pasal 21, 24, 36, dan 37
 - Ragam keluaran baku Susenas, Sakernas, Podes, Sensus Penduduk 2020, Sensus Pertanian 2023,
   dan penghitungan Produk Domestik Regional Bruto
-- Booklet Indikator Strategis Kabupaten Kutai Kartanegara Triwulan I dan II 2026
 
-> **Catatan:** Halaman ini bukan publikasi resmi Badan Pusat Statistik. Untuk keperluan resmi,
-> gunakan publikasi asli dari laman BPS.
+> **Catatan.** Halaman ini alat bantu internal PST, bukan publikasi resmi Badan Pusat Statistik.
+> Untuk keperluan resmi, gunakan publikasi asli dari laman BPS. Ruang pegawai memuat nama dan
+> kontak orang — perlakukan sesuai ketentuan perlindungan data pribadi, dan jangan sebarkan
+> tautannya ke luar kantor.
 
 ## Lisensi
 
