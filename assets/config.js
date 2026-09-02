@@ -6,8 +6,8 @@
    tersimpan di peramban ini dan hilang bila cache dibersihkan.
    ========================================================================== */
 window.KONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: "",
+    SUPABASE_URL: "https://yslpnfzvvhamxrdjhklb.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_wZ4zGWGpcEAegYiRIoNqUA_epqtmeAo",
 
   NAMA_SATKER: "BPS Kabupaten Kutai Kartanegara",
   ALAMAT: "Jl. Danau Aji No. 98, Melayu, Tenggarong 75512",
