@@ -44,8 +44,8 @@
       <div class="card__title">Periksa dengan kode tiket</div>
       <div id="msgCek"></div>
       <form id="formCek">
-        <div class="field"><label class="fl" for="kKode">Kode tiket</label>
-          <input type="text" id="kKode" required placeholder="PST-2609-0042" autocomplete="off"></div>
+        <div class="field"><label class="fl" for="kKode">Kode tiket atau kode konsultasi</label>
+          <input type="text" id="kKode" required placeholder="PST-2609-0042 atau KON-2609-0007" autocomplete="off"></div>
         <div class="field"><label class="fl" for="kHp">Empat digit terakhir nomor HP</label>
           <input type="text" id="kHp" required inputmode="numeric" maxlength="4" placeholder="1234">
           <div class="field__hint">Nomor yang Anda berikan kepada petugas saat mengisi buku tamu.</div></div>
@@ -94,6 +94,9 @@
     <h2 class="sec">Permintaan Anda</h2>
     <p class="sec__note">Termasuk yang dicatat petugas saat Anda datang ke PST, bila nomor HP-nya sama.</p>
     <div id="riwayat"></div>
+    <h2 class="sec" style="margin-top:24px">Konsultasi daring Anda</h2>
+    <p class="sec__note">Jadwal, narasumber, dan tautan Zoom muncul di sini setelah ditetapkan petugas. <a class="lnk" href="konsultasi.html">Ajukan konsultasi baru</a>.</p>
+    <div id="riwayatKon"></div>
 
     <div class="card" style="margin-top:18px">
       <div class="card__title">Ajukan permintaan baru</div>
@@ -110,10 +113,12 @@
 
   <section class="card" style="margin-top:30px">
     <div class="card__title">Sebelum mengajukan</div>
-    <div class="grid grid--3" style="font-size:13.5px;color:var(--ink-2);line-height:1.6">
+    <div class="grid grid--2" style="font-size:13.5px;color:var(--ink-2);line-height:1.6">
       <div><b style="color:var(--ink)">Periksa katalog lebih dulu</b><br>
         Banyak data sudah terbit dan dapat diunduh sendiri tanpa mengajukan permintaan.
         <a class="lnk" href="index.html">Buka katalog ketersediaan data</a>.</div>
+      <div><b style="color:var(--ink)">Konsultasi lewat Zoom</b><br>
+        Tidak sempat ke kantor? <a class="lnk" href="konsultasi.html">Ajukan konsultasi daring</a> — pilih jadwal sendiri, paling cepat tiga hari dari sekarang.</div>
       <div><b style="color:var(--ink)">Konsultasi dan perpustakaan gratis</b><br>
         Tidak memerlukan surat. Cukup datang dengan kartu identitas pada
         <span id="jamLayanan"></span>. Penjualan publikasi dan data mikro berbayar dan wajib surat permintaan.</div>
@@ -134,7 +139,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
 <script src="assets/katalog.js"></script>
+<script src="assets/cari.js"></script>
+<script src="assets/pengetahuan.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/sahabat.js"></script>
+<script src="assets/chat.js"></script>
 </body>
 </html>

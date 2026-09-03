@@ -17,6 +17,11 @@
     PST.pasangKeluar();
     if (s && s.jenis === "pegawai") { SESI = s; mulai(); }
     else if (s && s.jenis === "sahabat") { location.href = "sahabat.html"; }
+    else if (s && s.jenis === "nonaktif") {
+      el("scMasuk").hidden = false;
+      PST.pesan("msgMasuk", "warn", "Akun " + s.email + " sudah dinonaktifkan. Hubungi admin PST bila ini keliru.");
+      PST.keluar();
+    }
     else { el("scMasuk").hidden = false; }
   });
 
@@ -35,6 +40,7 @@
       ", " + PST.tgl(d.toISOString()) + " · petugas: " + (SESI.profil.nama || SESI.email);
 
     isiPilihan();
+    isiPilihanKon();
     pasangTab();
     muatTiket();
     muatTanya();
@@ -68,91 +74,14 @@
         if (b.dataset.p === "pRekap") gambarRekap();
         if (b.dataset.p === "pPeringkat") gambarPeringkat();
         if (b.dataset.p === "pTanya") muatTanya();
+        if (b.dataset.p === "pKonsul") muatKon();
+        if (b.dataset.p === "pProfil") gambarProfil();
       };
     });
   }
 
-  /* ================================================ 1. PENCOCOKAN KATALOG */
-  /* Pembobotan kebalikan frekuensi: kata yang muncul di banyak baris katalog
-     ("penduduk", "kabupaten") bernilai kecil; kata yang jarang ("miskin",
-     "sakernas") bernilai besar. Tanpa ini, kalimat panjang selalu tersaring
-     ke baris yang kebetulan memuat kata umum. */
-  var HENTI = ("minta meminta mintak mohon tolong butuh perlu ingin cari mencari dapat bisa " +
-    "data datanya angka nilai berapa jumlahnya untuk dari yang dengan pada atau dan " +
-    "saya kami kita bapak ibu mas mbak pak bu tahun terakhir terbaru sekarang " +
-    "apakah bagaimana dimana kapan mengenai tentang tolongin adalah akan sudah belum " +
-    "keperluan kebutuhan skripsi tugas kuliah penelitian laporan berkas file " +
-    "kutai kartanegara kukar kabupaten daerah wilayah").split(" ");
-
-  function penggal(w) {
-    var v = [w], a;
-    a = w.replace(/^(keter|peng|peny|pem|pen|per|meng|meny|mem|men|ber|ter|ke|di|pe|se)/, "");
-    if (a.length >= 4 && a !== w) v.push(a);
-    v.slice().forEach(function (x) {
-      var b = x.replace(/(kannya|annya|nya|kan|isasi|an|i)$/, "");
-      if (b.length >= 4 && v.indexOf(b) === -1) v.push(b);
-    });
-    return v;
-  }
-
-  /* frekuensi dokumen tiap kata di seluruh katalog, dihitung sekali */
-  var DF = (function () {
-    var df = {};
-    K.DATA.forEach(function (d) {
-      var uniq = {};
-      (d.n + " " + d.t + " " + d.sm + " " + d.d).toLowerCase()
-        .replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
-        .forEach(function (w) { if (w.length >= 4) uniq[w] = 1; });
-      Object.keys(uniq).forEach(function (w) { df[w] = (df[w] || 0) + 1; });
-    });
-    return df;
-  })();
-  var N = K.DATA.length;
-
-  function bobot(w) {
-    var d = 0;
-    penggal(w).forEach(function (v) { d = Math.max(d, DF[v] || 0); });
-    if (!d) d = 1;
-    return Math.max(0.35, Math.log(N / d));
-  }
-
-  function cocokkan(teks) {
-    /* Singkatan diambil sebelum huruf dikecilkan: IPM, PDRB, TPT, P0, IHK, NTP
-       adalah kata kunci terkuat di meja PST tetapi terlalu pendek untuk lolos
-       saringan panjang biasa. */
-    var singkat = (teks.match(/\b(?:[A-Z]{2,6}[0-9]?|[A-Z][0-9])\b/g) || [])
-      .map(function (w) { return w.toLowerCase(); });
-
-    var kata = teks.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
-      .filter(function (w) { return w.length >= 4 && HENTI.indexOf(w) === -1; });
-    kata = singkat.concat(kata)
-      .filter(function (w, i, a) { return a.indexOf(w) === i; })
-      .slice(0, 12);
-    if (!kata.length) return [];
-
-    return K.DATA.map(function (d) {
-      var nama = d.n.toLowerCase();
-      var hay = (d.n + " " + d.t + " " + d.sm + " " + d.d + " " + (d.mn || "")).toLowerCase();
-      var skor = 0, kena = 0;
-      kata.forEach(function (w) {
-        var pendek = w.length <= 5 && singkat.indexOf(w) !== -1;
-        var b = pendek ? 3.2 : bobot(w);
-        var v = pendek ? [w] : penggal(w);
-        var diNama = false, diIsi = false;
-        v.forEach(function (x) {
-          var pola = pendek ? new RegExp("\\b" + x + "\\b") : null;
-          if (pendek ? pola.test(nama) : nama.indexOf(x) !== -1) diNama = true;
-          else if (pendek ? pola.test(hay) : hay.indexOf(x) !== -1) diIsi = true;
-        });
-        if (diNama) { skor += b * 3; kena++; }
-        else if (diIsi) { skor += b; kena++; }
-      });
-      if (kena > 1) skor *= 1 + (kena - 1) * 0.35;   /* makin banyak kata cocok, makin yakin */
-      return { d: d, skor: skor };
-    }).filter(function (x) { return x.skor > 0.9; })
-      .sort(function (a, b) { return b.skor - a.skor; })
-      .slice(0, 5).map(function (x) { return x.d; });
-  }
+  /* pencocokan katalog: lihat assets/cari.js */
+  var cocokkan = window.CARI.cocokkan;
 
   function gambarCocokan() {
     var hasil = cocokkan(el("cKebutuhan").value);
@@ -241,11 +170,19 @@
     PST.pesan("msgCatat", "info", "Menyimpan…");
     PST.tambahKunjungan(row).then(function (t) {
       PST.pesan("msgCatat", "", "");
+      var pesanWA = "Halo " + row.nama + ", terima kasih sudah berkunjung ke PST BPS Kabupaten Kutai Kartanegara.\n\n" +
+        "Kode tiket Anda: " + t.kode_tiket + "\nKebutuhan: " + row.kebutuhan + "\n\n" +
+        "Pantau statusnya di " + location.origin + location.pathname.replace(/admin\.html$/, "sahabat.html") +
+        " dengan kode tersebut dan 4 digit terakhir nomor HP Anda.";
+      var wa = PST.waLink(row.no_hp, pesanWA);
       el("hasilTiket").innerHTML =
         '<div class="tiketbox"><div class="k">' + esc(t.kode_tiket) + "</div>" +
         "<p>Kunjungan tersimpan. Berikan kode ini kepada sahabat data — ia dapat memeriksa status permintaannya " +
         "di halaman Sahabat Data dengan kode tersebut dan empat digit terakhir nomor HP-nya." +
-        (status === "eskalasi" ? " Jangan lupa mengangkat kebutuhannya ke papan tanya." : "") + "</p></div>";
+        (status === "eskalasi" ? " Jangan lupa mengangkat kebutuhannya ke papan tanya." : "") + "</p>" +
+        (wa ? '<div class="btnrow" style="margin-top:12px"><a class="btn btn--sm" href="' + esc(wa) + '" target="_blank" rel="noopener">Kirim kode lewat WhatsApp</a>' +
+              '<span style="font-size:12px;color:var(--s-ada)">terbuka di WhatsApp petugas, tinggal tekan kirim</span></div>' : "") +
+        "</div>";
       el("formCatat").reset(); rujukan = []; gambarChip();
       el("cocokan").innerHTML = "";
       isiPilihan();
@@ -266,12 +203,17 @@
     }).catch(function (e) { PST.pesan("msgTiket", "err", e.message); });
   }
 
+  function terlambatkah(t) {
+    if (!t.tenggat || t.status === "selesai" || t.status === "tolak") return false;
+    return new Date(t.tenggat + "T23:59:59") < new Date();
+  }
+
   function saringTiket() {
     var s = el("fStatus").value, q = el("fCari").value.trim().toLowerCase();
     return TIKET.filter(function (t) {
       if (s && t.status !== s) return false;
       if (!q) return true;
-      return [t.kode_tiket, t.nama, t.nama_instansi, t.kebutuhan, t.kategori_instansi]
+      return [t.kode_tiket, t.nama, t.nama_instansi, t.kebutuhan, t.kategori_instansi, t.petugas_nama, t.penyelesai_nama]
         .join(" ").toLowerCase().indexOf(q) !== -1;
     });
   }
@@ -280,14 +222,24 @@
     var d = saringTiket();
     if (!d.length) { el("tblTiket").innerHTML = '<tr><td class="empty">Belum ada kunjungan tercatat.</td></tr>'; return; }
     el("tblTiket").innerHTML =
-      "<thead><tr><th>Kode</th><th>Waktu</th><th>Sahabat data</th><th>Kebutuhan</th><th>Status</th><th></th></tr></thead><tbody>" +
+      "<thead><tr><th>Kode</th><th>Waktu</th><th>Sahabat data</th><th>Kebutuhan</th><th>Petugas</th><th>Status</th><th></th></tr></thead><tbody>" +
       d.slice(0, 300).map(function (t) {
         var w = { selesai:"ada", proses:"mohon", surat:"mohon", eskalasi:"prov", tolak:"tidak" }[t.status] || "lain";
+        var terlambat = terlambatkah(t);
+        var petugas = t.petugas_nama
+          ? esc(t.petugas_nama)
+          : (t.sahabat_id ? "<i style='color:var(--ink-3)'>daring</i>" : "—");
+        if (t.status === "selesai" && t.penyelesai_nama && t.penyelesai_nama !== t.petugas_nama)
+          petugas += "<br><span style='font-size:11.5px;color:var(--ink-3)'>selesai: " + esc(t.penyelesai_nama) + "</span>";
         return "<tr><td><span class='kode'>" + esc(t.kode_tiket) + "</span></td>" +
-          "<td>" + esc(PST.tgl(t.dibuat, true)) + "</td>" +
+          "<td>" + esc(PST.tgl(t.dibuat, true)) +
+            (t.tenggat && t.status !== "selesai" && t.status !== "tolak"
+              ? "<br><span style='font-size:11.5px;color:" + (terlambat ? "var(--s-tidak)" : "var(--ink-3)") + "'>tenggat " + esc(PST.tgl(t.tenggat)) + "</span>" : "") + "</td>" +
           "<td><b>" + esc(t.nama) + "</b><br><span style='font-size:12px'>" + esc(t.nama_instansi || t.kategori_instansi || "—") + "</span></td>" +
           "<td style='max-width:340px'>" + esc((t.kebutuhan || "").slice(0, 130)) + ((t.kebutuhan||"").length > 130 ? "…" : "") + "</td>" +
-          "<td><span class='pill " + w + "'>" + esc(B.statusTiket[t.status] || t.status) + "</span></td>" +
+          "<td style='white-space:nowrap'>" + petugas + "</td>" +
+          "<td><span class='pill " + w + "'>" + esc(B.statusTiket[t.status] || t.status) + "</span>" +
+            (terlambat ? "<br><span class='pill tidak' style='margin-top:4px'>terlambat</span>" : "") + "</td>" +
           "<td><button class='btn btn--ghost btn--sm' data-buka='" + esc(t.id) + "'>buka</button></td></tr>";
       }).join("") + "</tbody>";
     PST.qa("[data-buka]").forEach(function (b) { b.onclick = function () { bukaTiket(b.dataset.buka); }; });
@@ -298,7 +250,12 @@
   function bukaTiket(id) {
     var t = TIKET.filter(function (x) { return x.id === id; })[0];
     if (!t) return;
-    var baris = function (l, v) { return v ? "<tr><th style='width:180px'>" + esc(l) + "</th><td>" + esc(v) + "</td></tr>" : ""; };
+    var baris = function (l, v, html) {
+      return v ? "<tr><th style='width:180px'>" + esc(l) + "</th><td>" + (html ? PST.linkify(v) : esc(v)) + "</td></tr>" : "";
+    };
+    var petugas = t.petugas_nama || (t.sahabat_id ? "Diajukan sendiri secara daring" : null);
+    var penyelesai = t.status === "selesai" && t.penyelesai_nama
+      ? t.penyelesai_nama + (t.selesai_pada ? ", " + PST.tgl(t.selesai_pada, true) : "") : null;
     el("detailTiket").innerHTML =
       '<div class="card"><div class="card__title">Tiket ' + esc(t.kode_tiket) + "</div>" +
       '<div id="msgDetail"></div>' +
@@ -309,19 +266,21 @@
         baris("Pemanfaatan", t.pemanfaatan) +
         baris("Jenis layanan", (t.jenis_layanan || []).join(", ")) +
         baris("Sarana", t.sarana) +
-        baris("Kebutuhan", t.kebutuhan) +
+        baris("Kebutuhan", t.kebutuhan, true) +
         baris("Ragam data dirujuk", (t.katalog_ref || []).join(" · ")) +
         baris("Perlu surat", t.butuh_surat ? "Ya" : "") +
-        baris("Tenggat", t.tenggat ? PST.tgl(t.tenggat) : "") +
-        baris("Dicatat", PST.tgl(t.dibuat, true)) +
+        baris("Tenggat", t.tenggat ? PST.tgl(t.tenggat) + (terlambatkah(t) ? " — sudah lewat" : "") : "") +
+        baris("Dicatat", PST.tgl(t.dibuat, true) + (petugas ? " oleh " + petugas : "")) +
+        baris("Diselesaikan", penyelesai) +
+        baris("Catatan penyelesaian", t.hasil, true) +
       "</table></div>" +
       '<div class="grid grid--2" style="margin-top:14px">' +
         '<div class="field"><label class="fl">Ubah status</label><select id="dStatus">' +
           Object.keys(B.statusTiket).map(function (k) {
             return '<option value="' + k + '"' + (k === t.status ? " selected" : "") + ">" + esc(B.statusTiket[k]) + "</option>";
           }).join("") + "</select></div>" +
-        '<div class="field"><label class="fl">Catatan penyelesaian</label>' +
-          '<textarea id="dHasil" style="min-height:60px">' + esc(t.hasil || "") + "</textarea></div>" +
+        '<div class="field"><label class="fl">Ubah catatan penyelesaian</label>' +
+          '<textarea id="dHasil" style="min-height:60px" placeholder="Boleh menyertakan tautan — akan bisa diklik oleh sahabat data">' + esc(t.hasil || "") + "</textarea></div>" +
       "</div>" +
       '<div class="btnrow"><button class="btn btn--sm" id="dSimpan">Simpan perubahan</button>' +
       '<button class="btn btn--ghost btn--sm" id="dAngkat">Angkat ke papan tanya</button>' +
@@ -329,7 +288,8 @@
 
     el("dSimpan").onclick = function () {
       PST.ubahKunjungan(id, { status: el("dStatus").value, hasil: el("dHasil").value.trim() || null }, SESI.id)
-        .then(function () { PST.pesan("msgDetail", "ok", "Tersimpan."); return muatTiket(); })
+        .then(function () { return muatTiket(); })
+        .then(function () { bukaTiket(id); PST.pesan("msgDetail", "ok", "Tersimpan."); })
         .catch(function (e) { PST.pesan("msgDetail", "err", e.message); });
     };
     el("dAngkat").onclick = function () {
@@ -346,7 +306,9 @@
   }
 
   /* ================================================ 4. PAPAN TANYA */
+  var tanyaTerbuka = {};
   function muatTanya() {
+    PST.qa(".qa.is-open").forEach(function (n) { tanyaTerbuka[n.dataset.q] = true; });
     PST.daftarPertanyaan().then(function (r) {
       if (!r.length) { el("daftarTanya").innerHTML = '<div class="empty">Belum ada pertanyaan. Bagus — berarti semuanya terjawab di meja.</div>'; return; }
       el("daftarTanya").innerHTML = r.map(function (p) {
@@ -357,14 +319,16 @@
             '<span class="qa__m">' + esc(p.penanya_nama || (p.penanya_id === SESI.id ? SESI.profil.nama : "pegawai")) +
             " · " + esc(PST.sejak(p.dibuat)) + " · " + (p.n_jawaban || 0) + " jawaban" +
             (p.kode_tiket ? " · tiket " + esc(p.kode_tiket) : "") + "</span></span></div>" +
-          '<div class="qa__b"><p style="font-size:13.5px;color:var(--ink-2);white-space:pre-wrap;margin:12px 0 0">' +
-            esc(p.isi || "") + "</p><div class='jwbList'></div></div></div>";
+          '<div class="qa__b"><p style="font-size:13.5px;color:var(--ink-2);margin:12px 0 0">' +
+            PST.linkify(p.isi || "") + "</p><div class='jwbList'></div></div></div>";
       }).join("");
       PST.qa(".qa").forEach(function (n) {
+        var pert = r.filter(function (x) { return x.id === n.dataset.q; })[0];
         n.querySelector(".qa__h").onclick = function () {
           var buka = n.classList.toggle("is-open");
-          if (buka) gambarJawaban(n, n.dataset.q, r.filter(function(x){return x.id===n.dataset.q;})[0]);
+          if (buka) gambarJawaban(n, n.dataset.q, pert);
         };
+        if (tanyaTerbuka[n.dataset.q]) { n.classList.add("is-open"); gambarJawaban(n, n.dataset.q, pert); }
       });
     }).catch(function (e) { el("daftarTanya").innerHTML = '<div class="msg msg--err">' + esc(e.message) + "</div>"; });
   }
@@ -372,18 +336,22 @@
   function gambarJawaban(node, pid, pert) {
     var box = node.querySelector(".jwbList");
     box.innerHTML = '<div class="empty" style="padding:16px">Memuat…</div>';
+    var bolehTandai = pert && (pert.penanya_id === SESI.id || SESI.profil.peran === "admin");
     PST.daftarJawaban(pid).then(function (js) {
       box.innerHTML = js.map(function (j) {
         return '<div class="jwb' + (j.terbaik ? " is-best" : "") + '">' +
           '<div class="jwb__m">' + esc(j.penjawab_nama || "pegawai") + " · " + esc(PST.sejak(j.dibuat)) +
           (j.terbaik ? " · paling membantu" : "") + "</div>" +
-          '<div style="white-space:pre-wrap">' + esc(j.isi) + "</div>" +
+          '<div>' + PST.linkify(j.isi) + "</div>" +
           ((j.tautan || []).length ? '<div style="margin-top:6px">' + j.tautan.map(function (u) {
             return '<a class="lnk" style="font-size:12.5px" href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(u) + "</a>";
           }).join("<br>") + "</div>" : "") +
-          (j.terbaik ? "" : '<div style="margin-top:7px"><button class="btn btn--ghost btn--sm" data-best="' + esc(j.id) + '">tandai paling membantu</button></div>') +
+          (!j.terbaik && bolehTandai && j.penjawab_id !== SESI.id
+            ? '<div style="margin-top:7px"><button class="btn btn--ghost btn--sm" data-best="' + esc(j.id) + '">tandai paling membantu</button></div>' : "") +
           "</div>";
       }).join("") +
+      (js.length && !bolehTandai && !js.some(function (j) { return j.terbaik; })
+        ? '<p style="font-size:12px;color:var(--ink-3);margin:10px 0 0">Penanda “paling membantu” hanya bisa diberikan oleh penanya atau admin.</p>' : "") +
       '<form class="jwbForm" style="margin-top:16px">' +
         '<div class="field"><label class="fl">Jawaban Anda</label>' +
         '<textarea class="jIsi" placeholder="Jelaskan datanya ada di mana, atau mengapa tidak bisa disediakan"></textarea></div>' +
@@ -506,6 +474,171 @@
     a.click(); URL.revokeObjectURL(a.href);
   };
 
+  /* ================================================ 7. KONSULTASI DARING */
+  var KON = [], ATURAN_K = null, konTerbuka = null;
+
+  function isiPilihanKon() {
+    el("kfStatus").innerHTML = '<option value="aktif">Diajukan & dijadwalkan</option>' +
+      Object.keys(B.statusKonsultasi).map(function (k) { return '<option value="' + k + '">' + esc(B.statusKonsultasi[k]) + "</option>"; }).join("") +
+      '<option value="">Semua</option>';
+    el("jTopik").innerHTML = '<option value=""></option>' + PST.opsi(TOPIK);
+    PST.aturanKonsultasi().then(function (a) {
+      ATURAN_K = a;
+      el("jJam").innerHTML = PST.opsi(a.jam);
+      el("jTanggal").min = PST.tglWita();
+    });
+  }
+
+  function muatKon() {
+    return PST.daftarKonsultasi().then(function (r) { KON = r; gambarKon(); })
+      .catch(function (e) { PST.pesan("msgKon", "err", e.message); });
+  }
+
+  function gambarKon() {
+    var f = el("kfStatus").value;
+    var d = KON.filter(function (k) {
+      if (f === "aktif") return k.status === "diajukan" || k.status === "dijadwalkan";
+      if (!f) return true; return k.status === f;
+    });
+    // yang aktif diurutkan dari jadwal terdekat
+    if (f === "aktif") d.sort(function (a, b) { return (a.tanggal + a.jam) > (b.tanggal + b.jam) ? 1 : -1; });
+    el("kfHitung").textContent = d.length + " permintaan";
+    if (!d.length) { el("daftarKon").innerHTML = '<div class="empty">Tidak ada permintaan konsultasi pada saringan ini.</div>'; return; }
+    el("daftarKon").innerHTML = d.map(function (k) {
+      var w = { diajukan:"mohon", dijadwalkan:"ada", selesai:"lain", batal:"tidak" }[k.status] || "lain";
+      var lewat = k.status !== "selesai" && k.status !== "batal" && k.tanggal < PST.tglWita();
+      return '<div class="kon' + (konTerbuka === k.id ? " is-on" : "") + '" data-k="' + esc(k.id) + '">' +
+        '<span class="kon__w">' + esc(PST.tgl(k.tanggal)) + " · " + esc(k.jam) + " WITA</span>" +
+        '<span><span class="pill ' + w + '">' + esc(B.statusKonsultasi[k.status] || k.status) + "</span>" + (lewat ? ' <span class="pill tidak">lewat</span>' : "") + "</span>" +
+        '<span class="kon__n">' + esc(k.nama) + (k.nama_instansi ? " · " + esc(k.nama_instansi) : "") + "</span>" +
+        '<span class="kode">' + esc(k.kode) + "</span>" +
+        '<span class="kon__m">' + esc(k.topik || "tanpa topik") + " · narasumber: " + esc(k.narasumber_nama || "belum ditetapkan") + "</span>" +
+        "</div>";
+    }).join("");
+    PST.qa("[data-k]", el("daftarKon")).forEach(function (n) { n.onclick = function () { bukaKon(n.dataset.k); }; });
+  }
+  el("kfStatus").onchange = gambarKon;
+
+  function skorNarasumber(p, topik) {
+    if (!topik || !p.keahlian) return 0;
+    return p.keahlian.indexOf(topik) !== -1 ? 1 : 0;
+  }
+
+  function bukaKon(id) {
+    var k = KON.filter(function (x) { return x.id === id; })[0]; if (!k) return;
+    konTerbuka = id; gambarKon();
+    var baris = function (l, v, html) { return v ? "<tr><th style='width:150px'>" + esc(l) + "</th><td>" + (html ? PST.linkify(v) : esc(v)) + "</td></tr>" : ""; };
+    var aktif = PEGAWAI.filter(function (p) { return p.aktif !== false; })
+      .sort(function (a, b) { return skorNarasumber(b, k.topik) - skorNarasumber(a, k.topik) || a.nama.localeCompare(b.nama); });
+    var bentrok = KON.filter(function (x) { return x.id !== k.id && x.status === "dijadwalkan" && x.tanggal === k.tanggal && x.jam === k.jam; })
+      .map(function (x) { return x.narasumber_id; });
+    var pilihanNara = '<option value="">— belum ditetapkan —</option>' + aktif.map(function (p) {
+      var cocok = skorNarasumber(p, k.topik), sibuk = bentrok.indexOf(p.id) !== -1;
+      return '<option value="' + esc(p.id) + '" data-zoom="' + esc(p.tautan_zoom || "") + '"' + (k.narasumber_id === p.id ? " selected" : "") + (sibuk ? " disabled" : "") + ">" +
+        esc(p.nama) + (cocok ? " ✓ " + esc(k.topik) : "") + (p.tautan_zoom ? "" : " (belum ada tautan Zoom)") + (sibuk ? " — sudah ada sesi di jam ini" : "") + "</option>";
+    }).join("");
+
+    el("detailKon").innerHTML =
+      '<div class="card" style="margin-bottom:14px"><div class="card__title">Permintaan ' + esc(k.kode) + "</div>" +
+      '<div id="msgDetailKon"></div>' +
+      '<div class="tbl-scroll"><table class="tbl">' +
+        baris("Nama", k.nama) + baris("Kontak", [k.no_hp, k.email].filter(Boolean).join(" · ")) +
+        baris("Instansi", [k.nama_instansi, k.kategori_instansi].filter(Boolean).join(" · ")) +
+        baris("Pemanfaatan", k.pemanfaatan) + baris("Topik", k.topik) +
+        baris("Kebutuhan", k.kebutuhan, true) +
+        baris("Diajukan", PST.tgl(k.dibuat, true) + (k.sahabat_id ? " (lewat akun)" : "")) +
+      "</table></div>" +
+      '<div class="grid grid--2" style="margin-top:14px;gap:12px">' +
+        '<div class="field"><label class="fl">Narasumber</label><select id="dkNara">' + pilihanNara + "</select>" +
+          '<div class="field__hint">Tanda ✓ = keahliannya sesuai topik. Urutan sudah menurut kecocokan.</div></div>' +
+        '<div class="field"><label class="fl">Status</label><select id="dkStatus">' +
+          Object.keys(B.statusKonsultasi).map(function (s) { return '<option value="' + s + '"' + (s === k.status ? " selected" : "") + ">" + esc(B.statusKonsultasi[s]) + "</option>"; }).join("") + "</select></div>" +
+        '<div class="field"><label class="fl">Tanggal</label><input type="date" id="dkTanggal" value="' + esc(k.tanggal) + '"></div>' +
+        '<div class="field"><label class="fl">Jam</label><select id="dkJam">' + PST.opsi(ATURAN_K ? ATURAN_K.jam : B.konsultasi.jam, k.jam) + "</select></div>" +
+      "</div>" +
+      '<div class="field"><label class="fl">Tautan Zoom</label><input type="url" id="dkZoom" value="' + esc(k.tautan_zoom || "") + '" placeholder="terisi otomatis dari profil narasumber, boleh diganti"></div>' +
+      '<div class="field"><label class="fl">Pesan untuk sahabat data</label><textarea id="dkPesan" style="min-height:56px" placeholder="Misal: siapkan daftar indikator yang dibutuhkan; sesi direkam untuk keperluan internal">' + esc(k.pesan_untuk_sahabat || "") + "</textarea></div>" +
+      '<div class="field"><label class="fl">Catatan internal (tidak dilihat sahabat data)</label><textarea id="dkCatatan" style="min-height:48px">' + esc(k.catatan_internal || "") + "</textarea></div>" +
+      '<div class="btnrow"><button class="btn btn--sm" id="dkSimpan">Simpan</button>' +
+      '<a class="btn btn--ghost btn--sm" id="dkWA" target="_blank" rel="noopener">Kirim konfirmasi lewat WhatsApp</a>' +
+      '<button class="btn btn--ghost btn--sm" id="dkTutup">Tutup</button></div></div>';
+
+    el("dkNara").onchange = function () {
+      var o = this.options[this.selectedIndex];
+      if (o && o.dataset.zoom && !el("dkZoom").value) el("dkZoom").value = o.dataset.zoom;
+      if (this.value && el("dkStatus").value === "diajukan") el("dkStatus").value = "dijadwalkan";
+    };
+    function susunWA() {
+      var st = el("dkStatus").value, nara = el("dkNara").options[el("dkNara").selectedIndex];
+      var teks = "Halo " + k.nama + ", ini PST BPS Kabupaten Kutai Kartanegara.\n\n" +
+        (st === "dijadwalkan"
+          ? "Konsultasi daring Anda (" + k.kode + ") dijadwalkan:\n📅 " + PST.tgl(el("dkTanggal").value) + " pukul " + el("dkJam").value + " WITA\n" +
+            "👤 Narasumber: " + (nara && nara.value ? nara.text.replace(/ ✓.*$/, "").replace(/ \(belum.*$/, "") : "-") + "\n" +
+            "🔗 Zoom: " + (el("dkZoom").value || "(menyusul)") + "\n" +
+            (el("dkPesan").value ? "\n" + el("dkPesan").value + "\n" : "")
+          : st === "batal"
+          ? "Mohon maaf, permintaan konsultasi " + k.kode + " tidak dapat dijadwalkan. " + (el("dkPesan").value || "") + "\n"
+          : "Permintaan konsultasi " + k.kode + " sudah kami terima untuk " + PST.tgl(el("dkTanggal").value) + " pukul " + el("dkJam").value + " WITA. Narasumber dan tautan Zoom menyusul.\n") +
+        "\nPantau status: " + location.origin + location.pathname.replace(/admin\.html$/, "sahabat.html");
+      el("dkWA").href = PST.waLink(k.no_hp, teks);
+    }
+    ["dkStatus","dkNara","dkTanggal","dkJam","dkZoom","dkPesan"].forEach(function (i) { el(i).addEventListener("input", susunWA); el(i).addEventListener("change", susunWA); });
+    susunWA();
+
+    el("dkSimpan").onclick = function () {
+      var patch = {
+        narasumber_id: el("dkNara").value || null, status: el("dkStatus").value,
+        tanggal: el("dkTanggal").value, jam: el("dkJam").value,
+        tautan_zoom: el("dkZoom").value.trim() || null,
+        pesan_untuk_sahabat: el("dkPesan").value.trim() || null,
+        catatan_internal: el("dkCatatan").value.trim() || null
+      };
+      if (patch.status === "dijadwalkan" && !patch.narasumber_id) { PST.pesan("msgDetailKon", "warn", "Tetapkan narasumber dulu sebelum menandai dijadwalkan."); return; }
+      PST.ubahKonsultasi(id, patch).then(function () { return muatKon(); })
+        .then(function () { bukaKon(id); PST.pesan("msgDetailKon", "ok", "Tersimpan." + (patch.status === "dijadwalkan" ? " Jangan lupa kirim konfirmasi ke sahabat data." : "")); })
+        .catch(function (e) { PST.pesan("msgDetailKon", "err", e.message); });
+    };
+    el("dkTutup").onclick = function () { konTerbuka = null; el("detailKon").innerHTML = ""; gambarKon(); };
+    el("detailKon").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  el("formJadwalkan").onsubmit = function (e) {
+    e.preventDefault();
+    PST.tambahKonsultasiPetugas({
+      nama: el("jNama").value.trim(), no_hp: el("jHp").value.trim(), kebutuhan: el("jKebutuhan").value.trim(),
+      topik: el("jTopik").value || null, tanggal: el("jTanggal").value, jam: el("jJam").value, status: "diajukan"
+    }).then(function (row) {
+      el("formJadwalkan").reset(); PST.pesan("msgJadwalkan", "ok", "Tersimpan sebagai " + row.kode + ". Buka untuk menetapkan narasumber.");
+      return muatKon();
+    }).catch(function (er) { PST.pesan("msgJadwalkan", "err", er.message); });
+  };
+
+  /* ================================================ 8. PROFIL SAYA */
+  function gambarProfil() {
+    var p = SESI.profil || {};
+    el("prKeahlian").innerHTML = PST.centang("prKeahlian", TOPIK, p.keahlian || []);
+    el("prZoom").value = p.tautan_zoom || ""; el("prHp").value = p.no_hp || ""; el("prJabatan").value = p.jabatan || "";
+    PST.papanPeringkat().then(function (r) {
+      var saya = r.filter(function (x) { return x.pegawai_id === SESI.id; })[0];
+      el("ringkasSaya").innerHTML = saya
+        ? '<div class="summary" style="grid-template-columns:repeat(2,1fr)">' +
+          '<div><div class="n ada">' + saya.poin + '</div><div class="l">poin total</div></div>' +
+          '<div><div class="n">' + saya.n_catat + '</div><div class="l">kunjungan dicatat</div></div>' +
+          '<div><div class="n">' + (saya.n_jawab + saya.n_terbaik) + '</div><div class="l">jawaban di papan tanya</div></div>' +
+          '<div><div class="n">' + (saya.n_konsul || 0) + '</div><div class="l">sesi konsultasi dituntaskan</div></div></div>'
+        : '<div class="empty">Belum ada poin.</div>';
+    });
+  }
+  el("formProfil").onsubmit = function (e) {
+    e.preventDefault();
+    PST.ubahProfil({ keahlian: PST.nilaiCentang("prKeahlian"), tautan_zoom: el("prZoom").value.trim() || null,
+                     no_hp: el("prHp").value.trim() || null, jabatan: el("prJabatan").value.trim() || null })
+      .then(function () { return PST.sesi(); })
+      .then(function (s) { SESI = s; PST.pesan("msgProfil", "ok", "Profil tersimpan."); return PST.daftarPegawai(); })
+      .then(function (p) { PEGAWAI = p; })
+      .catch(function (er) { PST.pesan("msgProfil", "err", er.message); });
+  };
+
   /* ================================================ 6. PERINGKAT */
   function gambarPeringkat() {
     PST.papanPeringkat().then(function (r) {
@@ -515,7 +648,8 @@
           '<span class="rank__nm"><b>' + esc(p.nama) + "</b><span>" +
             (p.jabatan ? esc(p.jabatan) + " · " : "") +
             p.n_catat + " kunjungan · " + p.n_jawab + " jawaban · " +
-            p.n_terbaik + " jawaban terbaik · " + p.n_tuntas + " tiket dituntaskan</span></span>" +
+            p.n_terbaik + " jawaban terbaik · " + p.n_tuntas + " tiket dituntaskan" +
+            (p.n_konsul ? " · " + p.n_konsul + " konsultasi" : "") + "</span></span>" +
           '<span class="rank__p">' + p.poin + "</span></div>";
       }).join("");
     }).catch(function (e) { el("papanPeringkat").innerHTML = '<div class="msg msg--err">' + esc(e.message) + "</div>"; });

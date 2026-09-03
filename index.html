@@ -151,8 +151,9 @@
       terjawab akan muncul di papan tanya supaya pegawai yang paham dapat membantu, dan sahabat data
       dapat memantau sendiri lewat kode tiketnya.</p>
     <div class="btnrow">
-      <a class="btn" href="admin.html">Ruang pegawai</a>
+      <a class="btn" href="konsultasi.html">Konsultasi daring lewat Zoom</a>
       <a class="btn btn--ghost" href="sahabat.html">Cek status permintaan</a>
+      <a class="btn btn--ghost" href="#tanya" onclick="document.getElementById('cbBuka').click();return false;">Tanya asisten</a>
     </div>
   </div>
 
@@ -187,8 +188,11 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
 <script src="assets/katalog.js"></script>
+<script src="assets/cari.js"></script>
+<script src="assets/pengetahuan.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function () {
@@ -309,5 +313,6 @@
   saring();
 })();
 </script>
+<script src="assets/chat.js"></script>
 </body>
 </html>

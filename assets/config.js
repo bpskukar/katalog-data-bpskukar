@@ -1,13 +1,18 @@
 /* ============================================================================
-   Konfigurasi — ubah dua baris di bawah setelah proyek Supabase dibuat.
-   Kunci "anon" memang boleh terlihat publik; keamanan dijaga oleh Row Level
-   Security di sisi basis data (lihat supabase/schema.sql).
-   Selama masih kosong, seluruh halaman berjalan dalam MODE DEMO: data hanya
-   tersimpan di peramban ini dan hilang bila cache dibersihkan.
+   Konfigurasi — SATU-SATUNYA berkas yang memuat kredensial.
+
+   ⚠️  PERIKSA BERKAS INI SETIAP KALI MENGUNGGAH PEMBARUAN.
+       Unggahan baru akan menimpanya, jadi pastikan SUPABASE_ANON_KEY terisi
+       kembali. Bila kosong, situs diam-diam kembali ke MODE DEMO — semua
+       catatan hanya tersimpan di peramban masing-masing, tidak di server.
+
+   Kunci "anon"/"publishable" memang boleh terlihat publik; keamanan dijaga
+   Row Level Security di sisi basis data (lihat supabase/schema.sql).
+   Jangan pernah menempelkan kunci "service_role"/"secret" di sini.
    ========================================================================== */
 window.KONFIG = {
-    SUPABASE_URL: "https://yslpnfzvvhamxrdjhklb.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_wZ4zGWGpcEAegYiRIoNqUA_epqtmeAo",
+  SUPABASE_URL: "https://yslpnfzvvhamxrdjhklb.supabase.co",
+  SUPABASE_ANON_KEY: "",   /* ← TEMPEL KUNCI PUBLISHABLE DI SINI (sb_publishable_...) */
 
   NAMA_SATKER: "BPS Kabupaten Kutai Kartanegara",
   ALAMAT: "Jl. Danau Aji No. 98, Melayu, Tenggarong 75512",
@@ -84,7 +89,23 @@ window.BAKU = {
     tanya:    { n: 1,  l: "Mengangkat kebutuhan ke papan tanya" },
     jawab:    { n: 3,  l: "Menjawab pertanyaan pegawai lain" },
     terbaik:  { n: 7,  l: "Jawaban ditandai paling membantu" },
-    tuntas:   { n: 5,  l: "Menuntaskan tiket yang tertunda" }
+    tuntas:   { n: 5,  l: "Menuntaskan tiket yang tertunda" },
+    konsul:   { n: 5,  l: "Menjadi narasumber konsultasi daring" }
+  },
+
+  /* Konsultasi daring. Nilai ini cadangan bila tabel pengaturan di Supabase
+     tidak terbaca; sumber utamanya tabel pengaturan (kunci konsultasi_*). */
+  konsultasi: {
+    jam: ["09:00", "10:00", "11:00", "13:30", "14:30"],
+    durasi: 45,
+    minHari: 3,
+    maksHari: 30
+  },
+  statusKonsultasi: {
+    diajukan:    "Diajukan — menunggu narasumber",
+    dijadwalkan: "Dijadwalkan",
+    selesai:     "Selesai",
+    batal:       "Dibatalkan"
   },
 
   /* Janji waktu layanan menurut Standar Pelayanan PST BPS */

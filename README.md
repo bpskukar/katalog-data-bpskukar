@@ -22,6 +22,8 @@ Sistem ini memindahkan pengetahuan itu keluar dari kepala beberapa orang:
 | **Katalog** (`index.html`) | Siapa saja | Datanya ada atau tidak, sampai level apa, bisa diunduh sendiri atau harus bersurat, dan tautannya di mana |
 | **Ruang pegawai** (`admin.html`) | Pegawai BPS | Siapa yang datang, minta apa, sudah ditangani atau belum, kebutuhan apa yang paling sering muncul |
 | **Sahabat data** (`sahabat.html`) | Konsumen data | Permintaan saya sudah sampai mana |
+| **Konsultasi daring** (`konsultasi.html`) | Konsumen data | Bicara langsung lewat Zoom, pilih jadwal sendiri |
+| **Asisten PST** (tombol di semua halaman) | Siapa saja | Jawaban cepat dari katalog dan jawaban baku, cek tiket lewat percakapan |
 
 ## Isi katalog
 
@@ -57,9 +59,40 @@ yang paling sering membuat petugas menelepon rekannya.
 - **Papan tanya** untuk kebutuhan yang tidak terjawab di meja, dengan penandaan jawaban
   paling membantu.
 - **Poin keaktifan dan papan peringkat** — mencatat kunjungan 2, mengangkat pertanyaan 1,
-  menjawab 3, jawaban terbaik 7, menuntaskan tiket 5.
+  menjawab 3, jawaban terbaik 7, menuntaskan tiket 5. Dengan pagar keadilan: poin tuntas hanya
+  sekali per tiket dan tidak diberikan untuk tiket sendiri yang ditutup kurang dari satu jam;
+  menjawab pertanyaan sendiri tidak berpoin; yang boleh menandai jawaban paling membantu hanya
+  penanya atau admin, dan tidak pernah untuk jawaban sendiri. Semua aturan ini ditegakkan di
+  basis data, bukan di peramban, sehingga tidak bisa diakali lewat API.
+- **Kirim kode tiket lewat WhatsApp** — satu tombol setelah kunjungan tersimpan, terbuka di
+  WhatsApp petugas dengan pesan yang sudah tersusun. Tanpa API, tanpa biaya.
 - **Rekap kebutuhan** — kebutuhan terbanyak, asal instansi, tujuan pemanfaatan, jenis
   layanan, tren bulanan, ragam data paling sering diminta, dan ekspor CSV.
+
+## Konsultasi daring lewat Zoom
+
+Sahabat data mengisi formulir — kebutuhan, topik, data diri — lalu memilih jadwal pada
+hari kerja, paling cepat tiga hari dari pengajuan, dari jam sesi yang tersedia. Slot yang
+sudah terisi tidak bisa dipilih. Ia menerima kode `KON-…` untuk memantau statusnya.
+Petugas menetapkan narasumber (disarankan menurut keahlian), tautan Zoom terisi otomatis
+dari profil narasumber, dan konfirmasi dikirim lewat WhatsApp dengan satu tombol.
+Narasumber mendapat poin setelah sesi ditandai selesai.
+
+## Asisten PST (chatbot)
+
+Menjawab dari dua sumber saja — katalog dan jawaban baku — sehingga tidak pernah mengarang
+angka: "ada data kemiskinan per desa?" dijawab dengan alasan metodologisnya dan ragam data
+terdekat yang tersedia; "kenapa beda dengan Dukcapil?" dijawab dengan penjelasan baku;
+kode tiket yang diketik langsung diperiksa. Untuk pegawai yang masuk, tersedia kartu jawaban
+baku (alur melayani, kalimat penolakan) dengan tombol salin.
+
+## Notifikasi WhatsApp
+
+Tiket daring baru, permintaan konsultasi, jadwal ditetapkan, pertanyaan baru di papan tanya,
+dan pengingat harian pukul 08.00 WITA dikirim ke grup WhatsApp pegawai melalui gateway
+pilihan sendiri (Fonnte, Wablas, atau yang sejenis). Pengiriman berjalan di sisi basis data
+(pg_net + pg_cron); kegagalan kirim tidak pernah menggagalkan pencatatan. Rinciannya di
+[PANDUAN-PASANG.md](PANDUAN-PASANG.md#notifikasi-whatsapp).
 
 ## Yang bisa dilakukan sahabat data
 
@@ -71,16 +104,23 @@ seluruh riwayat dan mengajukan permintaan baru tanpa datang ke kantor.
 
 ```
 index.html              katalog publik
+konsultasi.html         formulir konsultasi daring
 admin.html              ruang pegawai
 sahabat.html            portal konsumen data
 assets/
   config.js             sambungan Supabase & klasifikasi baku BPS  ← satu-satunya yang perlu diisi
   katalog.js            isi katalog: 83 ragam data + 20 kecamatan
+  cari.js               mesin pencocokan (dipakai ruang pegawai & chatbot)
+  pengetahuan.js        jawaban baku chatbot & kartu jawaban petugas
+  chat.js               widget asisten PST
+  konsultasi.js         logika formulir konsultasi
   theme.css             sistem tampilan bersama
   app.js                lapisan data (Supabase, dengan cadangan mode demo)
   admin.js              logika ruang pegawai
   sahabat.js            logika portal sahabat data
-supabase/schema.sql     tabel, tampilan, pemicu poin, keamanan baris
+supabase/schema.sql     tabel, tampilan, pemicu poin, keamanan baris (sudah memuat semua perbaikan)
+supabase/perbaikan-01.sql  pembaruan 01 untuk proyek yang dibuat dengan schema.sql versi awal
+supabase/perbaikan-02.sql  pembaruan 02: konsultasi daring, notifikasi WhatsApp, profil pegawai
 PANDUAN-PASANG.md       cara memasang, menguji, dan memelihara
 IDE-PENGEMBANGAN.md     usulan pengembangan lanjutan
 ```

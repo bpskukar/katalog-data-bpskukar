@@ -8,7 +8,7 @@ paling cepat memberi hasil.
 
 ## Bagian 1 — Menolong petugas piket besok pagi
 
-### 1. Kartu jawaban baku untuk sepuluh pertanyaan tersering
+### 1. Kartu jawaban baku untuk sepuluh pertanyaan tersering — *sudah dikerjakan (asisten PST, mode petugas)*
 
 Papan tanya menyelesaikan pertanyaan *baru*. Yang justru paling menghabiskan waktu adalah
 pertanyaan *lama yang berulang*. Sepuluh pertanyaan berikut hampir pasti muncul tiap bulan
@@ -39,7 +39,7 @@ Tambahkan tabel `jadwal_piket` (tanggal, pegawai, pendamping) dan tampilkan
 "Hari ini yang bertugas: …" di kepala ruang pegawai. Manfaat sampingannya: rekap kehadiran
 piket otomatis, dan kalau petugas piket lupa mencatat, ketahuan siapa yang perlu diingatkan.
 
-### 3. Resi tiket lewat WhatsApp, tanpa API
+### 3. Resi tiket lewat WhatsApp, tanpa API — *sudah dikerjakan*
 
 Tombol yang membuka `https://wa.me/<nomor>?text=…` berisi kode tiket, ringkasan kebutuhan,
 dan tautan halaman pengecekan. Petugas menekan sekali, pesan terkirim dari WhatsApp
@@ -73,7 +73,7 @@ sudah mengikuti Blok I VKD25, jadi sahabat data tidak perlu mengulang jawaban ya
 Ini menaikkan tingkat respons SKD sekaligus Indeks Kepuasan Konsumen dan Indeks Persepsi
 Anti Korupsi — dua angka yang ikut dinilai dalam kinerja satker.
 
-### 7. Pemberitahuan otomatis saat status tiket berubah
+### 7. Pemberitahuan otomatis saat status tiket berubah — *sebagian dikerjakan: notifikasi WhatsApp ke pegawai*
 
 Supabase Edge Function yang mengirim surel begitu status berpindah ke "selesai".
 Sahabat data tidak perlu memeriksa manual, dan petugas tidak perlu menelepon.
@@ -86,7 +86,7 @@ bandingkan tenggat dengan waktu selesai sungguhan, lalu tampilkan
 "rata-rata penyelesaian 2,3 hari kerja, 91 persen tepat waktu" di tab Rekap.
 Angka ini yang dicari saat penyusunan laporan kinerja dan penilaian Zona Integritas.
 
-### 9. Chatbot WhatsApp, dimulai dari yang paling sederhana
+### 9. Chatbot WhatsApp, dimulai dari yang paling sederhana — *tahap pertama dikerjakan sebagai asisten di situs*
 
 BPS Kabupaten Sanggau punya KAWAN dan BPS Kuantan Singingi punya CARANO — keduanya
 chatbot WhatsApp untuk layanan statistik. Tidak perlu langsung secanggih itu.

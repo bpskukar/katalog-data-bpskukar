@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ajukan konsultasi statistik daring lewat Zoom dengan BPS Kabupaten Kutai Kartanegara. Gratis, pilih jadwal sendiri.">
+<title>Konsultasi Daring — PST BPS Kutai Kartanegara</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2316181C'/><rect x='22' y='26' width='56' height='13' rx='3' fill='%232F5FA8'/><rect x='22' y='44' width='56' height='13' rx='3' fill='%236B8FC9'/><rect x='22' y='62' width='36' height='13' rx='3' fill='%23A9BEDD'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+.langkah { display:flex; gap:10px; align-items:baseline; margin-bottom:14px; }
+.langkah__no { font-family:var(--f-disp); font-size:1.6rem; color:var(--ink-3); line-height:1; }
+.langkah h2 { font-family:var(--f-disp); font-weight:500; font-size:1.3rem; margin:0; }
+.hari { display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; scrollbar-width:thin; }
+.hari button { flex:0 0 auto; min-width:78px; padding:8px 10px; background:var(--panel); border:1px solid var(--line-2); cursor:pointer; text-align:center; font-family:var(--f-ui); color:var(--ink-2); }
+.hari button b { display:block; font-size:15px; color:var(--ink); font-weight:600; }
+.hari button span { font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; }
+.hari button[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); }
+.hari button[aria-pressed="true"] b, .hari button[aria-pressed="true"] span { color:var(--bg); }
+.hari button:disabled { opacity:.35; cursor:not-allowed; }
+.jam { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.jam button { padding:8px 14px; background:var(--panel); border:1px solid var(--line-2); font:600 13.5px var(--f-mono); color:var(--ink); cursor:pointer; }
+.jam button[aria-pressed="true"] { background:var(--s-ada); border-color:var(--s-ada); color:#fff; }
+.jam button:disabled { text-decoration:line-through; color:var(--ink-3); cursor:not-allowed; background:var(--sunk); }
+.cocok { border:1px solid var(--s-ada); background:var(--s-ada-bg); padding:12px 14px; margin-top:8px; font-size:13px; }
+.cocok b { color:var(--s-ada); display:block; margin-bottom:6px; }
+.cocok a { color:var(--link); font-size:12.5px; text-decoration:none; border-bottom:1px solid var(--link-wash); }
+.cocok .b { padding:5px 0; border-top:1px solid rgba(0,0,0,.06); }
+.terpilih { font-family:var(--f-mono); font-size:12px; color:var(--ink-3); margin-top:10px; }
+.terpilih b { color:var(--ink); font-weight:500; }
+.hasil { border:2px solid var(--s-ada); background:var(--s-ada-bg); padding:22px 24px; }
+.hasil .k { font-family:var(--f-mono); font-size:1.7rem; letter-spacing:.06em; color:var(--s-ada); }
+</style>
+</head>
+<body>
+<div id="navbar"></div>
+<div id="spanduk"></div>
+
+<div class="wrap">
+  <header class="head">
+    <div class="head__kicker">BPS Kabupaten Kutai Kartanegara · Pelayanan Statistik Terpadu</div>
+    <h1>Konsultasi statistik daring</h1>
+    <p>
+      Berbicara langsung dengan pegawai BPS lewat Zoom tanpa datang ke kantor. Gratis.
+      Ceritakan dulu kebutuhan Anda supaya kami menyiapkan narasumber yang tepat, lalu pilih
+      jadwal — paling cepat <b id="minHariTeks">tiga hari</b> dari sekarang, hari kerja,
+      <span id="durasiTeks">45</span> menit per sesi.
+    </p>
+  </header>
+
+  <div id="hasilAjuan" hidden style="margin-top:8px"></div>
+
+  <form id="formKon">
+    <div class="grid grid--2" style="align-items:start;margin-top:8px">
+      <div class="card">
+        <div class="langkah"><span class="langkah__no">1</span><h2>Ceritakan kebutuhan Anda</h2></div>
+        <div class="field">
+          <label class="fl" for="kKebutuhan">Apa yang ingin dikonsultasikan</label>
+          <textarea id="kKebutuhan" required placeholder="Misal: saya menyusun RPJMD dan perlu memahami indikator kemiskinan, IPM, dan PDRB Kukar — mana yang tersedia per kecamatan, dan bagaimana membacanya"></textarea>
+          <div class="field__hint">Semakin jelas, semakin tepat narasumber yang kami siapkan.</div>
+        </div>
+        <div id="cocokKat"></div>
+        <div class="field" style="margin-top:12px"><label class="fl" for="kTopik">Topik utama</label><select id="kTopik"></select></div>
+        <div class="field"><label class="fl" for="kGuna">Pemanfaatan</label><select id="kGuna"></select></div>
+      </div>
+
+      <div class="card">
+        <div class="langkah"><span class="langkah__no">2</span><h2>Data diri</h2></div>
+        <div class="field"><label class="fl" for="kNama">Nama lengkap</label><input type="text" id="kNama" required></div>
+        <div class="grid grid--2" style="gap:12px">
+          <div class="field"><label class="fl" for="kHp">Nomor HP (WhatsApp)</label><input type="tel" id="kHp" required placeholder="08xxxxxxxxxx">
+            <div class="field__hint">Untuk memeriksa status dan dihubungi bila jadwal berubah.</div></div>
+          <div class="field"><label class="fl" for="kEmail">Surel</label><input type="email" id="kEmail"></div>
+        </div>
+        <div class="field"><label class="fl" for="kKategori">Kategori instansi</label><select id="kKategori"></select></div>
+        <div class="field"><label class="fl" for="kInstansi">Nama instansi / kampus</label><input type="text" id="kInstansi"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="langkah"><span class="langkah__no">3</span><h2>Pilih jadwal</h2></div>
+      <p class="sec__note" style="margin-bottom:12px">Waktu Indonesia Tengah (WITA). Jam yang dicoret sudah terisi.</p>
+      <div class="hari" id="hariList"></div>
+      <div class="jam" id="jamList"></div>
+      <div class="terpilih" id="terpilih">Belum ada jadwal yang dipilih.</div>
+    </div>
+
+    <div id="msgKon" style="margin-top:14px"></div>
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn" type="submit" id="btnAjukan">Ajukan konsultasi</button>
+      <span style="font-size:13px;color:var(--ink-3)">Anda akan menerima kode KON untuk memantau statusnya.</span>
+    </div>
+  </form>
+
+  <section class="card" style="margin-top:30px">
+    <div class="card__title">Yang perlu diketahui</div>
+    <div class="grid grid--3" style="font-size:13.5px;color:var(--ink-2);line-height:1.6">
+      <div><b style="color:var(--ink)">Setelah mengajukan</b><br>Petugas menetapkan narasumber dan mengirim tautan Zoom paling lambat sehari sebelum jadwal. Pantau lewat kode KON di halaman <a class="lnk" href="sahabat.html">Sahabat Data</a>.</div>
+      <div><b style="color:var(--ink)">Kalau jadwal berubah</b><br>Petugas akan menghubungi nomor HP Anda. Satu nomor hanya bisa memegang satu permintaan aktif.</div>
+      <div><b style="color:var(--ink)">Yang tidak dilayani lewat konsultasi</b><br>Permintaan data mikro dan data individu — itu punya jalurnya sendiri. Konsultasi untuk memahami data, metodologi, dan cara memperolehnya.</div>
+    </div>
+  </section>
+
+  <footer class="colophon"><p id="kontak"></p></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/katalog.js"></script>
+<script src="assets/cari.js"></script>
+<script src="assets/pengetahuan.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/konsultasi.js"></script>
+<script src="assets/chat.js"></script>
+</body>
+</html>

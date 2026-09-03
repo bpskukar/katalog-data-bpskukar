@@ -129,6 +129,135 @@ Perbaikannya: unduh pustaka Supabase sekali, simpan ke dalam repositori.
 Huruf pada halaman diambil dari Google Fonts. Bila itu juga diblokir, tampilan tetap
 terbaca — peramban akan memakai huruf bawaan sistem.
 
+## Memasang pembaruan
+
+Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperbarui:
+**berkas situs** (unggah ulang ke GitHub) dan **basis data** (jalankan skrip SQL bila ada).
+
+| Pembaruan | Berkas situs | Basis data |
+|---|---|---|
+| Perbaikan 01 — keamanan & keadilan poin, nama petugas di daftar tiket, tautan bisa diklik | `assets/*.js`, `assets/theme.css` | jalankan `supabase/perbaikan-01.sql` sekali |
+| Perbaikan 02 — chatbot, konsultasi daring (Zoom), notifikasi WhatsApp, profil pegawai | semua `.html`, `assets/*` | jalankan `supabase/perbaikan-02.sql` sekali, lalu ikuti bagian *Konsultasi daring* dan *Notifikasi WhatsApp* di bawah |
+
+Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
+isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.
+Proyek yang **baru** dibuat cukup menjalankan `schema.sql` — isinya sudah memuat semua perbaikan.
+Proyek yang **sudah berjalan** menjalankan skrip perbaikannya berurutan (`perbaikan-01.sql`
+lalu `perbaikan-02.sql`) — jangan menjalankan ulang `schema.sql`, karena tabel yang sudah ada
+akan dilewati sehingga sebagian perubahan tidak diterapkan.
+
+> ⚠️ **Setiap kali mengunggah pembaruan, `assets/config.js` ikut tertimpa.** Berkas itu satu-satunya
+> yang memuat kunci Supabase. Setelah mengunggah, buka kembali berkas itu di GitHub dan pastikan
+> `SUPABASE_ANON_KEY` masih terisi. Bila kosong, situs kembali ke mode demo tanpa peringatan apa pun
+> selain spanduk kuning — dan catatan petugas hari itu tidak masuk ke server.
+
+## Konsultasi daring (Zoom)
+
+Tidak ada integrasi API Zoom — sengaja, supaya tidak bergantung pada akun Zoom berbayar
+atau persetujuan aplikasi. Alurnya:
+
+1. **Tiap pegawai yang bisa jadi narasumber** masuk ruang pegawai → tab **Profil saya** →
+   centang topik keahliannya, tempel **tautan Zoom pribadi** (Zoom → Profile → Personal
+   Meeting ID → *Copy Invitation*, ambil tautannya). Tanpa ini, ia tetap bisa dipilih,
+   tetapi tautan Zoom harus diketik manual tiap kali.
+2. Sahabat data mengisi formulir di `konsultasi.html`, memilih jadwal paling cepat H+3
+   hari kerja. Ia menerima kode `KON-…`.
+3. Petugas membuka tab **Konsultasi daring**, menetapkan narasumber (yang keahliannya cocok
+   ditandai ✓ dan diurutkan teratas; yang sudah ada sesi di jam itu tidak bisa dipilih),
+   tautan Zoom terisi otomatis dari profil narasumber, simpan, lalu klik **Kirim konfirmasi
+   lewat WhatsApp** — pesan berisi jadwal, narasumber, dan tautan sudah tersusun.
+4. Sahabat data memantau lewat kode KON + 4 digit HP; tautan Zoom baru terlihat setelah
+   status *Dijadwalkan*.
+5. Setelah sesi, petugas menandai *Selesai* → narasumber mendapat 5 poin (sekali per sesi).
+
+Mengubah jam sesi, durasi, atau batas H+n: SQL Editor →
+
+```sql
+update public.pengaturan set nilai = '09:00,10:00,11:00,13:30,14:30' where kunci = 'konsultasi_jam';
+update public.pengaturan set nilai = '45' where kunci = 'konsultasi_durasi';
+update public.pengaturan set nilai = '3'  where kunci = 'konsultasi_min_hari';
+update public.pengaturan set nilai = '30' where kunci = 'konsultasi_maks_hari';
+```
+
+Perubahan langsung berlaku di formulir tanpa mengubah kode.
+
+## Notifikasi WhatsApp
+
+Sistem mengirim pesan ke **satu tujuan** (disarankan grup WhatsApp pegawai PST) saat:
+tiket daring masuk dari sahabat data, permintaan konsultasi masuk, jadwal konsultasi
+ditetapkan, pertanyaan baru di papan tanya, dan pengingat harian pukul 08.00 WITA bila ada
+tiket lewat tenggat atau konsultasi belum dijadwalkan.
+
+**Kenapa grup, bukan 34 nomor.** Satu pesan ke grup jauh lebih murah daripada 34 pesan, tidak
+membuat nomor pengirim dianggap spam, dan grup menciptakan tanggung jawab bersama — siapa
+yang membalas "saya ambil" terlihat semua orang.
+
+**Pilih penyedia.** WhatsApp tidak menyediakan cara gratis mengirim pesan dari sistem.
+Dua jalan yang lazim:
+
+| | Gateway pihak ketiga (Fonnte, Wablas, dsb.) | WhatsApp Business Platform (Meta) |
+|---|---|---|
+| Biaya | ± Rp 50–150 ribu/bulan | verifikasi bisnis + biaya per percakapan |
+| Pemasangan | 15 menit: daftar, pindai QR dengan nomor kantor | berhari-hari: verifikasi Meta, template pesan harus disetujui |
+| Status | tidak resmi; nomor **bisa diblokir** WhatsApp bila dianggap spam | resmi |
+| Cocok untuk | notifikasi internal ke grup pegawai, volume kecil | layanan publik berskala, kirim ke banyak warga |
+
+Untuk notifikasi internal ke grup pegawai, gateway pihak ketiga dengan **nomor khusus
+kantor (bukan nomor pribadi)** adalah pilihan yang wajar. Jangan pernah memakai nomor pribadi
+pegawai sebagai pengirim.
+
+**Langkah pemasangan (contoh Fonnte):**
+
+1. Daftar di penyedia, sambungkan nomor WhatsApp khusus kantor dengan memindai QR, salin
+   **token**-nya.
+2. Buat grup WhatsApp "PST BPS Kukar", masukkan nomor kantor itu dan semua pegawai.
+3. Ambil **ID grup** — di Fonnte ada menu *Get Group ID*; bentuknya `1203630xxxxxxx@g.us`.
+4. Supabase → **Database → Extensions** → aktifkan **pg_net** (pengirim HTTP) dan
+   **pg_cron** (penjadwal pengingat harian).
+5. Jalankan ulang `supabase/perbaikan-02.sql` sekali (supaya jadwal pengingat terdaftar
+   setelah pg_cron aktif), lalu isi pengaturannya:
+
+   ```sql
+   update public.pengaturan set nilai = 'https://api.fonnte.com/send' where kunci = 'wa_url';
+   update public.pengaturan set nilai = 'TOKEN-DARI-FONNTE'            where kunci = 'wa_token';
+   update public.pengaturan set nilai = '1203630xxxxxxx@g.us'          where kunci = 'wa_target';
+   update public.pengaturan set nilai = 'fonnte'                       where kunci = 'wa_format';
+   ```
+
+   Untuk Wablas: `wa_url` = `https://<domain>.wablas.com/api/send-message`, `wa_format` = `wablas`.
+   Penyedia lain yang menerima JSON `{target, message}` dengan header `Authorization: Bearer …`:
+   `wa_format` = `generic`.
+
+6. Uji kirim:
+
+   ```sql
+   select public.kirim_wa('uji', 'Halo dari sistem PST — notifikasi aktif.');
+   select jenis, keterangan, request_id, dibuat from public.notifikasi_log order by id desc limit 5;
+   ```
+
+   Bila `keterangan` kosong dan `request_id` terisi, permintaan sudah dikirim ke gateway.
+   Kalau pesan tidak sampai padahal `request_id` ada, cek hasilnya di `net._http_response`
+   (Table Editor → schema `net`) — biasanya token salah atau nomor belum tersambung.
+
+Token tersimpan di tabel `pengaturan` yang tertutup Row Level Security tanpa kebijakan apa pun,
+sehingga tidak terbaca dari peramban. Yang bisa membacanya hanya fungsi pengirim di sisi
+basis data.
+
+**Mematikan sementara:** kosongkan `wa_url` (`update public.pengaturan set nilai = '' where kunci = 'wa_url'`).
+Semua kejadian tetap tercatat di `notifikasi_log` dengan keterangan "belum diatur".
+
+## Chatbot (asisten PST)
+
+Tidak memakai model bahasa — jawabannya berasal dari dua sumber saja: `assets/katalog.js`
+(83 ragam data) dan `assets/pengetahuan.js` (jawaban baku). Karena itu ia tidak pernah
+mengarang angka, dan tidak butuh server maupun biaya.
+
+Menambah atau mengubah jawaban: buka `assets/pengetahuan.js`, tiap butir punya `kunci`
+(kata pemicu), `jawab`, dan `tautan`. Butir dengan `untuk: "petugas"` hanya muncul untuk
+pegawai yang sudah masuk, dan di sana ada tombol **salin jawaban** — itulah "kartu jawaban
+baku" untuk petugas piket. Setelah mengubah, unggah berkasnya ke GitHub; tidak perlu
+menyentuh basis data.
+
 ## Pemeliharaan
 
 | Kapan | Yang dilakukan |
@@ -138,6 +267,8 @@ terbaca — peramban akan memakai huruf bawaan sistem.
 | Akhir Februari | Perbarui tautan Kabupaten Dalam Angka |
 | Tiap triwulan | Unduh rekap CSV dari tab Rekap, bandingkan dengan hasil SKD |
 | Ada pegawai pindah | Ubah `aktif` menjadi `false` di tabel `pegawai`, jangan dihapus |
+| Jawaban baku berubah | Ubah `assets/pengetahuan.js`, unggah ulang |
+| Token gateway WA diganti | `update public.pengaturan set nilai = '…' where kunci = 'wa_token'` |
 
 ## Cadangan data
 

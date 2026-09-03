@@ -66,6 +66,12 @@
 .rank:nth-child(1) .rank__no { color:var(--s-mohon); }
 
 .masuk { max-width:400px; margin:70px auto; }
+.kon { border:1px solid var(--line); background:var(--panel); padding:12px 14px; margin-bottom:8px; cursor:pointer; display:grid; grid-template-columns:1fr auto; gap:6px 12px; }
+.kon:hover { background:var(--sunk); }
+.kon.is-on { border-color:var(--ink); }
+.kon__w { font-family:var(--f-mono); font-size:12px; color:var(--ink); font-weight:500; }
+.kon__n { font-size:14px; font-weight:600; }
+.kon__m { font-size:12px; color:var(--ink-3); grid-column:1/-1; }
 @media (max-width:700px){ .bar__l { width:120px; } }
 </style>
 </head>
@@ -108,8 +114,10 @@
       <button role="tab" data-p="pCatat"   aria-selected="true">Catat kunjungan</button>
       <button role="tab" data-p="pTiket"   aria-selected="false">Daftar tiket</button>
       <button role="tab" data-p="pTanya"   aria-selected="false">Papan tanya</button>
+      <button role="tab" data-p="pKonsul"  aria-selected="false">Konsultasi daring</button>
       <button role="tab" data-p="pRekap"   aria-selected="false">Rekap kebutuhan</button>
       <button role="tab" data-p="pPeringkat" aria-selected="false">Peringkat petugas</button>
+      <button role="tab" data-p="pProfil"  aria-selected="false">Profil saya</button>
     </div>
 
     <!-- ---- catat kunjungan ---- -->
@@ -210,6 +218,66 @@
       </div>
     </div>
 
+    <!-- ---- konsultasi daring ---- -->
+    <div class="panel" id="pKonsul" hidden>
+      <div class="grid grid--2" style="align-items:start">
+        <div>
+          <div class="btnrow" style="margin-bottom:14px">
+            <select id="kfStatus" style="width:auto;min-width:220px"></select>
+            <span class="countline" id="kfHitung"></span>
+          </div>
+          <div id="msgKon"></div>
+          <div id="daftarKon"></div>
+        </div>
+        <div>
+          <div id="detailKon"></div>
+          <div class="card" id="kotakJadwalkan">
+            <div class="card__title">Jadwalkan langsung (sahabat data menelepon / datang)</div>
+            <div id="msgJadwalkan"></div>
+            <form id="formJadwalkan">
+              <div class="grid grid--2" style="gap:12px">
+                <div class="field"><label class="fl" for="jNama">Nama</label><input type="text" id="jNama" required></div>
+                <div class="field"><label class="fl" for="jHp">Nomor HP</label><input type="tel" id="jHp" required></div>
+              </div>
+              <div class="field"><label class="fl" for="jKebutuhan">Kebutuhan</label><textarea id="jKebutuhan" required style="min-height:56px"></textarea></div>
+              <div class="grid grid--3" style="gap:12px">
+                <div class="field"><label class="fl" for="jTopik">Topik</label><select id="jTopik"></select></div>
+                <div class="field"><label class="fl" for="jTanggal">Tanggal</label><input type="date" id="jTanggal" required></div>
+                <div class="field"><label class="fl" for="jJam">Jam</label><select id="jJam"></select></div>
+              </div>
+              <button class="btn btn--sm" type="submit">Simpan permintaan</button>
+              <div class="field__hint" style="margin-top:8px">Pegawai boleh menjadwalkan lebih dekat dari H+3; aturan hari kerja dan jam sesi tetap berlaku. Narasumber ditetapkan setelah tersimpan.</div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- profil saya ---- -->
+    <div class="panel" id="pProfil" hidden>
+      <div class="grid grid--2" style="align-items:start">
+        <div class="card">
+          <div class="card__title">Keahlian & sarana konsultasi</div>
+          <p class="sec__note">Dipakai untuk menyarankan narasumber saat ada permintaan konsultasi. Tautan Zoom pribadi (Personal Meeting Room) otomatis terisi saat Anda ditetapkan sebagai narasumber.</p>
+          <div id="msgProfil"></div>
+          <form id="formProfil">
+            <div class="field"><label class="fl">Topik yang saya kuasai</label><div class="checks" id="prKeahlian"></div></div>
+            <div class="field"><label class="fl" for="prZoom">Tautan Zoom pribadi</label><input type="url" id="prZoom" placeholder="https://zoom.us/j/1234567890?pwd=…">
+              <div class="field__hint">Zoom → Profile → Personal Meeting ID → salin tautan undangannya.</div></div>
+            <div class="grid grid--2" style="gap:12px">
+              <div class="field"><label class="fl" for="prHp">Nomor HP (WhatsApp)</label><input type="tel" id="prHp"></div>
+              <div class="field"><label class="fl" for="prJabatan">Jabatan</label><input type="text" id="prJabatan"></div>
+            </div>
+            <button class="btn btn--sm" type="submit">Simpan profil</button>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card__title">Ringkasan saya</div>
+          <div id="ringkasSaya"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ---- rekap ---- -->
     <div class="panel" id="pRekap" hidden>
       <div class="summary" style="margin-bottom:20px">
@@ -253,7 +321,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
 <script src="assets/katalog.js"></script>
+<script src="assets/cari.js"></script>
+<script src="assets/pengetahuan.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/admin.js"></script>
+<script src="assets/chat.js"></script>
 </body>
 </html>

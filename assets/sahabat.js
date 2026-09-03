@@ -33,14 +33,44 @@
     ["Selesai",             "Data sudah dapat diambil atau sudah dikirim."]
   ];
 
+  function tampilKonsultasi(t) {
+    var st = B.statusKonsultasi[t.status] || t.status;
+    var w = { diajukan:"mohon", dijadwalkan:"ada", selesai:"lain", batal:"tidak" }[t.status] || "lain";
+    var idx = t.status === "selesai" ? 2 : (t.status === "dijadwalkan" ? 1 : 0);
+    var LK = [["Permintaan diterima", "Kebutuhan Anda sudah tercatat."], ["Dijadwalkan", "Narasumber dan tautan Zoom sudah ditetapkan."], ["Selesai", "Sesi konsultasi sudah berlangsung."]];
+    el("hasilCek").innerHTML =
+      '<div style="border-top:1px solid var(--line);padding-top:16px">' +
+      '<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:12px">' +
+        '<span class="kode">' + esc(t.kode) + '</span><span class="pill ' + w + '">' + esc(st) + "</span></div>" +
+      '<p style="font-size:14px;margin:0 0 4px"><b>' + esc(PST.tgl(t.tanggal)) + " pukul " + esc(String(t.jam).slice(0, 5)) + " WITA</b> · " + t.durasi_menit + " menit</p>" +
+      '<p style="font-size:13.5px;color:var(--ink-2);margin:0 0 14px"><b style="color:var(--ink)">Kebutuhan:</b> ' + esc(t.kebutuhan) + "</p>" +
+      (t.status === "batal" ? "" : '<div class="lini">' + LK.map(function (l, i) {
+        return '<div class="lini__i' + (i <= idx ? " on" : "") + '"><div class="lini__t">' + esc(l[0]) + '</div><div class="lini__d">' + esc(l[1]) + "</div></div>";
+      }).join("") + "</div>") +
+      (t.narasumber ? '<p style="font-size:13.5px;margin:4px 0 0"><b>Narasumber:</b> ' + esc(t.narasumber) + "</p>" : "") +
+      (t.tautan_zoom ? '<div class="msg msg--ok" style="margin:12px 0 0"><b>Tautan Zoom:</b> ' + PST.linkify(t.tautan_zoom) + "<br><span style='font-size:12px'>Masuk lima menit sebelum jadwal. Siapkan pertanyaan Anda.</span></div>" : "") +
+      (t.pesan_untuk_sahabat ? '<div class="msg msg--info" style="margin:12px 0 0"><b>Pesan petugas:</b> ' + PST.linkify(t.pesan_untuk_sahabat) + "</div>" : "") +
+      (t.status === "batal" ? '<div class="msg msg--warn" style="margin:12px 0 0">Permintaan ini dibatalkan. Bila masih memerlukan konsultasi, ajukan kembali atau hubungi PST.</div>' : "") +
+      "</div>";
+  }
+
   el("formCek").onsubmit = function (e) {
     e.preventDefault();
     PST.pesan("msgCek", "info", "Mencari…");
     el("hasilCek").innerHTML = "";
-    PST.cekTiket(el("kKode").value, el("kHp").value).then(function (t) {
+    var kode = el("kKode").value.trim().toUpperCase();
+    if (kode.indexOf("KON-") === 0) {
+      PST.cekKonsultasi(kode, el("kHp").value).then(function (t) {
+        PST.pesan("msgCek", "", "");
+        if (!t) { PST.pesan("msgCek", "err", "Permintaan konsultasi tidak ditemukan. Periksa kode dan empat digit terakhir nomor HP Anda."); return; }
+        tampilKonsultasi(t);
+      }).catch(function (er) { PST.pesan("msgCek", "err", er.message); });
+      return;
+    }
+    PST.cekTiket(kode, el("kHp").value).then(function (t) {
       PST.pesan("msgCek", "", "");
       if (!t) {
-        PST.pesan("msgCek", "err", "Tiket tidak ditemukan. Periksa kembali kode dan empat digit terakhir nomor HP yang Anda berikan kepada petugas.");
+        PST.pesan("msgCek", "err", "Tiket tidak ditemukan. Periksa kembali kode dan empat digit terakhir nomor HP yang Anda berikan kepada petugas. Setelah lima kali salah, pemeriksaan kode itu dijeda 15 menit.");
         return;
       }
       var idx = t.status === "selesai" ? 2 : (t.status === "tolak" ? 0 : 1);
@@ -58,7 +88,7 @@
             "</div><div class=\"lini__d\">" + esc(l[1]) + "</div></div>";
         }).join("") + "</div>" +
         (t.tenggat ? '<p style="font-size:13px;color:var(--ink-3);margin:4px 0 0">Perkiraan selesai: ' + esc(PST.tgl(t.tenggat)) + ".</p>" : "") +
-        (t.hasil ? '<div class="msg msg--info" style="margin:14px 0 0"><b>Catatan petugas:</b> ' + esc(t.hasil) + "</div>" : "") +
+        (t.hasil ? '<div class="msg msg--info" style="margin:14px 0 0"><b>Catatan petugas:</b> ' + PST.linkify(t.hasil) + "</div>" : "") +
         (t.status === "tolak" ? '<div class="msg msg--warn" style="margin:14px 0 0">Permintaan ini tidak dapat dipenuhi. Alasannya ada pada catatan petugas di atas. Bila masih memerlukan penjelasan, hubungi PST.</div>' : "") +
         "</div>";
     }).catch(function (er) { PST.pesan("msgCek", "err", er.message); });
@@ -106,7 +136,24 @@
     muatRiwayat();
   }
 
+  function muatRiwayatKon() {
+    PST.daftarKonsultasi({ sahabat_id: SESI.id }).then(function (r) {
+      if (!r.length) { el("riwayatKon").innerHTML = '<div class="empty" style="border:1px solid var(--line);background:var(--panel)">Belum ada permintaan konsultasi pada akun ini.</div>'; return; }
+      el("riwayatKon").innerHTML = r.map(function (k) {
+        var w = { diajukan:"mohon", dijadwalkan:"ada", selesai:"lain", batal:"tidak" }[k.status] || "lain";
+        return '<div class="riw"><div class="riw__h"><span class="kode">' + esc(k.kode) + '</span><span class="pill ' + w + '">' + esc(B.statusKonsultasi[k.status] || k.status) + "</span>" +
+          '<span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-3)">' + esc(PST.tgl(k.tanggal)) + " · " + esc(k.jam) + " WITA</span></div>" +
+          '<div style="font-size:13.5px;color:var(--ink-2)">' + esc(k.kebutuhan) + "</div>" +
+          (k.narasumber_nama ? '<div style="font-size:13px;margin-top:6px"><b>Narasumber:</b> ' + esc(k.narasumber_nama) + "</div>" : "") +
+          (k.status === "dijadwalkan" && k.tautan_zoom ? '<div style="font-size:13px;margin-top:4px"><b>Zoom:</b> ' + PST.linkify(k.tautan_zoom) + "</div>" : "") +
+          (k.pesan_untuk_sahabat ? '<div style="font-size:13px;color:var(--ink-3);margin-top:4px"><b>Pesan petugas:</b> ' + PST.linkify(k.pesan_untuk_sahabat) + "</div>" : "") +
+          "</div>";
+      }).join("");
+    }).catch(function (er) { el("riwayatKon").innerHTML = '<div class="msg msg--err">' + esc(er.message) + "</div>"; });
+  }
+
   function muatRiwayat() {
+    muatRiwayatKon();
     PST.daftarKunjungan({ sahabat_id: SESI.id }).then(function (r) {
       if (!r.length) {
         el("riwayat").innerHTML = '<div class="empty" style="border:1px solid var(--line);background:var(--panel)">' +
@@ -122,7 +169,7 @@
           '<span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-3)">' + esc(PST.tgl(t.dibuat)) + "</span>" +
           "</div>" +
           '<div style="font-size:13.5px;color:var(--ink-2)">' + esc(t.kebutuhan) + "</div>" +
-          (t.hasil ? '<div style="font-size:13px;color:var(--ink-3);margin-top:7px"><b>Catatan petugas:</b> ' + esc(t.hasil) + "</div>" : "") +
+          (t.hasil ? '<div style="font-size:13px;color:var(--ink-3);margin-top:7px"><b>Catatan petugas:</b> ' + PST.linkify(t.hasil) + "</div>" : "") +
           "</div>";
       }).join("");
     }).catch(function (er) { el("riwayat").innerHTML = '<div class="msg msg--err">' + esc(er.message) + "</div>"; });
