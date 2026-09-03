@@ -12,7 +12,7 @@
    ========================================================================== */
 window.KONFIG = {
   SUPABASE_URL: "https://yslpnfzvvhamxrdjhklb.supabase.co",
-  SUPABASE_ANON_KEY: "",   /* ← TEMPEL KUNCI PUBLISHABLE DI SINI (sb_publishable_...) */
+  SUPABASE_ANON_KEY: "sb_publishable_wZ4zGWGpcEAegYiRIoNqUA_epqtmeAo",   /* ← TEMPEL KUNCI PUBLISHABLE DI SINI (sb_publishable_...) */
 
   NAMA_SATKER: "BPS Kabupaten Kutai Kartanegara",
   ALAMAT: "Jl. Danau Aji No. 98, Melayu, Tenggarong 75512",
