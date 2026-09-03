@@ -549,8 +549,11 @@
         baris("Diajukan", PST.tgl(k.dibuat, true) + (k.sahabat_id ? " (lewat akun)" : "")) +
       "</table></div>" +
       '<div class="grid grid--2" style="margin-top:14px;gap:12px">' +
+        '<div class="field"><label class="fl">Topik</label><select id="dkTopik">' +
+          '<option value="">— tanpa topik —</option>' + PST.opsi(TOPIK, k.topik) + '<option value="Lainnya"' + (k.topik === "Lainnya" ? " selected" : "") + '>Lainnya</option>' + "</select>" +
+          '<div class="field__hint">' + (k.topik ? "Diisi sahabat data; boleh disesuaikan setelah membaca kebutuhannya." : "Sahabat data tidak memilih topik. Tetapkan di sini agar saran narasumber muncul dan rekapnya rapi.") + "</div></div>" +
         '<div class="field"><label class="fl">Narasumber</label><select id="dkNara">' + pilihanNara + "</select>" +
-          '<div class="field__hint">Tanda ✓ = keahliannya sesuai topik. Urutan sudah menurut kecocokan.</div></div>' +
+          '<div class="field__hint">' + (k.topik ? "Tanda ✓ = keahliannya sesuai topik. Urutan sudah menurut kecocokan." : "Belum bisa disarankan karena permintaan ini tanpa topik — pilih topik dulu, simpan, lalu tanda ✓ akan muncul.") + "</div></div>" +
         '<div class="field"><label class="fl">Status</label><select id="dkStatus">' +
           Object.keys(B.statusKonsultasi).map(function (s) { return '<option value="' + s + '"' + (s === k.status ? " selected" : "") + ">" + esc(B.statusKonsultasi[s]) + "</option>"; }).join("") + "</select></div>" +
         '<div class="field"><label class="fl">Tanggal</label><input type="date" id="dkTanggal" value="' + esc(k.tanggal) + '"></div>' +
@@ -563,6 +566,16 @@
       '<a class="btn btn--ghost btn--sm" id="dkWA" target="_blank" rel="noopener">Kirim konfirmasi lewat WhatsApp</a>' +
       '<button class="btn btn--ghost btn--sm" id="dkTutup">Tutup</button></div></div>';
 
+    el("dkTopik").onchange = function () {
+      var t = this.value || null;
+      var nara = el("dkNara"), dipilih = nara.value;
+      var urut = aktif.slice().sort(function (a, b) { return skorNarasumber(b, t) - skorNarasumber(a, t) || a.nama.localeCompare(b.nama); });
+      nara.innerHTML = '<option value="">— belum ditetapkan —</option>' + urut.map(function (p) {
+        var cocok = skorNarasumber(p, t), sibuk = bentrok.indexOf(p.id) !== -1;
+        return '<option value="' + esc(p.id) + '" data-zoom="' + esc(p.tautan_zoom || "") + '"' + (dipilih === p.id ? " selected" : "") + (sibuk ? " disabled" : "") + ">" +
+          esc(p.nama) + (cocok ? " ✓ " + esc(t) : "") + (p.tautan_zoom ? "" : " (belum ada tautan Zoom)") + (sibuk ? " — sudah ada sesi di jam ini" : "") + "</option>";
+      }).join("");
+    };
     el("dkNara").onchange = function () {
       var o = this.options[this.selectedIndex];
       if (o && o.dataset.zoom && !el("dkZoom").value) el("dkZoom").value = o.dataset.zoom;
@@ -582,11 +595,12 @@
         "\nPantau status: " + location.origin + location.pathname.replace(/admin\.html$/, "sahabat.html");
       el("dkWA").href = PST.waLink(k.no_hp, teks);
     }
-    ["dkStatus","dkNara","dkTanggal","dkJam","dkZoom","dkPesan"].forEach(function (i) { el(i).addEventListener("input", susunWA); el(i).addEventListener("change", susunWA); });
+    ["dkStatus","dkNara","dkTanggal","dkJam","dkZoom","dkPesan","dkTopik"].forEach(function (i) { el(i).addEventListener("input", susunWA); el(i).addEventListener("change", susunWA); });
     susunWA();
 
     el("dkSimpan").onclick = function () {
       var patch = {
+        topik: el("dkTopik").value || null,
         narasumber_id: el("dkNara").value || null, status: el("dkStatus").value,
         tanggal: el("dkTanggal").value, jam: el("dkJam").value,
         tautan_zoom: el("dkZoom").value.trim() || null,
