@@ -127,6 +127,10 @@ IDE-PENGEMBANGAN.md     usulan pengembangan lanjutan
 
 Tidak ada proses build. Cukup `git push`, GitHub Pages menerbitkannya.
 
+Tampilannya mengikuti gaya portal PST BPS (pst.bps.go.id): bilah putih berlogo, hero gradasi
+biru dengan kotak pencarian, kartu layanan membulat, tombol pil biru, huruf Poppins. Logo resmi
+diambil dari `assets/logo-bps.png` yang ditambahkan sendiri oleh kantor.
+
 ## Memasang
 
 Ringkasnya: buat proyek Supabase gratis, jalankan `supabase/schema.sql`, isi dua baris

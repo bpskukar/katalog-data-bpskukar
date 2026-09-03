@@ -8,26 +8,26 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2316181C'/><rect x='22' y='26' width='56' height='13' rx='3' fill='%232F5FA8'/><rect x='22' y='44' width='56' height='13' rx='3' fill='%236B8FC9'/><rect x='22' y='62' width='36' height='13' rx='3' fill='%23A9BEDD'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/theme.css">
 <style>
 .lini { border-left:2px solid var(--line-2); margin-left:9px; padding-left:20px; }
-.lini__i { position:relative; padding-bottom:20px; }
-.lini__i::before { content:""; position:absolute; left:-27px; top:4px; width:11px; height:11px; border-radius:50%; background:var(--line-2); border:2px solid var(--bg); }
+.lini__i { position:relative; padding-bottom:18px; }
+.lini__i::before { content:""; position:absolute; left:-27px; top:4px; width:11px; height:11px; border-radius:50%; background:var(--line-2); border:2px solid var(--panel); }
 .lini__i.on::before { background:var(--s-ada); }
-.lini__t { font-weight:600; color:var(--ink); font-size:14px; }
+.lini__t { font-family:var(--f-disp); font-weight:600; color:var(--ink); font-size:14px; }
 .lini__d { font-size:13px; color:var(--ink-3); margin-top:2px; }
-.tukar { font-size:13px; color:var(--link); background:none; border:0; cursor:pointer; padding:0; text-decoration:underline; text-underline-offset:2px; }
-.riw { border:1px solid var(--line); background:var(--panel); padding:15px 17px; margin-bottom:10px; }
+.tukar { font-size:13px; color:var(--biru); background:none; border:0; cursor:pointer; padding:0; font-weight:500; text-decoration:underline; text-underline-offset:2px; }
+.riw { border:1px solid var(--line); background:var(--panel); border-radius:var(--r); box-shadow:var(--bayang); padding:15px 17px; margin-bottom:10px; }
 .riw__h { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:7px; }
+.grid--2 > .card { margin-top:0; }
 </style>
 </head>
 <body>
 <div id="navbar"></div>
 <div id="spanduk"></div>
 
-<div class="wrap">
-  <header class="head">
+<section class="hero hero--tipis"><div class="hero__in"><header class="head" style="padding:0">
     <div class="head__kicker">BPS Kabupaten Kutai Kartanegara · Pelayanan Statistik Terpadu</div>
     <h1>Sahabat data</h1>
     <p>
@@ -35,9 +35,10 @@
       Masukkan kode itu di sini untuk melihat sejauh mana permintaan Anda diproses,
       tanpa perlu menelepon atau datang lagi.
     </p>
-  </header>
+  </header></div></section>
+<div class="wrap">
 
-  <div class="grid grid--2" style="align-items:start;margin-top:8px">
+  <div class="grid grid--2" style="align-items:start;margin-top:-26px;position:relative;z-index:2">
 
     <!-- ---- cek tiket tanpa akun ---- -->
     <div class="card">

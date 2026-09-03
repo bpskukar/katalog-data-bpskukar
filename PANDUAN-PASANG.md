@@ -129,6 +129,14 @@ Perbaikannya: unduh pustaka Supabase sekali, simpan ke dalam repositori.
 Huruf pada halaman diambil dari Google Fonts. Bila itu juga diblokir, tampilan tetap
 terbaca — peramban akan memakai huruf bawaan sistem.
 
+## Logo resmi di bilah atas
+
+Bilah atas menampilkan logo dari berkas `assets/logo-bps.png`. Berkas itu **tidak disertakan**
+di repositori — ambil dari aset resmi kantor (logo BPS atau logo BPS Kabupaten Kutai Kartanegara),
+simpan sebagai PNG dengan latar transparan, tinggi sekitar 80–120 piksel, lalu unggah ke folder
+`assets/` dengan nama persis `logo-bps.png`. Selama berkasnya belum ada, hanya tulisan
+"PST BPS Kutai Kartanegara" yang tampil — tidak ada yang rusak.
+
 ## Memasang pembaruan
 
 Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperbarui:
@@ -138,6 +146,7 @@ Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperb
 |---|---|---|
 | Perbaikan 01 — keamanan & keadilan poin, nama petugas di daftar tiket, tautan bisa diklik | `assets/*.js`, `assets/theme.css` | jalankan `supabase/perbaikan-01.sql` sekali |
 | Perbaikan 02 — chatbot, konsultasi daring (Zoom), notifikasi WhatsApp, profil pegawai | semua `.html`, `assets/*` | jalankan `supabase/perbaikan-02.sql` sekali, lalu ikuti bagian *Konsultasi daring* dan *Notifikasi WhatsApp* di bawah |
+| Tampilan portal PST — bilah putih berlogo, hero biru dengan pencarian, kartu layanan, huruf Poppins | semua `.html`, `assets/theme.css`, `assets/app.js`, `assets/admin.js` | tidak ada |
 
 Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
 isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.

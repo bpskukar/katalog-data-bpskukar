@@ -14,63 +14,67 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/theme.css">
 
 <style>
-.draft { background:var(--s-mohon-bg); border-bottom:1px solid var(--line); color:var(--ink); }
-.draft__in { max-width:1000px; margin-inline:auto; padding:12px 22px; display:flex; gap:12px; align-items:flex-start; font-size:13.5px; line-height:1.55; }
-.draft__tag { font-family:var(--f-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--s-mohon); border:1px solid var(--s-mohon); padding:2px 7px; flex-shrink:0; margin-top:2px; }
+.draft { background:var(--s-mohon-bg); border-bottom:1px solid #F5D9A8; color:var(--ink); }
+.draft__in { max-width:1100px; margin-inline:auto; padding:10px 22px; display:flex; gap:12px; align-items:flex-start; font-size:13px; line-height:1.55; }
+.draft__tag { font-family:var(--f-disp); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--s-mohon); border:1px solid var(--s-mohon); border-radius:999px; padding:2px 9px; flex-shrink:0; margin-top:2px; }
 
-.controls { position:sticky; top:0; z-index:15; background:var(--bg); border-bottom:1px solid var(--line); padding:14px 0 12px; margin-top:30px; }
-.searchbox { position:relative; margin-bottom:11px; }
-.searchbox input { padding-left:38px; padding-top:11px; padding-bottom:11px; font-size:15px; }
-.searchbox svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--ink-3); pointer-events:none; }
+.hero__cari { position:relative; max-width:640px; margin-top:24px; }
+.hero__cari input { padding:15px 18px 15px 48px; font-size:15.5px; border-radius:999px; border:0; box-shadow:0 10px 30px rgba(0,0,0,.18); background:#fff; color:var(--ink); }
+.hero__cari input:focus { box-shadow:0 10px 30px rgba(0,0,0,.22), 0 0 0 4px rgba(255,255,255,.35); }
+.hero__cari svg { position:absolute; left:18px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--ink-3); pointer-events:none; }
+.hero__contoh { margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:12.5px; color:rgba(255,255,255,.7); }
+.hero__contoh button { background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); color:#fff; border-radius:999px; padding:4px 11px; font:500 12px var(--f-ui); cursor:pointer; }
+.hero__contoh button:hover { background:rgba(255,255,255,.26); }
+
+.summary.angkat { margin-top:-30px; position:relative; z-index:2; }
+
+.controls { position:sticky; top:64px; z-index:15; background:var(--bg); padding:14px 0 12px; margin-top:26px; border-bottom:1px solid var(--line); }
 .filterrow { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
-.fgroup { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
-.fgroup__lbl { font-family:var(--f-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin-right:3px; }
-.fbtn { font-family:var(--f-ui); font-size:12.5px; font-weight:500; padding:4px 10px; background:transparent; border:1px solid var(--line-2); color:var(--ink-2); cursor:pointer; transition:.15s; }
-.fbtn:hover { border-color:var(--link); color:var(--link); }
-.fbtn[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:var(--bg); }
-.fbtn:focus-visible { outline:2px solid var(--link); outline-offset:2px; }
-.countline { font-family:var(--f-mono); font-size:11.5px; color:var(--ink-3); margin-left:auto; white-space:nowrap; }
+.fgroup { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.fgroup__lbl { font-family:var(--f-disp); font-size:12px; font-weight:500; color:var(--ink-3); margin-right:2px; }
+.fbtn { font-family:var(--f-ui); font-size:12.5px; font-weight:500; padding:5px 12px; background:var(--panel); border:1px solid var(--line-2); border-radius:999px; color:var(--ink-2); cursor:pointer; transition:.15s; }
+.fbtn:hover { border-color:var(--biru); color:var(--biru); }
+.fbtn[aria-pressed="true"] { background:var(--biru); border-color:var(--biru); color:#fff; }
+.fbtn:focus-visible { outline:2px solid var(--biru); outline-offset:2px; }
+.countline { font-size:12.5px; color:var(--ink-3); margin-left:auto; white-space:nowrap; }
 
-.grouptitle { font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); padding:26px 0 8px; border-bottom:1px solid var(--line-2); }
+#list { background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--bayang); margin-top:16px; padding:4px 20px 8px; }
+.grouptitle { font-family:var(--f-disp); font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--biru); padding:22px 0 8px; border-bottom:2px solid var(--biru-wash); }
 .grouptitle.is-off { display:none; }
 
-.row { display:grid; grid-template-columns:1fr 108px 118px 112px; gap:16px; align-items:baseline; padding:13px 0; border-bottom:1px solid var(--line); cursor:pointer; }
-.row:hover { background:var(--sunk); }
+.row { display:grid; grid-template-columns:1fr 108px 118px 120px; gap:16px; align-items:baseline; padding:13px 0; border-bottom:1px solid var(--line); cursor:pointer; }
+.row:hover { background:var(--sunk); margin-inline:-20px; padding-inline:20px; }
 .row.is-off { display:none; }
-.row:focus-visible { outline:2px solid var(--link); outline-offset:-2px; }
+.row:focus-visible { outline:2px solid var(--biru); outline-offset:-2px; }
 .row__name { font-weight:600; font-size:14.5px; color:var(--ink); line-height:1.35; }
-.row__src { font-family:var(--f-mono); font-size:11px; color:var(--ink-3); margin-top:2px; }
-.row__flag { display:inline-block; font-family:var(--f-mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--s-mohon); border-bottom:1px dotted var(--s-mohon); margin-left:7px; vertical-align:1px; }
-.row__tautan { display:inline-block; font-family:var(--f-mono); font-size:9.5px; letter-spacing:.06em; color:var(--s-ada); margin-left:7px; vertical-align:1px; }
-.cell { font-family:var(--f-mono); font-size:11.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row__src { font-size:12px; color:var(--ink-3); margin-top:2px; }
+.row__flag { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--s-mohon); background:var(--s-mohon-bg); border-radius:999px; padding:1px 7px; margin-left:7px; vertical-align:1px; }
+.row__tautan { display:inline-block; font-size:10.5px; font-weight:500; color:var(--s-ada); margin-left:7px; vertical-align:1px; }
+.cell { font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .detail { grid-column:1/-1; display:none; padding:6px 0 12px; font-size:14px; color:var(--ink-2); max-width:78ch; line-height:1.6; }
 .row.is-open .detail { display:block; }
-.row.is-open { background:var(--sunk); }
-.detail__menu { font-family:var(--f-mono); font-size:11px; color:var(--ink-3); margin-top:9px; }
+.row.is-open { background:var(--biru-wash); margin-inline:-20px; padding-inline:20px; }
+.detail__menu { font-size:12px; color:var(--ink-3); margin-top:9px; }
 .detail__ln { margin-top:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-start; }
-.detail__ln a { font-size:13px; color:var(--link); text-decoration:none; border-bottom:1px solid var(--link-wash); padding-bottom:1px; }
-.detail__ln a:hover { border-bottom-color:var(--link); }
+.detail__ln a { font-size:13px; font-weight:500; color:var(--biru); text-decoration:none; }
+.detail__ln a:hover { text-decoration:underline; }
 .detail__ln a::before { content:"→ "; opacity:.6; }
 
-.kecgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); }
-.kecgrid a { background:var(--panel); padding:10px 12px; font-size:13px; color:var(--ink-2); text-decoration:none; display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
-.kecgrid a:hover { background:var(--sunk); color:var(--link); }
-.kecgrid span { font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3); }
+.kecgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; }
+.kecgrid a { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:11px 14px; font-size:13.5px; font-weight:500; color:var(--ink); text-decoration:none; display:flex; justify-content:space-between; gap:8px; align-items:baseline; box-shadow:var(--bayang); transition:.15s; }
+.kecgrid a:hover { border-color:var(--biru); color:var(--biru); transform:translateY(-2px); }
+.kecgrid span { font-size:11px; color:var(--ink-3); }
 
-.legend { margin-top:44px; padding-top:24px; border-top:2px solid var(--ink); }
-.legend h2 { font-family:var(--f-disp); font-weight:500; font-size:1.35rem; margin:0 0 16px; letter-spacing:-.01em; }
-.legend__grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; }
-.legend__item { font-size:13.5px; color:var(--ink-2); line-height:1.55; }
-.legend__item .pill { margin-bottom:6px; }
-
-.ajakan { margin-top:40px; border:1px solid var(--line); background:var(--panel); padding:22px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-.ajakan p { margin:0; max-width:52ch; font-size:14px; color:var(--ink-2); }
-.ajakan b { color:var(--ink); }
+.legend { margin-top:44px; }
+.legend h2 { font-family:var(--f-disp); font-weight:600; font-size:1.3rem; margin:0 0 16px; letter-spacing:-.01em; }
+.legend__grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+.legend__item { font-size:13.5px; color:var(--ink-2); line-height:1.55; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:16px; }
+.legend__item .pill { margin-bottom:8px; }
 
 @media (max-width:780px){
   .row { grid-template-columns:1fr auto; gap:8px 12px; }
@@ -78,6 +82,8 @@
   .row .cell.per { grid-row:2; text-align:right; }
   .row .stat { grid-row:1; grid-column:2; }
   .countline { margin-left:0; width:100%; }
+  .controls { top:56px; }
+  .summary.angkat { margin-top:-18px; }
 }
 </style>
 </head>
@@ -90,7 +96,7 @@
     <span class="draft__tag">Rancangan</span>
     <span>
       <b>Sebagian isi katalog masih menunggu pengesahan petugas.</b> Baris bertanda
-      <span style="color:var(--s-mohon);font-family:var(--f-mono);font-size:11px;letter-spacing:.06em">PERLU CEK</span>
+      <span class="row__flag" style="margin-left:0">perlu cek</span>
       belum dipastikan dan sebaiknya tidak dijanjikan ke pengguna sebelum dikonfirmasi.
       Sisanya sudah ditautkan langsung ke publikasi atau tabel yang terbit di
       <a class="lnk" href="https://kukarkab.bps.go.id">kukarkab.bps.go.id</a>.
@@ -98,30 +104,61 @@
   </div>
 </div>
 
-<div class="wrap">
-
-  <header class="head">
+<section class="hero">
+  <div class="hero__in">
     <div class="head__kicker">BPS Kabupaten Kutai Kartanegara · Pelayanan Statistik Terpadu</div>
-    <h1>Katalog ketersediaan data</h1>
-    <p>
-      Ragam data yang dapat diperoleh dari BPS Kabupaten Kutai Kartanegara, beserta level wilayah
-      terendah yang tersedia, cara memperolehnya, dan tautan langsung ke publikasi atau tabelnya.
-      Petugas piket dapat menjawab di tempat tanpa perlu bertanya ke pegawai lain.
+    <h1 style="font-family:var(--f-disp);font-weight:700;font-size:clamp(1.9rem,4.5vw,2.7rem);line-height:1.15;letter-spacing:-.02em;margin:0 0 12px;max-width:20ch">Cari dulu di sini sebelum meminta data</h1>
+    <p style="max-width:62ch;font-size:15.5px;margin:0">
+      Katalog ragam data yang dapat diperoleh dari BPS Kabupaten Kutai Kartanegara — lengkap dengan
+      level wilayah terendah, cara memperolehnya, dan tautan langsung ke publikasi atau tabelnya.
     </p>
-
-    <div class="summary">
-      <div><div class="n" id="nTotal">0</div><div class="l">ragam data terdaftar</div></div>
-      <div><div class="n ada" id="nAda">0</div><div class="l">bisa diunduh langsung</div></div>
-      <div><div class="n mohon" id="nMohon">0</div><div class="l">melalui permintaan resmi</div></div>
-      <div><div class="n tidak" id="nTidak">0</div><div class="l">tidak tersedia di kabupaten</div></div>
-    </div>
-  </header>
-
-  <div class="controls">
-    <div class="searchbox">
+    <div class="hero__cari">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
       <input type="search" id="q" placeholder="Cari ragam data — misal: kemiskinan, penduduk, PDRB, desa, upah" aria-label="Cari ragam data">
     </div>
+    <div class="hero__contoh">Sering dicari:
+      <button type="button" data-cari="penduduk miskin">penduduk miskin</button>
+      <button type="button" data-cari="jumlah penduduk">jumlah penduduk</button>
+      <button type="button" data-cari="PDRB">PDRB</button>
+      <button type="button" data-cari="IPM">IPM</button>
+      <button type="button" data-cari="desa">data per desa</button>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <div class="summary angkat">
+    <div><div class="n" id="nTotal">0</div><div class="l">ragam data terdaftar</div></div>
+    <div><div class="n ada" id="nAda">0</div><div class="l">bisa diunduh langsung</div></div>
+    <div><div class="n mohon" id="nMohon">0</div><div class="l">melalui permintaan resmi</div></div>
+    <div><div class="n tidak" id="nTidak">0</div><div class="l">tidak tersedia di kabupaten</div></div>
+  </div>
+
+  <section style="margin-top:28px">
+    <h2 class="sec">Layanan PST</h2>
+    <p class="sec__note">Seluruh layanan konsultasi dan perpustakaan gratis. Pilih yang Anda butuhkan.</p>
+    <div class="layanan">
+      <a href="konsultasi.html">
+        <div class="layanan__ikon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3z"/></svg></div>
+        <b>Konsultasi daring</b><span>Bicara dengan pegawai BPS lewat Zoom. Pilih jadwal sendiri, paling cepat tiga hari ke depan.</span>
+      </a>
+      <a href="sahabat.html">
+        <div class="layanan__ikon oranye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg></div>
+        <b>Cek status permintaan</b><span>Masukkan kode tiket PST atau KON dan empat digit terakhir nomor HP Anda.</span>
+      </a>
+      <a href="#tanya" onclick="var b=document.getElementById('cbBuka');if(b){b.click();return false;}">
+        <div class="layanan__ikon hijau"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.2A8 8 0 1 1 21 12z"/></svg></div>
+        <b>Tanya asisten PST</b><span>Jawaban cepat dari katalog dan jawaban baku — apakah data ada, cara memintanya, jam layanan.</span>
+      </a>
+      <a href="https://pst.bps.go.id/" target="_blank" rel="noopener">
+        <div class="layanan__ikon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <b>Perpustakaan & PST daring</b><span>Layanan resmi BPS: publikasi digital, penjualan produk, dan rekomendasi kegiatan statistik.</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="controls">
     <div class="filterrow">
       <div class="fgroup" id="fTopik"><span class="fgroup__lbl">Topik</span>
         <button class="fbtn" data-v="all" aria-pressed="true">Semua</button></div>
@@ -137,7 +174,7 @@
   <main id="list"></main>
   <div class="empty" id="empty" hidden>Tidak ada ragam data yang cocok dengan pencarian atau saringan tersebut.</div>
 
-  <section class="legend" style="border-top-width:1px">
+  <section class="legend">
     <h2>Kecamatan Dalam Angka</h2>
     <p class="sec__note">
       Satu-satunya publikasi rutin yang turun sampai level desa dan kelurahan. Bila sahabat data
@@ -145,17 +182,6 @@
     </p>
     <div class="kecgrid" id="kecgrid"></div>
   </section>
-
-  <div class="ajakan">
-    <p><b>Tidak ketemu di daftar ini?</b> Catat kebutuhannya di ruang pegawai. Pertanyaan yang belum
-      terjawab akan muncul di papan tanya supaya pegawai yang paham dapat membantu, dan sahabat data
-      dapat memantau sendiri lewat kode tiketnya.</p>
-    <div class="btnrow">
-      <a class="btn" href="konsultasi.html">Konsultasi daring lewat Zoom</a>
-      <a class="btn btn--ghost" href="sahabat.html">Cek status permintaan</a>
-      <a class="btn btn--ghost" href="#tanya" onclick="document.getElementById('cbBuka').click();return false;">Tanya asisten</a>
-    </div>
-  </div>
 
   <section class="legend">
     <h2>Keterangan status</h2>
@@ -302,6 +328,13 @@
   pasang("fTopik", "topik"); pasang("fLevel", "level");
   document.getElementById("q").addEventListener("input", function () {
     state.q = this.value.trim().toLowerCase(); saring();
+  });
+  PST.qa(".hero__contoh button").forEach(function (b) {
+    b.onclick = function () {
+      var q = document.getElementById("q"); q.value = b.dataset.cari;
+      state.q = b.dataset.cari.toLowerCase(); saring();
+      document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
   });
 
   var h = { ada:0, mohon:0, tidak:0, lain:0, prov:0 };

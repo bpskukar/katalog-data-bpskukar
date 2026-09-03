@@ -571,7 +571,11 @@ window.PST = (function () {
     ].map(function (x) {
       return '<a href="' + x[0] + '"' + (x[0] === aktif ? ' aria-current="page"' : "") + ">" + x[1] + "</a>";
     }).join("");
-    return '<nav class="nav"><div class="nav__in"><span class="nav__brand">BPS Kukar · PST</span>' +
+    /* Logo resmi: letakkan berkas assets/logo-bps.png (dari aset kantor). Bila tidak
+       ada, gambar disembunyikan dan hanya tulisan yang tampil. */
+    return '<nav class="nav"><div class="nav__in">' +
+           '<a class="nav__brand" href="index.html"><img src="assets/logo-bps.png" alt="" onerror="this.style.display=\'none\'">' +
+           '<span><b>PST BPS Kutai Kartanegara</b><span>Pelayanan Statistik Terpadu</span></span></a>' +
            t + '<span class="nav__right">' + kanan + "</span></div></nav>";
   }
 
