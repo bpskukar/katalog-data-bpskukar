@@ -149,6 +149,10 @@ Yang mengikatnya:
 - **Bandingkan kab/kota se-Kaltim** di situs indikator: peringkat Kukar untuk IPM & komponennya, kemiskinan, penduduk (2025, BPS Kaltim).
 - **Pasang sebagai aplikasi**: ikon di layar utama, terbuka cepat, halaman yang pernah dibuka tetap terbaca saat luring.
 
+## Permintaan yang dijawab sendiri (pembaruan 09)
+
+Setiap permintaan data yang masuk lewat asisten diperiksa dulu ke katalog, isi indikator terbit, dan jawaban baku. Kalau datanya **berstatus Unduh di web dan levelnya memenuhi**, asisten menunjukkan tautannya saat itu juga dan permintaannya selesai tanpa tiket. Yang berstatus *Permintaan resmi* diteruskan dengan penjelasan; yang memang tidak tersedia dijelaskan alasannya beserta angka terdekat yang ada. Petugas hanya menerima sisanya — dan tiketnya memuat catatan apa saja yang sudah ditawarkan asisten, supaya tidak diulang. Jumlah permintaan yang terlayani otomatis terlihat di Ruang Pegawai → Pertanyaan asisten.
+
 ## Asisten yang lebih pintar dan bertindak (pembaruan 08)
 
 - **Paham bahasa orang**: salah ketik dikoreksi (*“pengganguran”* → pengangguran, disebutkan di jawaban), bahasa sehari-hari dipetakan ke istilah BPS (*“nganggur”*, *“harga-harga naik”*, *“gaji”*), dan pertanyaan lanjutan dimengerti (*“kalau 2023?”*, *“yang kemiskinan?”*, *“bandingkan dengan Samarinda”*).

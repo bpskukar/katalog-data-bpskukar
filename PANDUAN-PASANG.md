@@ -153,6 +153,7 @@ Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperb
 | Pembaruan 06 — alasan untuk kembali: Angka hari ini & kartu bagikan, Terbit baru + agenda rilis, Glosarium, Bandingkan kab/kota se-Kaltim, pasang sebagai aplikasi (PWA) | `glosarium.html`, `admin.html`, `assets/*` (baru: `glosarium.js`, `terbitan-awal.js`, `terbitan-admin.js`) — **plus** repositori indikator (`kartu.js`, bagian Bandingkan) & beranda (`manifest.webmanifest`, `sw.js`, `luring.html`, `assets/ikon/`) | jalankan `supabase/perbaikan-06.sql`, lalu ikuti bagian *Terbit baru & agenda* di bawah |
 | Pembaruan 07 — asisten PST muncul di semua situs tanpa pindah halaman, teks mode gelap & terang ≥ 4,5:1 di seluruh halaman, koreksi glosarium, aksesibilitas (papan ketik, sasaran sentuh) | semua `.html`, `assets/*` (baru: `asisten.js`, `asisten.css`) — **plus** repositori indikator & beranda | tidak ada (skrip 05 & 06 harus sudah dijalankan) |
 | Pembaruan 08 — asisten PST yang lebih pintar & bertindak: salah ketik, bahasa sehari-hari, pertanyaan lanjutan, bandingkan/peringkat/tren kab-kota, angka kecamatan, publikasi & BRS, permintaan data & konsultasi dari obrolan, salin/WhatsApp/👍👎, catatan pertanyaan di Ruang Pegawai; menu bilah PINTAR tiga pintu; tata letak HP kecil; service worker selalu memeriksa versi berkas | semua `.html`, `assets/*` (baru: `paham.js`, `asisten-admin.js`), `supabase/*` — **plus** repositori indikator (`data.js`, `pintar.js`, `style.css`) & beranda (`pintar.js`, `sw.js`, `index.html`) | jalankan `supabase/perbaikan-07.sql`, lalu ikuti bagian *Asisten yang bertindak dan belajar* di bawah |
+| Pembaruan 09 — asisten menjawab sendiri permintaan yang datanya sudah tersedia; petugas hanya menerima yang belum bisa dijawab otomatis | `assets/chat.js`, `assets/asisten-admin.js`, `admin.html`, dokumen | tidak ada |
 
 Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
 isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.
@@ -457,6 +458,39 @@ tabel BPS. Perbandingan kab/kota (*“Kukar peringkat berapa …”*) memakai ba
 Kaltim** & **Pembanding kab/kota** — indikator yang kolomnya masih kosong (TPT, LPE, PDRB per
 kapita, Gini) dijawab *“belum tersedia per kab/kota”* sampai diisi.
 
+## Permintaan yang dijawab sendiri oleh asisten (pembaruan 09)
+
+Sebelum sebuah permintaan data diteruskan menjadi tiket, asisten selalu mencoba menjawabnya
+lebih dulu dari isi situs. Petugas hanya menerima permintaan yang memang belum bisa dijawab
+otomatis. Yang menentukan bukan tebakan, melainkan **isi `assets/katalog.js`** — kolom status
+(`st`) dan level terendah (`lv`) tiap ragam data:
+
+| Keadaan | Yang dilakukan asisten | Jadi tiket? |
+|---|---|---|
+| Angka indikator strategis yang sudah terbit (mis. *minta data IPM Kukar 2025*) | menjawab angkanya beserta deret, sumber, dan tautan ke grafiknya | tidak, bila pemohon menjawab "sudah ketemu" |
+| Ragam data berstatus **Unduh di web** (`st: "ada"`) dan levelnya memenuhi permintaan | menunjukkan kartu ragam datanya beserta tautan unduhnya, lalu bertanya "apakah ini yang Anda cari?" | tidak, bila dijawab "sudah ketemu" |
+| Berstatus **Permintaan resmi** (`st: "mohon"`) | menjelaskan bahwa yang ini memang tidak bisa diunduh langsung, lalu meneruskan | ya, langsung |
+| Berstatus **Tidak tersedia**, **Level provinsi**, atau **Data sektoral** | menjelaskan alasannya (dari `assets/pengetahuan.js`) dan menunjukkan yang paling mendekati, lalu menawarkan: cukup, atau tetap diteruskan | hanya bila pemohon memilih meneruskan |
+| Permintaan sampai **desa/kecamatan** sementara yang ada hanya level kabupaten | tidak diklaim "sudah tersedia"; dijelaskan keterbatasannya | pilihan pemohon |
+| Tidak dikenali sama sekali | langsung meneruskan ke petugas | ya |
+
+Dua hal yang membuat ini bekerja rapi:
+
+Pertama, **ketepatan `katalog.js`**. Status dan tautan yang salah membuat asisten menolak
+sesuatu yang sebenarnya ada, atau menawarkan tautan yang sudah mati. Karena itu setiap kali ada
+publikasi baru, perbarui juga tautannya — sama seperti pemeliharaan yang sudah berjalan.
+
+Kedua, **tiket tetap membawa jejaknya**. Bila pemohon menjawab "belum sesuai", tiket yang masuk
+ke Ruang Pegawai memuat catatan tambahan di bawah kebutuhannya: *"Asisten sudah menunjukkan: …
+Pemohon menyatakan belum sesuai."* Jadi petugas tidak mengulang menawarkan hal yang sama, dan
+langsung tahu apa yang sudah dicoba.
+
+Hasilnya terlihat di **Ruang Pegawai → Pertanyaan asisten**: kartu *permintaan terlayani
+otomatis* memuat jumlah dan persentasenya terhadap seluruh permintaan yang masuk lewat asisten
+(sisanya menjadi tiket). Saringan **Permintaan data (otomatis / jadi tiket)** menampilkan
+daftarnya, berguna untuk laporan pelayanan dan untuk melihat pola apa yang masih sering
+terpaksa ditangani manual.
+
 ## Pemeliharaan
 
 | Kapan | Yang dilakukan |
@@ -469,6 +503,7 @@ kapita, Gini) dijawab *“belum tersedia per kab/kota”* sampai diisi.
 | Jawaban baku berubah | Ubah `assets/pengetahuan.js`, unggah ulang |
 | Istilah baru untuk glosarium | Tambah butir di `assets/glosarium.js`, unggah ulang |
 | Seminggu sekali | Ruang Pegawai → **Pertanyaan asisten**: lihat yang belum terjawab / dinilai 👎, tambahkan jawaban atau sinonim, tandai ditangani |
+| Seminggu sekali | Tab yang sama, saringan *Permintaan data*: bila banyak permintaan jadi tiket padahal datanya ada, biasanya status atau tautan di `assets/katalog.js` perlu dirapikan |
 | Kukar Dalam Angka terbit (Februari) | Isi/perbarui bagian **Kecamatan** di tab Indikator (penduduk, luas, desa/kelurahan per kecamatan) |
 | Ada berkas situs yang diubah | Naikkan `VERSI` di `sw.js` (repositori beranda) |
 | Token gateway WA diganti | `update public.pengaturan set nilai = '…' where kunci = 'wa_token'` |

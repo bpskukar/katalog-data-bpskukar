@@ -224,6 +224,18 @@
 
   /* ------------------------------------------ pemahaman (paham.js) */
   var KONTEKS = { indikator: null, tahun: null, jenis: null };
+  /* ragam data yang baru saja ditunjukkan ke pengunjung — supaya asisten tidak
+     menawarkan hal yang sama dua kali saat permintaan diteruskan */
+  var TAWARAN = { teks: "", nama: [] };
+  function catatTawaran(teks, daftar) {
+    TAWARAN = { teks: PH ? PH.normal(teks) : String(teks).toLowerCase(), nama: (daftar || []).map(function (d) { return d.n || d; }) };
+  }
+  function sudahDitawarkan(teks, daftar) {
+    var t = PH ? PH.normal(teks) : String(teks).toLowerCase();
+    if (!TAWARAN.nama.length || !t || !TAWARAN.teks) return false;
+    if (t.indexOf(TAWARAN.teks) === -1 && TAWARAN.teks.indexOf(t) === -1) return false;
+    return daftar.every(function (x) { return TAWARAN.nama.indexOf(x.d.n) !== -1; });
+  }
   function pahami(teks) {
     var asli = String(teks || "").trim();
     var k = PH ? PH.koreksi(asli) : { teks: asli, ubah: [] };
@@ -345,7 +357,7 @@
     html += tautanIndikator(it);
     html += ket(SUMBER_BOOKLET, "margin-top:8px;color:var(--cb-ink-3)");
     var hasil = CARI.cocokkan(it.label + " " + (SINONIM[it.id] || []).join(" "), 2);
-    if (hasil.length) html += ket("Data lengkapnya di katalog:", "margin-top:10px;color:var(--cb-ink-3)") + hasil.map(kartuKatalog).join("");
+    if (hasil.length) { html += ket("Data lengkapnya di katalog:", "margin-top:10px;color:var(--cb-ink-3)") + hasil.map(kartuKatalog).join(""); catatTawaran(teks, hasil); }
     KONTEKS.indikator = it; KONTEKS.jenis = "indikator";
     pesanBot(html, chipsIndikator(it), { jenis: "indikator", skor: c.skor, tanya: p.asli });
   }
@@ -650,11 +662,122 @@
   var CHIP_BATAL = ["Batal", "batal"];
 
   function mulaiTiket(kebutuhan) {
-    ALUR = { jenis: "tiket", d: { kebutuhan: (kebutuhan || "").trim() } };
+    ALUR = { jenis: "tiket", d: { kebutuhan: (kebutuhan || "").trim(), ditawarkan: [] } };
     if (sahabat) { ALUR.d.nama = sahabat.profil.nama || sahabat.email; ALUR.d.no_hp = sahabat.profil.no_hp || ""; ALUR.d.email = sahabat.email; }
-    if (ALUR.d.kebutuhan.length >= 8) return langkahTiket("nama");
+    if (ALUR.d.kebutuhan.length >= 8) return swalayanDulu(ALUR.d.kebutuhan);
     ALUR.langkah = "kebutuhan";
-    tanyaAlur("Baik, kita buat <b>permintaan data</b>. Tuliskan data apa yang Anda butuhkan — sebut nama datanya, level wilayah (kabupaten/kecamatan/desa), dan tahunnya. Contoh: <i>jumlah penduduk per desa di Kecamatan Loa Kulu 2024</i>.");
+    tanyaAlur("Baik. Tuliskan data atau informasi apa yang Anda butuhkan — sebut nama datanya, level wilayah (kabupaten/kecamatan/desa), dan tahunnya. Contoh: <i>jumlah penduduk per desa di Kecamatan Loa Kulu 2024</i>." +
+      ket("Kalau ternyata sudah tersedia dan bisa diunduh sendiri, saya tunjukkan langsung — tidak perlu menunggu petugas.", "margin-top:6px"));
+  }
+
+  /* ------------------------------------------------- layanan mandiri (swalayan)
+     Sebelum permintaan diteruskan ke petugas, asisten mencoba menjawabnya sendiri
+     dari isi situs: angka indikator terbit, jawaban baku, dan ragam data katalog
+     yang berstatus "Unduh di web". Petugas hanya menerima yang memang belum bisa
+     dijawab otomatis. */
+  function periksaSwalayan(teks) {
+    var p = pahami(teks), out = { p: p };
+    var rinci = /\b(desa|kelurahan|kecamatan|dusun)\b/i.test(p.teks) || (p.ent.kecamatan || []).length > 0;
+    /* 1. angka indikator strategis — hanya untuk angka kabupaten, bukan permintaan rinci per desa */
+    if (IND && !rinci) {
+      var ci = cariIndikator(CARI.perluas ? CARI.perluas(p.teks) : p.teks);
+      if (ci) { out.jenis = "indikator"; out.ci = ci; return out; }
+    }
+    /* 2. ragam data di katalog — yang menentukan adalah status ragam data paling cocok */
+    var hasil = CARI.cocokkanSkor(p.teks, 3, { tambahan: p.tambahan });
+    var kuat = hasil.filter(function (x) { return x.kuat; });
+    out.hasil = hasil; out.kuat = kuat;
+    var pk = jawabPengetahuan(p.teks);
+    if (kuat.length) {
+      var utama = kuat[0], rinciRegex = /desa|kelurahan|kecamatan/;
+      if (rinci) {
+        /* permintaan sampai desa/kecamatan: yang menentukan adalah baris yang memang
+           membahas level itu — bukan angka kabupaten yang kebetulan cocok katanya */
+        var seLevel = kuat.filter(function (x) {
+          return rinciRegex.test(String(x.d.lv || "").toLowerCase()) || rinciRegex.test(String(x.d.n).toLowerCase());
+        });
+        if (seLevel.length) utama = seLevel[0];
+        else {
+          /* tidak ada yang sampai level itu: jangan diklaim "sudah tersedia" */
+          out.jenis = "terbatas"; out.pilih = kuat.slice(0, 2); out.b = pk.skor >= 2 ? pk.b : null; return out;
+        }
+      }
+      if (utama.d.st === "ada") {
+        out.pilih = [utama].concat(kuat.filter(function (x) { return x.d.st === "ada" && x !== utama; })).slice(0, 2);
+        out.jenis = sudahDitawarkan(p.teks, out.pilih) ? "sudah-ditawarkan" : "tersedia";
+        return out;
+      }
+      out.pilih = [utama].concat(kuat.filter(function (x) { return x !== utama; })).slice(0, 2);
+      if (utama.d.st === "mohon") { out.jenis = "resmi"; return out; }
+      /* tidak tersedia / hanya level provinsi / data sektoral instansi lain */
+      out.jenis = "terbatas"; out.b = pk.skor >= 2 ? pk.b : null; return out;
+    }
+    /* 3. jawaban baku (mis. alasan data per desa tidak ada, beda dengan Dukcapil) */
+    if (pk.b && pk.skor >= 3) { out.jenis = "pengetahuan"; out.b = pk.b; return out; }
+    out.jenis = "belum-dikenal";
+    return out;
+  }
+
+  var CHIP_SWALAYAN = [["Ya, sudah ketemu", "__cukup"], ["Belum sesuai — teruskan ke petugas", "__lanjut"], ["Batal", "batal"]];
+  function tanyaSwalayan(html, chipsBaru) {
+    ALUR.langkah = "swalayan";
+    tanyaAlur(html, chipsBaru || CHIP_SWALAYAN);
+  }
+  function namaTawaran(x) { return x.d.n + " (" + ((K.LABEL || {})[x.d.st] || x.d.st) + ")"; }
+
+  function swalayanDulu(teks) {
+    var k = periksaSwalayan(teks), d = ALUR.d;
+    d.kebutuhan = teks; d.hasilSwalayan = k.jenis;
+    if (k.pilih) d.ditawarkan = k.pilih.map(namaTawaran);
+
+    if (k.jenis === "indikator") {
+      jawabIndikator(k.p, k.ci);
+      d.ditawarkan = ["Angka " + k.ci.it.label + " (situs Indikator Strategis)"];
+      return tanyaSwalayan("Angka di atas <b>sudah terbit</b> dan boleh langsung dipakai — tinggal cantumkan sumbernya. Apakah itu yang Anda butuhkan?");
+    }
+    if (k.jenis === "pengetahuan") {
+      jawabButir(k.b, teks);
+      return tanyaSwalayan("Apakah penjelasan di atas sudah menjawab kebutuhan Anda?");
+    }
+    if (k.jenis === "tersedia") {
+      catatTawaran(teks, k.pilih.map(function (x) { return x.d; }));
+      return tanyaSwalayan(catatanKoreksi(k.p) +
+        "<b>Sebentar — sepertinya ini sudah tersedia</b> dan bisa Anda unduh sendiri sekarang, tanpa menunggu petugas:" +
+        k.pilih.map(function (x) { return kartuKatalog(x.d); }).join("") +
+        ket("Apakah ini yang Anda cari?", "margin-top:8px"));
+    }
+    if (k.jenis === "resmi") {
+      var htmlR = catatanKoreksi(k.p) + "Yang Anda minta ada di katalog kami, tetapi <b>tidak bisa diunduh langsung</b> — statusnya <i>Permintaan resmi</i>, jadi memang perlu diteruskan ke petugas:" +
+        k.pilih.map(function (x) { return kartuKatalog(x.d); }).join("") +
+        ket("Saya lanjutkan permintaannya, ya.", "margin-top:8px");
+      pesanBot(htmlR, [], { alat: false });
+      return langkahTiket("nama");
+    }
+    if (k.jenis === "terbatas") {
+      var htmlT = catatanKoreksi(k.p) + (k.b ? PST.linkify(k.b.jawab) + tautanHtml(k.b.tautan) + ket("Yang paling mendekati di katalog:", "margin-top:10px;color:var(--cb-ink-3)")
+        : "Yang paling mendekati di katalog — perhatikan statusnya:");
+      htmlT += k.pilih.map(function (x) { return kartuKatalog(x.d); }).join("");
+      catatTawaran(teks, k.pilih.map(function (x) { return x.d; }));
+      return tanyaSwalayan(htmlT + ket("Apakah ini sudah cukup, atau permintaannya tetap saya teruskan ke petugas?", "margin-top:8px"),
+        [["Cukup, terima kasih", "__cukup"], ["Tetap teruskan ke petugas", "__lanjut"], ["Batal", "batal"]]);
+    }
+    if (k.jenis === "sudah-ditawarkan") {
+      /* ragam datanya baru saja ditunjukkan dan pemohon tetap ingin bertanya: langsung teruskan */
+      return langkahTiket("nama");
+    }
+    return langkahTiket("nama");
+  }
+
+  function selesaiSwalayan() {
+    var keb = ALUR.d.kebutuhan, jns = ALUR.d.hasilSwalayan; ALUR = null;
+    var tutup = jns === "terbatas"
+      ? "Baik. Maaf yang Anda cari belum bisa kami sediakan — penjelasan di atas biasanya cukup untuk dicantumkan sebagai keterangan di laporan." +
+        ket("Kalau perlu bantuan memilih angka pengganti yang paling mendekati, ajukan konsultasi daring; petugas kami bisa menemani menafsirkannya.", "margin-top:6px")
+      : "Senang bisa membantu — berarti tidak perlu menunggu petugas." +
+        ket("Kalau nanti perlu rincian yang tidak ada di situ (tahun lain, wilayah lebih rinci, atau pecahan tertentu), tulis saja di sini; permintaan seperti itu saya teruskan ke petugas PST.", "margin-top:6px");
+    pesanBot(tutup,
+      [["Tanya data lain", "data apa saja yang tersedia"], ["Konsultasi daring", "mau konsultasi daring lewat zoom"], ["Cek status tiket", "cek status tiket saya"]], { alat: false });
+    if (PST.catatAsisten) PST.catatAsisten({ pertanyaan: keb, jenis: "swalayan", halaman: location.pathname, sesi: SESI }).catch(function () {});
   }
   function langkahTiket(l) {
     var d = ALUR.d;
@@ -668,6 +791,7 @@
     if (l === "guna") return tanyaAlur("Untuk keperluan apa? (pilih, atau ketik sendiri)", (B.pemanfaatan || []).map(function (x) { return [x, "__guna:" + x]; }).concat([["Lewati", "__guna:"], CHIP_BATAL]));
     if (l === "konfirmasi") {
       var h = "<b>Periksa dulu:</b>" + ket("<b>Kebutuhan:</b> " + esc(d.kebutuhan) + "<br><b>Nama:</b> " + esc(d.nama) + "<br><b>HP:</b> " + esc(d.no_hp) + (d.pemanfaatan ? "<br><b>Keperluan:</b> " + esc(d.pemanfaatan) : ""), "margin-top:6px") +
+        (d.ditawarkan && d.ditawarkan.length ? ket("Petugas akan diberi tahu bahwa Anda sudah melihat: " + esc(d.ditawarkan.join("; ")) + ".", "color:var(--cb-ink-3)") : "") +
         ket("Setelah dikirim, petugas PST menghubungi Anda — biasanya dalam 3 hari kerja. Data yang tersedia bebas biaya.", "color:var(--cb-ink-3)");
       return tanyaAlur(h, [["Kirim permintaan", "__kirim"], ["Ubah kebutuhan", "__ubah:kebutuhan"], ["Ubah nomor HP", "__ubah:hp"], CHIP_BATAL]);
     }
@@ -675,7 +799,11 @@
   function kirimTiket() {
     var d = ALUR.d; ALUR = null;
     pesanBot("Mengirim permintaan…", [], { alat: false });
-    PST.ajukanPermintaan({ nama: d.nama, no_hp: d.no_hp, email: d.email || null, kebutuhan: d.kebutuhan, pemanfaatan: d.pemanfaatan || null, halaman: location.pathname }).then(function (kode) {
+    /* petugas perlu tahu apa yang sudah ditawarkan asisten, supaya tidak mengulang */
+    var keb = d.kebutuhan;
+    if (d.ditawarkan && d.ditawarkan.length) keb += "\n\n— Asisten sudah menunjukkan: " + d.ditawarkan.join("; ") + ". Pemohon menyatakan belum sesuai.";
+    PST.ajukanPermintaan({ nama: d.nama, no_hp: d.no_hp, email: d.email || null, kebutuhan: keb, pemanfaatan: d.pemanfaatan || null, halaman: location.pathname }).then(function (kode) {
+      if (PST.catatAsisten) PST.catatAsisten({ pertanyaan: d.kebutuhan, jenis: "tiket-baru", halaman: location.pathname, sesi: SESI }).catch(function () {});
       pesanBot("<b>Permintaan terkirim.</b> Kode tiket Anda: <span class=\"kode\">" + esc(kode) + "</span>" +
         ket("Simpan kode ini. Untuk mengecek status, ketik kodenya beserta 4 digit terakhir nomor HP di sini kapan saja, atau lewat halaman Sahabat Data. Petugas menghubungi lewat WhatsApp/telepon.", "margin-top:6px") +
         tautanHtml([{ u: "sahabat.html", l: "Halaman Sahabat Data (cek status, riwayat)" }]), [["Cek status tiket", kode + " " + hpBersih(d.no_hp).slice(-4)], ["Konsultasi daring", "mau konsultasi daring lewat zoom"], ["Tanya lagi", "berapa IPM Kukar terbaru?"]], { alat: false });
@@ -757,7 +885,7 @@
     var d = ALUR.d, l = ALUR.langkah, m, hp = hpBersih(t);
     if ((m = t.match(/^__ubah:(\w+)$/))) {
       if (ALUR.jenis === "tiket") {
-        if (m[1] === "hp") { d.no_hp = ""; langkahTiket("hp"); } else { d.kebutuhan = ""; langkahTiket("kebutuhan"); }
+        if (m[1] === "hp") { d.no_hp = ""; langkahTiket("hp"); } else { d.kebutuhan = ""; d.ditawarkan = []; langkahTiket("kebutuhan"); }
         return true;
       }
       if (m[1] === "tanggal") { pilihTanggal(); return true; }
@@ -770,7 +898,14 @@
     }
     var hpSalah = "Nomor HP tampaknya belum benar — tulis angkanya saja, misalnya <i>0812xxxxxxx</i>.";
     if (ALUR.jenis === "tiket") {
-      if (l === "kebutuhan") { if (t.length < 8) tanyaAlur("Tolong tulis kebutuhannya sedikit lebih jelas (nama data, wilayah, tahun)."); else { d.kebutuhan = t; langkahTiket("nama"); } return true; }
+      if (l === "kebutuhan") { if (t.length < 8) tanyaAlur("Tolong tulis kebutuhannya sedikit lebih jelas (nama data, wilayah, tahun)."); else swalayanDulu(t); return true; }
+      if (l === "swalayan") {
+        if (t === "__cukup" || /^(ya|iya|sudah|udah|betul|benar|ok|oke|cukup|pas|sesuai|itu)\b/i.test(t)) { selesaiSwalayan(); return true; }
+        if (t === "__lanjut" || /^(bukan|belum|tidak|gak|nggak|ga|lanjut|teruskan)\b/i.test(t)) { langkahTiket("nama"); return true; }
+        if (t.length >= 8) { d.ditawarkan = (d.ditawarkan || []); swalayanDulu(t); return true; }   /* kebutuhannya diperjelas */
+        tanyaAlur("Pilih salah satu di bawah, atau tuliskan kebutuhannya lebih jelas supaya saya cari lagi.", CHIP_SWALAYAN);
+        return true;
+      }
       if (l === "nama") { if (t.length < 2 || /^\d+$/.test(t)) tanyaAlur("Tulis nama Anda, ya."); else { d.nama = t; langkahTiket("hp"); } return true; }
       if (l === "hp") { if (hp.length < 9 || hp.length > 15) tanyaAlur(hpSalah); else { d.no_hp = t; langkahTiket("guna"); } return true; }
       if (l === "guna") { m = t.match(/^__guna:(.*)$/); d.pemanfaatan = m ? m[1] : t; langkahTiket("konfirmasi"); return true; }
@@ -914,6 +1049,7 @@
       var html = catatanKoreksi(p) + PST.linkify(pk.b.jawab) + tautanHtml(pk.b.tautan);
       if (hasil.length && pk.b.id !== "cara" && pk.b.id !== "jam") {
         html += ket("Ragam data yang mungkin Anda maksud:", "margin-top:10px;color:var(--cb-ink-3)") + hasil.slice(0, 2).map(function (x) { return kartuKatalog(x.d); }).join("");
+        catatTawaran(p.teks, hasil.slice(0, 2).map(function (x) { return x.d; }));
       }
       var lanjut = CHIPS_LANJUT;
       if (pk.b.id === "konsultasi") lanjut = [["Ajukan konsultasi di sini", "ajukan konsultasi daring sekarang"], ["Cek status tiket", "cek status tiket saya"]];
@@ -924,6 +1060,7 @@
     var kataIsi = kataSaja.filter(function (w) { return w.length >= 4 && CARI.HENTI.indexOf(w) === -1 && !/^\d+$/.test(w); });
     if (hasil.length && (hasil[0].kuat || kataIsi.length <= 1)) {
       var ada3 = hasil.some(function (x) { return x.d.st === "ada"; });
+      catatTawaran(p.teks, hasil.map(function (x) { return x.d; }));
       return pesanBot(catatanKoreksi(p) +
         (ada3 ? "Ini yang cocok di katalog — yang berstatus <b>Unduh di web</b> bisa langsung diambil dari tautannya:" :
                "Ini yang paling mendekati di katalog:") +
@@ -932,6 +1069,7 @@
         [["Ajukan permintaan data ini", "ajukan permintaan data " + kebutuhan], ["Konsultasi daring", "mau konsultasi daring lewat zoom"], ["Cek status tiket", "cek status tiket saya"]], { jenis: "katalog", skor: hasil[0].skor, tanya: p.asli });
     }
     if (hasil.length) {
+      catatTawaran(p.teks, hasil.slice(0, 2).map(function (x) { return x.d; }));
       /* hanya kata umum yang cocok (mis. "desa"): anggap belum terjawab, tetapi tunjukkan yang agak dekat */
       return pesanBot(catatanKoreksi(p) + "Saya belum menemukan <b>" + esc(kebutuhan) + "</b> di katalog. Yang agak mendekati:" +
         hasil.slice(0, 2).map(function (x) { return kartuKatalog(x.d); }).join("") +

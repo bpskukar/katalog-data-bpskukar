@@ -150,6 +150,8 @@
 .as__jenis { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:1px 7px; border-radius:999px; margin-right:6px; background:var(--biru-wash); color:var(--biru-teks); vertical-align:1px; }
 .as__jenis.kosong { background:var(--s-tidak-bg); color:var(--s-tidak); }
 .as__jenis.buruk { background:var(--s-mohon-bg); color:var(--s-mohon); }
+.as__jenis.swalayan { background:var(--s-ada-bg); color:var(--s-ada); }
+.summary--5 { grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr)); }
 .so-rinci { font-size:12px; color:var(--ink-3); margin-top:3px; }
 @media (max-width:900px){ .ind-wrap { grid-template-columns:minmax(0,1fr); } .ind-nav { flex-direction:row; flex-wrap:wrap; } .ind-nav__grup { flex-basis:100%; } .ind-simpan { padding-right:16px; bottom:70px; } }
 </style>
@@ -494,12 +496,12 @@
       <p class="sec__note">Setiap pertanyaan pengunjung ke asisten dicatat <b>tanpa identitas</b> (nomor HP, kode tiket, dan surel disamarkan) beserta jenis jawabannya dan nilai 👍/👎.
         Dari sini terlihat apa yang belum bisa dijawab — tambahkan jawabannya di <span class="kode">assets/pengetahuan.js</span>, sinonimnya di <span class="kode">assets/paham.js</span> (kamus <i>AWAM</i>) atau
         <span class="kode">assets/cari.js</span> (<i>ALIAS</i>), atau angkanya di tab Indikator — lalu tandai <b>ditangani</b>.</p>
-      <div class="summary" id="asRingkas"></div>
+      <div class="summary summary--5" id="asRingkas"></div>
       <div class="card" style="margin-top:14px">
         <div class="card__title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Pertanyaan
           <span style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
             <select id="asSaring" class="btn btn--ghost btn--sm" style="padding-block:4px">
-              <option value="gagal">Belum terjawab</option><option value="buruk">Dinilai 👎</option><option value="sering">Paling sering</option><option value="semua">Semua (terbaru)</option><option value="ditangani">Sudah ditangani</option>
+              <option value="gagal">Belum terjawab</option><option value="buruk">Dinilai 👎</option><option value="swalayan">Permintaan data (otomatis / jadi tiket)</option><option value="sering">Paling sering</option><option value="semua">Semua (terbaru)</option><option value="ditangani">Sudah ditangani</option>
             </select>
             <select id="asHari" class="btn btn--ghost btn--sm" style="padding-block:4px"><option value="7">7 hari</option><option value="30" selected>30 hari</option><option value="90">90 hari</option><option value="0">Semua</option></select>
             <button type="button" class="btn btn--ghost btn--sm" id="asMuat">Muat ulang</button>
