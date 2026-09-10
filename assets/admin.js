@@ -78,6 +78,7 @@
         if (b.dataset.p === "pProfil") gambarProfil();
         if (b.dataset.p === "pIndikator" && window.INDIKATOR_ADMIN) window.INDIKATOR_ADMIN.mulai();
         if (b.dataset.p === "pTerbitan" && window.TERBITAN_ADMIN) window.TERBITAN_ADMIN.mulai();
+        if (b.dataset.p === "pAsisten" && window.ASISTEN_ADMIN) window.ASISTEN_ADMIN.mulai();
       };
     });
   }

@@ -90,6 +90,20 @@
 .cb__kirim { border: 1px solid var(--cb-biru); background: var(--cb-biru); color: #fff; border-radius: 999px; padding: 8px 16px; font: 600 12.5px inherit; font-family: inherit; cursor: pointer; }
 .cb__kirim:hover { background: var(--cb-biru-2); border-color: var(--cb-biru-2); }
 
+/* alat di tiap jawaban: salin, WhatsApp, nilai 👍/👎 */
+.cb__alat { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--cb-line); }
+.cb__alat button { background: transparent; border: 1px solid var(--cb-line-2); border-radius: 999px; color: var(--cb-ink-2); font: 500 11.5px inherit; font-family: inherit; padding: 4px 10px; cursor: pointer; min-height: 26px; }
+.cb__alat button:hover { border-color: var(--cb-biru); color: var(--cb-teks-biru); background: var(--cb-wash); }
+.cb__nilai { margin-left: auto; display: inline-flex; gap: 4px; align-items: center; }
+.cb__nilai button { padding: 3px 8px; font-size: 13px; line-height: 1; }
+.cb__nilai-ok { font-size: 11.5px; color: var(--cb-ink-3); }
+/* daftar peringkat kab/kota atau kecamatan */
+.cb__urut { margin: 8px 0 4px; padding-left: 22px; font-size: 12.5px; color: var(--cb-ink-2); columns: 2; column-gap: 14px; }
+.cb__urut li { break-inside: avoid; padding: 1px 0; }
+.cb__urut li span { color: var(--cb-ink); font-weight: 600; }
+.cb__urut li.is-kukar { color: var(--cb-teks-biru); font-weight: 700; }
+.cb__urut li.is-kukar span { color: var(--cb-teks-biru); }
+
 /* potongan yang dipakai jawaban: label status katalog & kode tiket */
 .cb .pill { display: inline-block; font-family: "Poppins", "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 .cb .pill.ada { background: var(--cb-ada-bg); color: var(--cb-ada); }

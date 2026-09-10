@@ -91,28 +91,41 @@ window.CARI = (function () {
     return tambah.length ? teks + " " + tambah.join(" ") : teks;
   }
 
-  function cocokkan(teks, n) { return cocokkanSkor(teks, n).map(function (x) { return x.d; }); }
+  function cocokkan(teks, n, opsi) { return cocokkanSkor(teks, n, opsi).map(function (x) { return x.d; }); }
 
-  /* seperti cocokkan, tetapi mengembalikan skornya juga: [{d, skor}] */
-  function cocokkanSkor(teks, n) {
+  /* seperti cocokkan, tetapi mengembalikan skornya juga: [{d, skor}].
+     opsi.tambahan: kata pelengkap dari bahasa sehari-hari (paham.js) — ikut dicari
+     dengan bobot separuh, supaya tidak mengalahkan kata yang diketik pengguna. */
+  function cocokkanSkor(teks, n, opsi) {
+    opsi = opsi || {};
     /* Singkatan (IPM, PDRB, TPT, P0, IHK, NTP) adalah kata kunci terkuat di meja
        PST tetapi terlalu pendek untuk lolos saringan panjang biasa. */
     var singkat = singkatan(teks);
-
-    var kata = perluas(teks).toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
-      .filter(function (w) { return w.length >= 4 && HENTI.indexOf(w) === -1; });
-    kata = singkat.concat(kata)
+    var pecah = function (t) { return t.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(function (w) { return w.length >= 4 && HENTI.indexOf(w) === -1; }); };
+    var kata = singkat.concat(pecah(perluas(teks)))
       .filter(function (w, i, a) { return a.indexOf(w) === i; })
       .slice(0, 12);
+    /* kata isi yang benar-benar diketik pengguna (bukan kepanjangan singkatan/tambahan): penentu "kuat" */
+    var kataAsli = singkat.concat(pecah(teks)).filter(function (w, i, a) { return a.indexOf(w) === i && !/^\d+$/.test(w); });
+    var lemah = {};
+    if (opsi.tambahan) {
+      var singkatT = singkatan(opsi.tambahan);
+      singkatT.concat(pecah(perluas(opsi.tambahan))).forEach(function (w) {
+        if (kata.indexOf(w) !== -1 || kata.length >= 18) return;
+        kata.push(w); lemah[w] = 1; if (singkatT.indexOf(w) !== -1) singkat.push(w);
+      });
+    }
     if (!kata.length) return [];
 
     return K.DATA.map(function (d) {
       var nama = d.n.toLowerCase(), namaR = ringkas(nama);
       var hay = (d.n + " " + d.t + " " + d.sm + " " + d.d + " " + (d.mn || "")).toLowerCase(), hayR = ringkas(hay);
-      var skor = 0, kena = 0;
+      var skor = 0, kena = 0, kenaAsli = 0, singkatKena = false;
       kata.forEach(function (w) {
         var pendek = w.length <= 5 && singkat.indexOf(w) !== -1;
-        var b = pendek ? 4.5 : bobot(w);
+        var angka = /^\d+$/.test(w);            /* tahun: hanya penentu urutan, bukan bukti cocok */
+        var b = angka ? 0.4 : pendek ? 4.5 : bobot(w);
+        if (lemah[w]) b *= pendek ? 0.4 : 0.5;
         var v = pendek ? [w] : penggal(w);
         var diNama = false, diIsi = false;
         v.forEach(function (x, i) {
@@ -126,11 +139,15 @@ window.CARI = (function () {
           if (pola.test(nama) || (!pendek && i === 0 && x.length >= 5 && pola.test(namaR))) diNama = true;
           else if (pola.test(hay) || (!pendek && i === 0 && x.length >= 5 && pola.test(hayR))) diIsi = true;
         });
-        if (diNama) { skor += b * 3; kena++; }
-        else if (diIsi) { skor += b; kena++; }
+        if (diNama || diIsi) {
+          skor += diNama ? (lemah[w] ? b : b * 3) : b;
+          if (!lemah[w] && !angka) { kena++; if (kataAsli.indexOf(w) !== -1) { kenaAsli++; if (pendek) singkatKena = true; } }
+        }
       });
       if (kena > 1) skor *= 1 + (kena - 1) * 0.35;   /* makin banyak kata cocok, makin yakin */
-      return { d: d, skor: skor };
+      /* kuat = paling sedikit separuh kata isi yang diketik pengguna cocok (atau singkatannya cocok):
+         "jumlah pengrajin tenun per desa" hanya cocok "jumlah" & "desa" → lemah */
+      return { d: d, skor: skor, kena: kena, kuat: singkatKena || kenaAsli >= Math.ceil(kataAsli.length / 2) };
     }).filter(function (x) { return x.skor > 0.9; })
       .sort(function (a, b) { return b.skor - a.skor; })
       .slice(0, n || 5);

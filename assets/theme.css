@@ -145,8 +145,8 @@ h2.sec { font-family:var(--f-disp); font-weight:600; font-size:1.3rem; letter-sp
   color:var(--link); margin-bottom:14px;
 }
 .grid { display:grid; gap:14px; }
-.grid--2 { grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
-.grid--3 { grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); }
+.grid--2 { grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr)); }
+.grid--3 { grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr)); }
 
 /* kartu layanan ala portal PST */
 .layanan { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }

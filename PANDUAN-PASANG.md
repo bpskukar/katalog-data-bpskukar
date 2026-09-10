@@ -152,12 +152,13 @@ Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperb
 | Pembaruan 05 — pencarian mengenali singkatan huruf kecil, satu tanda PINTAR di semua tempat, konsultasi 30 menit & paling banyak dua topik | `konsultasi.html`, `assets/*.js`, `assets/og-katalog.png` — **plus** repositori indikator & beranda | jalankan `supabase/perbaikan-05.sql` |
 | Pembaruan 06 — alasan untuk kembali: Angka hari ini & kartu bagikan, Terbit baru + agenda rilis, Glosarium, Bandingkan kab/kota se-Kaltim, pasang sebagai aplikasi (PWA) | `glosarium.html`, `admin.html`, `assets/*` (baru: `glosarium.js`, `terbitan-awal.js`, `terbitan-admin.js`) — **plus** repositori indikator (`kartu.js`, bagian Bandingkan) & beranda (`manifest.webmanifest`, `sw.js`, `luring.html`, `assets/ikon/`) | jalankan `supabase/perbaikan-06.sql`, lalu ikuti bagian *Terbit baru & agenda* di bawah |
 | Pembaruan 07 — asisten PST muncul di semua situs tanpa pindah halaman, teks mode gelap & terang ≥ 4,5:1 di seluruh halaman, koreksi glosarium, aksesibilitas (papan ketik, sasaran sentuh) | semua `.html`, `assets/*` (baru: `asisten.js`, `asisten.css`) — **plus** repositori indikator & beranda | tidak ada (skrip 05 & 06 harus sudah dijalankan) |
+| Pembaruan 08 — asisten PST yang lebih pintar & bertindak: salah ketik, bahasa sehari-hari, pertanyaan lanjutan, bandingkan/peringkat/tren kab-kota, angka kecamatan, publikasi & BRS, permintaan data & konsultasi dari obrolan, salin/WhatsApp/👍👎, catatan pertanyaan di Ruang Pegawai; menu bilah PINTAR tiga pintu; tata letak HP kecil; service worker selalu memeriksa versi berkas | semua `.html`, `assets/*` (baru: `paham.js`, `asisten-admin.js`), `supabase/*` — **plus** repositori indikator (`data.js`, `pintar.js`, `style.css`) & beranda (`pintar.js`, `sw.js`, `index.html`) | jalankan `supabase/perbaikan-07.sql`, lalu ikuti bagian *Asisten yang bertindak dan belajar* di bawah |
 
 Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
 isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.
 Proyek yang **baru** dibuat cukup menjalankan `schema.sql` — isinya sudah memuat semua perbaikan.
 Proyek yang **sudah berjalan** menjalankan skrip perbaikannya berurutan (`perbaikan-01.sql` sampai
-`perbaikan-06.sql`; `perbaikan-04.sql` boleh ditunda sampai kunci Web API ada) — jangan menjalankan
+`perbaikan-07.sql`; `perbaikan-04.sql` boleh ditunda sampai kunci Web API ada) — jangan menjalankan
 ulang `schema.sql`, karena tabel yang sudah ada akan dilewati sehingga sebagian perubahan tidak diterapkan.
 Cara memastikan skrip sudah terjalan: buka
 `https://yslpnfzvvhamxrdjhklb.supabase.co/rest/v1/rpc/pengaturan_publik?apikey=<kunci publishable>`
@@ -266,15 +267,24 @@ Semua kejadian tetap tercatat di `notifikasi_log` dengan keterangan "belum diatu
 
 ## Chatbot (asisten PST)
 
-Tidak memakai model bahasa — jawabannya berasal dari dua sumber saja: `assets/katalog.js`
-(89 ragam data) dan `assets/pengetahuan.js` (jawaban baku). Karena itu ia tidak pernah
-mengarang angka, dan tidak butuh server maupun biaya.
+Tidak memakai model bahasa — jawabannya berasal dari isi situs saja: `assets/katalog.js`
+(89 ragam data), `assets/pengetahuan.js` (jawaban baku), `assets/glosarium.js` (istilah),
+isi indikator terbit (angka, deret tahunan, pembanding kab/kota, kecamatan), dan daftar
+terbitan. Karena itu ia tidak pernah mengarang angka, dan tidak butuh server maupun biaya.
+
+Lapisan pemahamannya ada di `assets/paham.js`: koreksi salah ketik (kata yang tak dikenal
+dicocokkan ke kosakata situs; hasil koreksi disebutkan di jawaban: *“Saya artikan …”*), kamus
+bahasa sehari-hari `AWAM` (*nganggur* → pengangguran/TPT, *harga naik* → inflasi), pengenalan
+tahun/kab-kota/kecamatan, dan niat (definisi, angka, banding, peringkat, tren, publikasi,
+permintaan, konsultasi). Asisten mengingat konteks: setelah *“berapa IPM Kukar?”* cukup
+*“kalau 2023?”*, *“yang kemiskinan?”*, *“bandingkan dengan Samarinda”*.
 
 Menambah atau mengubah jawaban: buka `assets/pengetahuan.js`, tiap butir punya `kunci`
 (kata pemicu), `jawab`, dan `tautan`. Butir dengan `untuk: "petugas"` hanya muncul untuk
-pegawai yang sudah masuk, dan di sana ada tombol **salin jawaban** — itulah "kartu jawaban
-baku" untuk petugas piket. Setelah mengubah, unggah berkasnya ke GitHub; tidak perlu
-menyentuh basis data.
+pegawai yang sudah masuk. Sinonim awam ditambah di `paham.js` (`AWAM`), singkatan di
+`cari.js` (`ALIAS`). Setelah mengubah, unggah berkasnya ke GitHub; tidak perlu menyentuh
+basis data. Setiap jawaban punya tombol **Salin** dan **WhatsApp** (teks polos + tautan
+*“tanya sendiri”*) serta 👍/👎.
 
 ## PINTAR Kukar (pembaruan 03)
 
@@ -315,6 +325,11 @@ Cara kerja tab Indikator:
 
 Tema terang/gelap: tombolnya di bilah PINTAR (kanan atas) di ketiga situs. Pilihan tersimpan
 di peramban pengguna dengan kunci `kukar-theme`; karena satu domain, ketiga situs mengikutinya.
+
+Menu bilah PINTAR hanya memuat tiga pintu — **Beranda**, **Indikator Strategis**, **Katalog Data &
+Layanan PST** (daftar `MENU` di `pintar.js`). Menu di dalam tiap situs (Glosarium, Konsultasi
+Daring, Sahabat Data, Ruang Pegawai) ada di bilah situsnya sendiri supaya tidak ganda; halaman
+konsultasi/sahabat/glosarium/ruang pegawai menyalakan butir *Katalog Data & Layanan PST*.
 
 Bila nama repositori diubah, sesuaikan tiga hal: objek `TAUTAN` di `assets/pintar.js` (lalu
 salin ke ketiga repositori), tag `<script src="/katalog-data-bpskukar/assets/config.js">` di
@@ -425,6 +440,23 @@ biru/jingga yang cukup kontras di atas putih tidak cukup kontras sebagai tulisan
 Semua teks di semua halaman (termasuk tab Ruang Pegawai dan panel asisten) diaudit otomatis
 ≥ 4,5:1 di kedua mode; bila menambah warna teks baru, pakai variabel `*-teks` itu.
 
+## Asisten yang bertindak dan belajar (pembaruan 08)
+
+Jalankan `supabase/perbaikan-07.sql` sekali. Isinya tiga hal:
+
+| Apa | Cara kerja | Yang perlu diperhatikan kantor |
+|---|---|---|
+| **Permintaan data dari obrolan** — *“ajukan permintaan data …”* atau chip *Ajukan permintaan data* setelah pencarian katalog | asisten menanyakan kebutuhan → nama → HP → keperluan → konfirmasi, lalu memanggil `ajukan_permintaan` (tanpa akun; dibatasi 3 pengajuan/jam per jaringan dan 3 tiket aktif per nomor HP). Tiket masuk ke buku tamu berstatus *proses*, sarana *Asisten PST (daring)*, tenggat 3 hari kerja, kode `PST-…`; petugas dapat notifikasi WhatsApp (bila gateway aktif) | Tiket tampil di tab **Daftar tiket** seperti tiket lain; hubungi pemohon lewat nomor HP-nya |
+| **Konsultasi dari obrolan** — *“ajukan konsultasi daring”* | asisten menampilkan tanggal & jam yang masih kosong (aturan sama dengan formulir), lalu kebutuhan, nama, HP, topik (≤ 2) → `ajukan_konsultasi` | Sama seperti konsultasi dari formulir (tab **Konsultasi daring**) |
+| **Catatan pertanyaan** (`asisten_log`) | tiap pertanyaan dicatat **tanpa identitas** — kode tiket, deret angka ≥ 6 digit, dan surel disamarkan sebelum dikirim dan sekali lagi di basis data — beserta jenis jawaban, skor, nilai 👍/👎, dan pengenal acak per pembukaan halaman (bukan pengguna). Pegawai membacanya di **Ruang Pegawai → Pertanyaan asisten**: belum terjawab, dinilai 👎, paling sering; tandai *ditangani* setelah jawabannya ditambahkan | Tinjau seminggu sekali (5 menit). Yang *belum terjawab* biasanya perlu: butir baru di `pengetahuan.js`, sinonim di `paham.js`, ragam data baru di `katalog.js`, atau angka di tab Indikator. Catatan lebih dari 180 hari bisa dihapus dengan `select public.asisten_bersihkan()` |
+
+Angka per kecamatan (*“penduduk Tenggarong berapa?”*, *“kecamatan terluas?”*) dibaca dari
+bagian **Kecamatan** di tab Indikator (penduduk, laki-laki, perempuan, luas, desa, kelurahan,
+tahun & sumber). Sebelum diisi, asisten mengarahkan ke publikasi *Kecamatan … Dalam Angka* dan
+tabel BPS. Perbandingan kab/kota (*“Kukar peringkat berapa …”*) memakai bagian **Kabupaten/kota
+Kaltim** & **Pembanding kab/kota** — indikator yang kolomnya masih kosong (TPT, LPE, PDRB per
+kapita, Gini) dijawab *“belum tersedia per kab/kota”* sampai diisi.
+
 ## Pemeliharaan
 
 | Kapan | Yang dilakukan |
@@ -436,6 +468,8 @@ Semua teks di semua halaman (termasuk tab Ruang Pegawai dan panel asisten) diaud
 | Ada pegawai pindah | Ubah `aktif` menjadi `false` di tabel `pegawai`, jangan dihapus |
 | Jawaban baku berubah | Ubah `assets/pengetahuan.js`, unggah ulang |
 | Istilah baru untuk glosarium | Tambah butir di `assets/glosarium.js`, unggah ulang |
+| Seminggu sekali | Ruang Pegawai → **Pertanyaan asisten**: lihat yang belum terjawab / dinilai 👎, tambahkan jawaban atau sinonim, tandai ditangani |
+| Kukar Dalam Angka terbit (Februari) | Isi/perbarui bagian **Kecamatan** di tab Indikator (penduduk, luas, desa/kelurahan per kecamatan) |
 | Ada berkas situs yang diubah | Naikkan `VERSI` di `sw.js` (repositori beranda) |
 | Token gateway WA diganti | `update public.pengaturan set nilai = '…' where kunci = 'wa_token'` |
 

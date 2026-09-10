@@ -121,7 +121,7 @@ Statistik Terpadu), payung yang menyatukan dua situs BPS Kukar di satu domain:
 Yang mengikatnya:
 
 - **Bilah atas bersama** (`assets/pintar.js`, berkas identik di tiga repositori): nama
-  keluarga, menu silang, dan satu tombol **tema terang/gelap**. Karena satu domain, pilihan
+  keluarga, menu tiga pintu (Beranda · Indikator Strategis · Katalog Data & Layanan PST), dan satu tombol **tema terang/gelap**. Karena satu domain, pilihan
   tema tersimpan bersama — ganti di satu situs, situs lain ikut, tab yang terbuka pun ikut.
 - **Dari angka ke layanan, satu klik**: setiap kartu indikator punya tautan *Minta data
   lengkap* (membuka katalog dengan `?q=` terisi) dan *Tanya PST* (membuka asisten di
@@ -149,6 +149,15 @@ Yang mengikatnya:
 - **Bandingkan kab/kota se-Kaltim** di situs indikator: peringkat Kukar untuk IPM & komponennya, kemiskinan, penduduk (2025, BPS Kaltim).
 - **Pasang sebagai aplikasi**: ikon di layar utama, terbuka cepat, halaman yang pernah dibuka tetap terbaca saat luring.
 
+## Asisten yang lebih pintar dan bertindak (pembaruan 08)
+
+- **Paham bahasa orang**: salah ketik dikoreksi (*“pengganguran”* → pengangguran, disebutkan di jawaban), bahasa sehari-hari dipetakan ke istilah BPS (*“nganggur”*, *“harga-harga naik”*, *“gaji”*), dan pertanyaan lanjutan dimengerti (*“kalau 2023?”*, *“yang kemiskinan?”*, *“bandingkan dengan Samarinda”*).
+- **Bandingkan, peringkat, tren**: *“Kukar peringkat berapa IPM di Kaltim?”*, *“kabupaten paling miskin?”*, *“IPM naik atau turun sejak 2021?”* dijawab dari data pembanding 10 kab/kota dan deret tahunan — dengan daftar urut, selisih terhadap provinsi, dan catatan cara membaca.
+- **Kecamatan & terbitan**: *“penduduk Tenggarong?”* (dari bagian Kecamatan di tab Indikator; sebelum diisi, diarahkan ke publikasi kecamatan), *“ada publikasi tentang pertanian?”*, *“kapan KDA 2027 terbit?”*.
+- **Bertindak**: permintaan data dan konsultasi daring bisa diajukan langsung di obrolan (nama, HP, kebutuhan, jadwal) — tiket `PST-…`/`KON-…` masuk ke Ruang Pegawai seperti biasa.
+- **Belajar**: tiap pertanyaan dicatat tanpa identitas beserta jenis jawaban dan nilai 👍/👎; tab **Pertanyaan asisten** di Ruang Pegawai menunjukkan yang belum terjawab supaya pegawai menambah jawabannya.
+- Tiap jawaban punya tombol **Salin** dan **WhatsApp**.
+
 ## Satu asisten di mana pun, mode gelap terbaca (pembaruan 07)
 
 - **Tanya PST tanpa pindah halaman**: tombol asisten ada di beranda, situs indikator, dan semua halaman katalog; *Tanya PST* di kartu indikator langsung menjawab di tempat.
@@ -175,6 +184,8 @@ assets/
   chat.js               widget asisten PST (mesin; dipakai ketiga situs)
   asisten.js            pemuat asisten untuk beranda & situs indikator (memuat mesin saat dibutuhkan)
   asisten.css           gaya widget asisten, berdiri sendiri, ikut tema gelap
+  paham.js              lapisan pemahaman asisten: salah ketik, bahasa sehari-hari, entitas, niat
+  asisten-admin.js      tab Pertanyaan asisten di ruang pegawai (catatan tanpa identitas)
   glosarium.js          37 istilah statistik (dipakai glosarium, asisten, pencarian beranda)
   terbitan-awal.js      terbitan & agenda awal untuk beranda (cadangan bila server tak terjangkau)
   terbitan-admin.js     tab Terbitan & agenda di ruang pegawai
@@ -190,6 +201,7 @@ supabase/perbaikan-03.sql  pembaruan 03: isi indikator strategis + riwayat versi
 supabase/perbaikan-04.sql  pembaruan 04: penarikan otomatis dari Web API BPS (http, pg_cron)
 supabase/perbaikan-05.sql  pembaruan 05: konsultasi 30 menit
 supabase/perbaikan-06.sql  pembaruan 06: tabel terbitan & agenda, penarikan BRS/publikasi dari Web API
+supabase/perbaikan-07.sql  pembaruan 08: permintaan data dari asisten (tanpa akun), catatan pertanyaan asisten
 PANDUAN-PASANG.md       cara memasang, menguji, dan memelihara
 IDE-PENGEMBANGAN.md     usulan pengembangan lanjutan
 ```

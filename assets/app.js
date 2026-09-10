@@ -290,6 +290,31 @@ window.PST = (function () {
       .then(function (r) { if (r.error) throw new Error(r.error.message); return (r.data && r.data[0]) || null; });
   }
 
+  /* Permintaan data dari asisten PST, tanpa akun (perbaikan-07). Kode PST-… dikembalikan;
+     statusnya dicek dengan kode + 4 digit HP seperti tiket lain. */
+  function ajukanPermintaan(d) {
+    var hp = String(d.no_hp || "").replace(/\D/g, "");
+    if (!d.nama || String(d.nama).trim().length < 2) return Promise.reject(new Error("Nama wajib diisi."));
+    if (hp.length < 9 || hp.length > 15) return Promise.reject(new Error("Nomor HP tidak sah."));
+    if (!d.kebutuhan || String(d.kebutuhan).trim().length < 8) return Promise.reject(new Error("Tuliskan kebutuhan datanya lebih jelas."));
+    if (DEMO) {
+      var arr = LS("kunjungan", []);
+      var aktif = arr.filter(function (x) { return x.status === "proses" && String(x.no_hp || "").replace(/\D/g, "") === hp; });
+      if (aktif.length >= 3) return Promise.reject(new Error("Masih ada tiga permintaan aktif untuk nomor ini. Tunggu sampai salah satunya selesai."));
+      var ses = LS("sesi", null), n = LS("nomor", 0) + 1; SV("nomor", n);
+      var row = { id: uid(), kode_tiket: kodeTiket(n), dibuat: new Date().toISOString(), petugas_id: null,
+        sahabat_id: ses && ses.jenis === "sahabat" ? ses.id : null, nama: String(d.nama).trim(), email: d.email || null, no_hp: hp,
+        pemanfaatan: d.pemanfaatan || null, nama_instansi: d.nama_instansi || null, jenis_layanan: ["Konsultasi data statistik"],
+        sarana: "Asisten PST (daring)", kebutuhan: String(d.kebutuhan).trim(), status: "proses",
+        tenggat: tambahHari(tglWita(), 4) };
+      arr.unshift(row); SV("kunjungan", arr);
+      return Promise.resolve(row.kode_tiket);
+    }
+    return sb.rpc("ajukan_permintaan", { p: { nama: d.nama, no_hp: hp, email: d.email || null, kebutuhan: d.kebutuhan,
+      pemanfaatan: d.pemanfaatan || null, nama_instansi: d.nama_instansi || null, halaman: d.halaman || null } })
+      .then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); return r.data; });
+  }
+
   /* ------------------------------------------------------- papan tanya-jawab */
   function daftarPertanyaan(opt) {
     opt = opt || {};
@@ -631,9 +656,29 @@ window.PST = (function () {
 
   /* untuk asisten & beranda: isi terbit, atau cadangan data.js bila belum ada */
   var janjiIndikator = null;
+  /* Isi terbit di server bisa berasal dari berkas versi lama (belum punya bagian
+     pembanding kab/kota, kolom IPM per wilayah, atau daftar kecamatan). Bagian yang
+     belum ada dilengkapi dari berkas awal; yang sudah ada tidak pernah ditimpa. */
+  function lengkapiIndikator(data) {
+    var perlu = !data || !data.banding || !data.kecamatan ||
+      (Array.isArray(data.wilayah) && data.wilayah.some(function (r) { return r.ipm === undefined; }));
+    if (!perlu) return Promise.resolve(data);
+    return muatIndikatorAwal().then(function (A) {
+      if (!data) return A;
+      if (!data.banding && A.banding) data.banding = JSON.parse(JSON.stringify(A.banding));
+      if (!data.kecamatan && A.kecamatan) data.kecamatan = JSON.parse(JSON.stringify(A.kecamatan));
+      if (Array.isArray(data.wilayah) && Array.isArray(A.wilayah)) {
+        data.wilayah.forEach(function (r) {
+          var x = A.wilayah.filter(function (w) { return (w.bps && w.bps === r.bps) || w.nama === r.nama; })[0];
+          if (x) Object.keys(x).forEach(function (k) { if (r[k] === undefined) r[k] = x[k]; });
+        });
+      }
+      return data;
+    }).catch(function () { return data; });
+  }
   function indikatorSiap() {
     if (janjiIndikator) return janjiIndikator;
-    janjiIndikator = muatIndikator().then(function (r) { return r && r.data ? r.data : muatIndikatorAwal(); })
+    janjiIndikator = muatIndikator().then(function (r) { return r && r.data ? lengkapiIndikator(r.data) : muatIndikatorAwal(); })
       .catch(function () { return muatIndikatorAwal(); })
       .catch(function () { janjiIndikator = null; return null; });
     return janjiIndikator;
@@ -744,7 +789,10 @@ window.PST = (function () {
      Mode demo: localStorage "terbitan", dibenihi dari window.TERBITAN_AWAL bila kosong. */
   function terbitanDemo() {
     var arr = LS("terbitan", null);
-    if (!arr) { arr = (window.TERBITAN_AWAL || []).map(function (t, i) { return Object.assign({ id: i + 1, sumber: "manual", aktif: true, dibuat: new Date().toISOString() }, t); }); SV("terbitan", arr); }
+    if (!arr || !arr.length) {
+      arr = (window.TERBITAN_AWAL || []).map(function (t, i) { return Object.assign({ id: i + 1, sumber: "manual", aktif: true, dibuat: new Date().toISOString() }, t); });
+      if (arr.length) SV("terbitan", arr);   /* benih hanya disimpan bila berkas awalnya termuat */
+    }
     return arr;
   }
   function daftarTerbitan() {
@@ -769,6 +817,55 @@ window.PST = (function () {
   function tarikTerbitan() {
     if (DEMO) return Promise.resolve({ baru: 0, sama: terbitanDemo().length, gagal: 0, demo: true });
     return rpc("bps_tarik_terbitan");
+  }
+
+  /* daftar terbitan untuk pengunjung (tanpa masuk): tampilan v_terbitan */
+  function daftarTerbitanPublik() {
+    if (DEMO) return Promise.resolve(terbitanDemo().filter(function (t) { return t.aktif !== false; }));
+    return sb.from("v_terbitan").select("*").limit(300)
+      .then(function (r) { if (r.error) throw new Error(r.error.message); return r.data || []; })
+      .catch(function () { return (window.TERBITAN_AWAL || []).slice(); });
+  }
+
+  /* ------------------------------------------- catatan asisten (perbaikan-07)
+     Pertanyaan pengunjung + hasilnya dicatat tanpa identitas, supaya pegawai tahu
+     apa yang belum bisa dijawab. Nomor/kode disamarkan sebelum dikirim. */
+  function samarkan(t) {
+    return String(t || "").replace(/(PST|KON)-\d{4}-\d{4}/gi, "$1-****-****").replace(/\d{6,}/g, "######")
+      .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, "email@…").slice(0, 300);
+  }
+  function catatAsisten(p) {
+    var row = { pertanyaan: samarkan(p.pertanyaan), jenis: p.jenis || null, skor: p.skor == null ? null : Number(p.skor), halaman: p.halaman || null, sesi: p.sesi || null };
+    if (!row.pertanyaan) return Promise.resolve(null);
+    if (DEMO) {
+      var arr = LS("asistenLog", []); var id = (arr[0] ? arr[0].id : 0) + 1;
+      arr.unshift(Object.assign({ id: id, waktu: new Date().toISOString(), nilai: null, ditangani: false }, row)); SV("asistenLog", arr.slice(0, 2000));
+      return Promise.resolve(id);
+    }
+    return sb.rpc("asisten_catat", { p: row }).then(function (r) { return r.error ? null : r.data; }).catch(function () { return null; });
+  }
+  function nilaiAsisten(id, sesi, nilai) {
+    if (!id) return Promise.resolve();
+    if (DEMO) {
+      var arr = LS("asistenLog", []), i = arr.findIndex(function (x) { return x.id === id; });
+      if (i >= 0) { arr[i].nilai = nilai; SV("asistenLog", arr); }
+      return Promise.resolve();
+    }
+    return sb.rpc("asisten_nilai", { p_id: id, p_sesi: sesi, p_nilai: nilai }).then(function () {}).catch(function () {});
+  }
+  function daftarLogAsisten(opt) {
+    opt = opt || {};
+    if (DEMO) return Promise.resolve(LS("asistenLog", []).slice(0, opt.limit || 2000));
+    return sb.from("asisten_log").select("*").order("waktu", { ascending: false }).limit(opt.limit || 2000)
+      .then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); return r.data || []; });
+  }
+  function ubahLogAsisten(ids, patch) {
+    if (DEMO) {
+      var arr = LS("asistenLog", []);
+      arr.forEach(function (x) { if (ids.indexOf(x.id) !== -1) Object.assign(x, patch); });
+      SV("asistenLog", arr); return Promise.resolve();
+    }
+    return sb.from("asisten_log").update(patch).in("id", ids).then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); });
   }
 
   /* ---------------------------------------------------------------- navigasi */
@@ -822,7 +919,8 @@ window.PST = (function () {
     esc:esc, linkify:linkify, waLink:waLink, el:el, q:q, qa:qa, tgl:tgl, sejak:sejak, pesan:pesan,
     opsi:opsi, centang:centang, nilaiCentang:nilaiCentang, uid:uid,
     masuk:masuk, keluar:keluar, sesi:sesi, daftarSahabat:daftarSahabat,
-    tambahKunjungan:tambahKunjungan, daftarKunjungan:daftarKunjungan,
+    tambahKunjungan:tambahKunjungan, daftarKunjungan:daftarKunjungan, ajukanPermintaan:ajukanPermintaan,
+    daftarTerbitanPublik:daftarTerbitanPublik, catatAsisten:catatAsisten, nilaiAsisten:nilaiAsisten, daftarLogAsisten:daftarLogAsisten, ubahLogAsisten:ubahLogAsisten,
     ubahKunjungan:ubahKunjungan, cekTiket:cekTiket,
     daftarPertanyaan:daftarPertanyaan, tambahPertanyaan:tambahPertanyaan,
     daftarJawaban:daftarJawaban, tambahJawaban:tambahJawaban,

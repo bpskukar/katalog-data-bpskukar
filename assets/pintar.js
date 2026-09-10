@@ -10,7 +10,8 @@
 
    Pemasangan (di <head>, sebelum stylesheet situs):
      <script src="assets/pintar.js" data-situs="katalog"></script>
-   Nilai data-situs: pintu | indikator | katalog | konsultasi | sahabat | pegawai
+   Nilai data-situs: pintu | indikator | katalog | konsultasi | sahabat | glosarium | pegawai
+   (empat yang terakhir menyalakan butir "Katalog Data & Layanan PST" di menu)
 
    Cara kerja tema: pilihan disimpan di localStorage dengan kunci 'kukar-theme'.
    Ketiga situs berada di satu domain (bpskukar.github.io), jadi penyimpanan
@@ -23,7 +24,8 @@
   var root = document.documentElement;
   var skrip = document.currentScript;
   var situs = (skrip && skrip.getAttribute("data-situs")) || "";
-  var aktif = situs === "pegawai" ? "katalog" : situs;   // ruang pegawai = bagian situs katalog
+  /* menu utama hanya tiga situs; halaman konsultasi, sahabat, glosarium, ruang pegawai = bagian situs katalog */
+  var aktif = /^(konsultasi|sahabat|pegawai|glosarium)$/.test(situs) ? "katalog" : situs;
 
   var TAUTAN = {
     pintu:      "/",
@@ -33,12 +35,12 @@
     sahabat:    "/katalog-data-bpskukar/sahabat.html",
     pegawai:    "/katalog-data-bpskukar/admin.html"
   };
+  /* Satu butir per situs; menu di dalam tiap situs (Konsultasi, Sahabat Data, Glosarium,
+     Ruang Pegawai) ada di bilah situsnya sendiri supaya tidak ganda. */
   var MENU = [
     ["pintu",      "Beranda"],
     ["indikator",  "Indikator Strategis"],
-    ["katalog",    "Katalog Data"],
-    ["konsultasi", "Konsultasi Daring"],
-    ["sahabat",    "Sahabat Data"]
+    ["katalog",    "Katalog Data &amp; Layanan PST"]
   ];
 
   /* ------------------------------------------------------------ tema */
@@ -132,8 +134,8 @@
     ".pintar__ios button{margin-top:8px;border:0;background:#EAF2FC;color:#0F3B6E;border-radius:8px;padding:6px 10px;font:600 12px inherit;font-family:inherit;cursor:pointer}" +
     ":root[data-theme=dark] .pintar__ios{background:#132A48;color:#E6EEF8}" +
     ":root[data-theme=dark] .pintar__ios button{background:#1E3F66;color:#fff}" +
-    "@media (max-width:1120px){.pintar__merek small{display:none}}" +
-    "@media (max-width:860px){" +
+    "@media (max-width:1040px){.pintar__merek small{display:none}}" +
+    "@media (max-width:800px){" +
       ".pintar__menu{display:none;position:absolute;top:" + TINGGI + "px;right:8px;left:auto;min-width:220px;flex-direction:column;align-items:stretch;gap:2px;" +
         "background:#0F3B6E;padding:8px;border-radius:0 0 14px 14px;box-shadow:0 18px 40px rgba(0,0,0,.35);margin:0}" +
       ":root[data-theme=dark] .pintar__menu{background:#081A31}" +

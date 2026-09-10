@@ -68,6 +68,11 @@
       kolom: [["tahunIpm", "Tahun IPM & komponen", "text"], ["tahunMiskin", "Tahun kemiskinan", "text"], ["tahunPenduduk", "Tahun penduduk", "text"], ["tahunTpt", "Tahun TPT", "text"], ["tahunLpe", "Tahun LPE", "text"], ["tahunPdrbKapita", "Tahun PDRB/kapita", "text"], ["tahunGini", "Tahun Gini", "text"],
               ["provIpm", "Kaltim: IPM", "number?"], ["provUhh", "Kaltim: UHH", "number?"], ["provHls", "Kaltim: HLS", "number?"], ["provRls", "Kaltim: RLS", "number?"], ["provPpp", "Kaltim: pengeluaran/kapita", "number?"], ["provMiskin", "Kaltim: miskin (%)", "number?"],
               ["provTpt", "Kaltim: TPT (%)", "number?"], ["provLpe", "Kaltim: LPE (%)", "number?"], ["provPdrbKapita", "Kaltim: PDRB/kapita", "number?"], ["provGini", "Kaltim: Gini", "number?"], ["sumber", "Sumber (kalimat)", "textarea"]] },
+    { id: "kecamatan.daftar", nama: "Kecamatan", jenis: "tabel", ket: "20 kecamatan untuk jawaban asisten PST (“penduduk Tenggarong berapa?”, “kecamatan terluas?”). Salin dari Kabupaten Kutai Kartanegara Dalam Angka: penduduk dalam jiwa, luas dalam km², desa/kelurahan = jumlah. Kosongkan yang belum ada — asisten mengarahkan ke publikasinya.",
+      kolom: [["nama", "Kecamatan", "text"], ["penduduk", "Penduduk (jiwa)", "number?"], ["laki", "Laki-laki", "number?"], ["perempuan", "Perempuan", "number?"],
+              ["luas", "Luas (km²)", "number?"], ["desa", "Desa", "number?"], ["kelurahan", "Kelurahan", "number?"]] },
+    { id: "kecamatan", nama: "Sumber data kecamatan", jenis: "formulir", ket: "Tahun dan sumber angka kecamatan (disebut asisten di setiap jawaban).",
+      kolom: [["tahun", "Tahun data", "text"], ["sumber", "Sumber", "text"]] },
     { grup: "Teks & narasi" },
     { id: "teks.hero", nama: "Judul & pembuka", jenis: "formulir", ket: "Teks paling atas. **dua bintang** = huruf tebal (di judul menjadi warna oranye).",
       kolom: [["judul", "Judul utama", "text"], ["lede", "Kalimat pembuka", "textarea"], ["mini", "Empat angka di panel kanan (ID indikator, pisahkan koma)", "daftar"]] },
@@ -350,7 +355,22 @@
     return PST.muatIndikator().then(function (r) {
       INFO = r; gambarStatus();
       if (r && r.data) {
-        pakai(r.data, "server"); PST.pesan("indMsg", "", "");
+        /* bagian yang belum ada di isi server (mis. daftar kecamatan, pembanding kab/kota
+           dari versi berkas yang lebih baru) dilengkapi dari berkas awal supaya bisa disunting */
+        var perlu = !r.data.kecamatan || !r.data.banding;
+        var lanjut = function () { pakai(r.data, "server"); PST.pesan("indMsg", "", ""); };
+        if (perlu) {
+          return PST.muatIndikatorAwal().then(function (A) {
+            if (!r.data.kecamatan && A.kecamatan) r.data.kecamatan = klon(A.kecamatan);
+            if (!r.data.banding && A.banding) r.data.banding = klon(A.banding);
+          }).catch(function () {}).then(function () {
+            lanjut();
+            PST.riwayatIndikator().then(function (rw) {
+              if (rw[0] && rw[0].versi === INFO.versi) { INFO.nama_pengubah = rw[0].nama_pengubah; INFO.catatan = rw[0].catatan; gambarStatus(); }
+            }).catch(function () {});
+          });
+        }
+        lanjut();
         PST.riwayatIndikator().then(function (rw) {
           if (rw[0] && rw[0].versi === INFO.versi) { INFO.nama_pengubah = rw[0].nama_pengubah; INFO.catatan = rw[0].catatan; gambarStatus(); }
         }).catch(function () {});
