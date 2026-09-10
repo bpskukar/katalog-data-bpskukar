@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <script src="assets/pintar.js" data-situs="katalog"></script>
 <link rel="stylesheet" href="assets/theme.css">
+<link rel="stylesheet" href="assets/asisten.css">
 
 <style>
 .draft { background:var(--s-mohon-bg); border-bottom:1px solid #F5D9A8; color:var(--ink); }
@@ -38,8 +39,8 @@
 .hero__cari input { padding:15px 18px 15px 48px; font-size:15.5px; border-radius:999px; border:0; box-shadow:0 10px 30px rgba(0,0,0,.18); background:#fff; color:var(--ink); }
 .hero__cari input:focus { box-shadow:0 10px 30px rgba(0,0,0,.22), 0 0 0 4px rgba(255,255,255,.35); }
 .hero__cari svg { position:absolute; left:18px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--ink-3); pointer-events:none; }
-.hero__contoh { margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:12.5px; color:rgba(255,255,255,.7); }
-.hero__contoh button { background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); color:#fff; border-radius:999px; padding:4px 11px; font:500 12px var(--f-ui); cursor:pointer; }
+.hero__contoh { margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:12.5px; color:rgba(255,255,255,.92); }
+.hero__contoh button { background:rgba(0,0,0,.16); border:1px solid rgba(255,255,255,.35); color:#fff; border-radius:999px; padding:4px 11px; font:500 12px var(--f-ui); cursor:pointer; }
 .hero__contoh button:hover { background:rgba(255,255,255,.26); }
 
 .summary.angkat { margin-top:-30px; position:relative; z-index:2; }
@@ -49,13 +50,13 @@
 .fgroup { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
 .fgroup__lbl { font-family:var(--f-disp); font-size:12px; font-weight:500; color:var(--ink-3); margin-right:2px; }
 .fbtn { font-family:var(--f-ui); font-size:12.5px; font-weight:500; padding:5px 12px; background:var(--panel); border:1px solid var(--line-2); border-radius:999px; color:var(--ink-2); cursor:pointer; transition:.15s; }
-.fbtn:hover { border-color:var(--biru); color:var(--biru); }
-.fbtn[aria-pressed="true"] { background:var(--biru); border-color:var(--biru); color:#fff; }
+.fbtn:hover { border-color:var(--biru); color:var(--link); }
+.fbtn[aria-pressed="true"], .fbtn[aria-pressed="true"]:hover { background:var(--biru); border-color:var(--biru); color:#fff; }
 .fbtn:focus-visible { outline:2px solid var(--biru); outline-offset:2px; }
 .countline { font-size:12.5px; color:var(--ink-3); margin-left:auto; white-space:nowrap; }
 
 #list { background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--bayang); margin-top:16px; padding:4px 20px 8px; }
-.grouptitle { font-family:var(--f-disp); font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--biru); padding:22px 0 8px; border-bottom:2px solid var(--biru-wash); }
+.grouptitle { font-family:var(--f-disp); font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--link); padding:22px 0 8px; border-bottom:2px solid var(--biru-wash); }
 .grouptitle.is-off { display:none; }
 
 .row { display:grid; grid-template-columns:1fr 108px 118px 120px; gap:16px; align-items:baseline; padding:13px 0; border-bottom:1px solid var(--line); cursor:pointer; }
@@ -74,13 +75,13 @@
 .row.is-open { background:var(--biru-wash); margin-inline:-20px; padding-inline:20px; }
 .detail__menu { font-size:12px; color:var(--ink-3); margin-top:9px; }
 .detail__ln { margin-top:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-start; }
-.detail__ln a { font-size:13px; font-weight:500; color:var(--biru); text-decoration:none; }
+.detail__ln a { font-size:13px; font-weight:500; color:var(--link); text-decoration:none; }
 .detail__ln a:hover { text-decoration:underline; }
 .detail__ln a::before { content:"→ "; opacity:.6; }
 
 .kecgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; }
 .kecgrid a { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:11px 14px; font-size:13.5px; font-weight:500; color:var(--ink); text-decoration:none; display:flex; justify-content:space-between; gap:8px; align-items:baseline; box-shadow:var(--bayang); transition:.15s; }
-.kecgrid a:hover { border-color:var(--biru); color:var(--biru); transform:translateY(-2px); }
+.kecgrid a:hover { border-color:var(--biru); color:var(--link); transform:translateY(-2px); }
 .kecgrid span { font-size:11px; color:var(--ink-3); }
 
 .legend { margin-top:44px; }

@@ -1,0 +1,106 @@
+/* ============================================================================
+   Asisten PST — gaya widget yang berdiri sendiri.
+   Dipakai di ketiga situs (katalog, indikator, beranda) sehingga tidak bergantung
+   pada theme.css: semua warna lewat variabel --cb-* di bawah, ikut tema
+   terang/gelap dari atribut data-theme yang diatur pintar.js.
+   ========================================================================== */
+.cb {
+  position: fixed; right: 18px; bottom: 18px; z-index: 250;
+  font-family: "Inter", "Plus Jakarta Sans", "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px; line-height: 1.5; color: var(--cb-ink);
+  --cb-biru: #1D5FAD; --cb-biru-2: #2A6FC4; --cb-biru-tua: #0F3B6E; --cb-wash: #E9F1FB;
+  --cb-bg: #F4F7FB; --cb-panel: #FFFFFF; --cb-line: #E1E8F0; --cb-line-2: #C9D5E3;
+  --cb-ink: #1B2A3F; --cb-ink-2: #46556B; --cb-ink-3: #64748B; --cb-link: #1A56A0; --cb-teks-biru: #0F3B6E;
+  --cb-ada: #1E7A44; --cb-ada-bg: #E3F5EA; --cb-mohon: #8A5208; --cb-mohon-bg: #FFF1DD;
+  --cb-tidak: #B23131; --cb-tidak-bg: #FDE8E8; --cb-lain: #4A5768; --cb-lain-bg: #EDF1F5; --cb-prov: #1A56A0; --cb-prov-bg: #E9F1FB;
+  --cb-bayang: 0 8px 28px rgba(15,59,110,.18);
+}
+:root[data-theme="dark"] .cb {
+  --cb-biru: #2F6FC2; --cb-biru-2: #2A66B5; --cb-biru-tua: #0B1E36; --cb-wash: #1B2E48;
+  --cb-bg: #0F1A2A; --cb-panel: #172436; --cb-line: #2A3B52; --cb-line-2: #3A4F6B;
+  --cb-ink: #E8EEF6; --cb-ink-2: #C3CEDD; --cb-ink-3: #9AA9BE; --cb-link: #8FC1F7; --cb-teks-biru: #C5DCF8;
+  --cb-ada: #7EDCA6; --cb-ada-bg: #173626; --cb-mohon: #F5C270; --cb-mohon-bg: #3A2A10;
+  --cb-tidak: #F4A0A0; --cb-tidak-bg: #3A1C1C; --cb-lain: #B9C4D3; --cb-lain-bg: #25334A; --cb-prov: #8FC1F7; --cb-prov-bg: #1B2E48;
+  --cb-bayang: 0 8px 28px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cb {
+    --cb-biru: #2F6FC2; --cb-biru-2: #2A66B5; --cb-biru-tua: #0B1E36; --cb-wash: #1B2E48;
+    --cb-bg: #0F1A2A; --cb-panel: #172436; --cb-line: #2A3B52; --cb-line-2: #3A4F6B;
+    --cb-ink: #E8EEF6; --cb-ink-2: #C3CEDD; --cb-ink-3: #9AA9BE; --cb-link: #8FC1F7; --cb-teks-biru: #C5DCF8;
+    --cb-ada: #7EDCA6; --cb-ada-bg: #173626; --cb-mohon: #F5C270; --cb-mohon-bg: #3A2A10;
+    --cb-tidak: #F4A0A0; --cb-tidak-bg: #3A1C1C; --cb-lain: #B9C4D3; --cb-lain-bg: #25334A; --cb-prov: #8FC1F7; --cb-prov-bg: #1B2E48;
+    --cb-bayang: 0 8px 28px rgba(0,0,0,.5);
+  }
+}
+.cb *, .cb *::before, .cb *::after { box-sizing: border-box; }
+
+/* tombol pembuka */
+.cb__tombol {
+  display: inline-flex; align-items: center; gap: 8px; border: 0; cursor: pointer;
+  background: var(--cb-biru); color: #fff; font: 600 13.5px/1 "Poppins", "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  padding: 12px 18px; border-radius: 999px; box-shadow: var(--cb-bayang); transition: background .15s, transform .15s;
+}
+.cb__tombol:hover { background: var(--cb-biru-2); transform: translateY(-1px); }
+.cb__tombol:focus-visible { outline: 3px solid var(--cb-biru-2); outline-offset: 2px; }
+.cb--awal .cb__tombol[disabled] { opacity: .75; cursor: progress; }
+
+/* panel */
+.cb__panel {
+  position: absolute; right: 0; bottom: 56px; width: min(380px, calc(100vw - 20px)); height: min(560px, calc(100vh - 100px));
+  background: var(--cb-panel); border: 1px solid var(--cb-line); border-radius: 18px; box-shadow: var(--cb-bayang);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.cb__panel[hidden] { display: none; }
+.cb__kepala {
+  display: flex; justify-content: space-between; align-items: center; padding: 14px 16px;
+  background: linear-gradient(120deg, #0F3B6E, #1D5FAD); color: #fff;
+}
+.cb__kepala b { display: block; font-family: "Poppins", "Plus Jakarta Sans", sans-serif; font-size: 14px; }
+.cb__kepala span { font-size: 11px; color: rgba(255,255,255,.8); }
+.cb__tutup { background: rgba(255,255,255,.15); border: 0; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; line-height: 1; color: #fff; cursor: pointer; }
+.cb__tutup:hover { background: rgba(255,255,255,.3); }
+.cb__isi { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--cb-bg); }
+.cb__p { max-width: 92%; font-size: 13.5px; line-height: 1.55; padding: 10px 13px; border-radius: 14px; word-wrap: break-word; }
+.cb__p--saya { align-self: flex-end; background: var(--cb-biru); color: #fff; border-bottom-right-radius: 4px; }
+.cb__p--bot { align-self: flex-start; background: var(--cb-panel); color: var(--cb-ink); border: 1px solid var(--cb-line); border-bottom-left-radius: 4px; }
+.cb__p--bot a { color: var(--cb-link); word-break: break-word; }
+.cb__p--bot b { color: var(--cb-ink); }
+.cb__kat { border-top: 1px solid var(--cb-line); margin-top: 9px; padding-top: 8px; }
+.cb__kat b { display: block; margin-top: 4px; font-size: 13.5px; }
+.cb__meta { font-size: 11px; color: var(--cb-ink-3); margin-top: 2px; }
+.cb__ket { font-size: 12.5px; color: var(--cb-ink-2); margin-top: 4px; }
+.cb__ln { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+.cb__ln a { font-size: 12.5px; text-decoration: none; color: var(--cb-link); font-weight: 600; }
+.cb__ln a:hover { text-decoration: underline; }
+.cb__ln a::before { content: "→ "; opacity: .6; }
+.cb__salin { display: block; margin-top: 8px; background: var(--cb-wash); border: 0; border-radius: 999px; color: var(--cb-teks-biru); font: 500 11.5px inherit; font-family: inherit; padding: 5px 11px; cursor: pointer; }
+.cb__salin:hover { background: var(--cb-biru); color: #fff; }
+.cb__chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px; background: var(--cb-bg); }
+.cb__chips:empty { display: none; }
+.cb__chip { background: var(--cb-panel); border: 1px solid var(--cb-line-2); border-radius: 999px; color: var(--cb-teks-biru); font: 500 12px inherit; font-family: inherit; padding: 6px 12px; cursor: pointer; }
+.cb__chip:hover { border-color: var(--cb-biru); background: var(--cb-wash); }
+.cb__form { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--cb-line); background: var(--cb-panel); }
+.cb__form input {
+  flex: 1; min-width: 0; border-radius: 999px; border: 1px solid var(--cb-line-2); background: var(--cb-panel); color: var(--cb-ink);
+  font: 14px inherit; font-family: inherit; padding: 9px 14px;
+}
+.cb__form input::placeholder { color: var(--cb-ink-3); }
+.cb__form input:focus { outline: none; border-color: var(--cb-biru); box-shadow: 0 0 0 3px var(--cb-wash); }
+.cb__kirim { border: 1px solid var(--cb-biru); background: var(--cb-biru); color: #fff; border-radius: 999px; padding: 8px 16px; font: 600 12.5px inherit; font-family: inherit; cursor: pointer; }
+.cb__kirim:hover { background: var(--cb-biru-2); border-color: var(--cb-biru-2); }
+
+/* potongan yang dipakai jawaban: label status katalog & kode tiket */
+.cb .pill { display: inline-block; font-family: "Poppins", "Plus Jakarta Sans", sans-serif; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.cb .pill.ada { background: var(--cb-ada-bg); color: var(--cb-ada); }
+.cb .pill.mohon { background: var(--cb-mohon-bg); color: var(--cb-mohon); }
+.cb .pill.tidak { background: var(--cb-tidak-bg); color: var(--cb-tidak); }
+.cb .pill.lain { background: var(--cb-lain-bg); color: var(--cb-lain); }
+.cb .pill.prov { background: var(--cb-prov-bg); color: var(--cb-prov); }
+.cb .kode { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 12.5px; background: var(--cb-wash); color: var(--cb-teks-biru); padding: 1px 6px; border-radius: 6px; }
+
+@media (max-width: 520px) {
+  .cb { right: 10px; bottom: 10px; }
+  .cb__panel { width: calc(100vw - 20px); height: calc(100vh - 90px); height: calc(100dvh - 90px); }
+}
+@media print { .cb { display: none; } }

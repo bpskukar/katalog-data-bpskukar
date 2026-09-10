@@ -14,16 +14,16 @@
   var wadah = document.createElement("div");
   wadah.className = "cb";
   wadah.innerHTML =
-    '<button class="cb__tombol" id="cbBuka" aria-label="Buka asisten PST">' +
+    '<button class="cb__tombol" id="cbBuka" aria-label="Buka asisten PST" aria-expanded="false" aria-controls="cbPanel">' +
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.2A8 8 0 1 1 21 12z"/></svg>' +
       '<span>Tanya PST</span></button>' +
-    '<section class="cb__panel" id="cbPanel" hidden aria-label="Asisten PST">' +
+    '<section class="cb__panel" id="cbPanel" hidden role="dialog" aria-label="Asisten PST">' +
       '<header class="cb__kepala"><div><b>Asisten PST</b><span>menjawab dari katalog, bukan mengarang</span></div>' +
         '<button class="cb__tutup" id="cbTutup" aria-label="Tutup">×</button></header>' +
-      '<div class="cb__isi" id="cbIsi"></div>' +
+      '<div class="cb__isi" id="cbIsi" aria-live="polite"></div>' +
       '<div class="cb__chips" id="cbChips"></div>' +
-      '<form class="cb__form" id="cbForm"><input type="text" id="cbInput" placeholder="Tulis pertanyaan…" autocomplete="off" maxlength="300">' +
-        '<button class="btn btn--sm" type="submit">Kirim</button></form>' +
+      '<form class="cb__form" id="cbForm"><input type="text" id="cbInput" placeholder="Tulis pertanyaan…" aria-label="Pertanyaan untuk asisten PST" autocomplete="off" maxlength="300">' +
+        '<button class="cb__kirim" type="submit">Kirim</button></form>' +
     '</section>';
   document.body.appendChild(wadah);
 
@@ -48,11 +48,19 @@
     kirim(b.dataset.q, b.dataset.id);
   });
 
+  /* tautan relatif (konsultasi.html, glosarium.html#ipm) selalu diarahkan ke situs katalog,
+     karena widget ini juga dipasang di beranda dan situs indikator */
+  var DASAR_KATALOG = (PST.TAUTAN && PST.TAUTAN.katalog) || "/katalog-data-bpskukar/";
+  function tautanAbsolut(u) {
+    u = String(u || "");
+    if (/^(https?:|\/|#|mailto:|tel:)/.test(u)) return u;
+    return DASAR_KATALOG + u;
+  }
   function tautanHtml(ln) {
     if (!ln || !ln.length) return "";
     return '<div class="cb__ln">' + ln.map(function (x) {
       var luar = /^https?:/.test(x.u);
-      return '<a href="' + esc(x.u) + '"' + (luar ? ' target="_blank" rel="noopener"' : "") + ">" + esc(x.l) + "</a>";
+      return '<a href="' + esc(tautanAbsolut(x.u)) + '"' + (luar ? ' target="_blank" rel="noopener"' : "") + ">" + esc(x.l) + "</a>";
     }).join("") + "</div>";
   }
 
@@ -319,13 +327,15 @@
   }
 
   /* ------------------------------------------------------------- kendali */
-  document.getElementById("cbBuka").onclick = function () {
-    panel.hidden = !panel.hidden;
-    if (!panel.hidden && IND === undefined) siapkanIndikator();
-    if (!panel.hidden && !isi.children.length) sapa();
-    if (!panel.hidden) input.focus();
-  };
-  document.getElementById("cbTutup").onclick = function () { panel.hidden = true; };
+  var tombolBuka = document.getElementById("cbBuka");
+  function tutup() {
+    if (panel.hidden) return;
+    panel.hidden = true; tombolBuka.setAttribute("aria-expanded", "false");
+    if (panel.contains(document.activeElement)) tombolBuka.focus();   /* fokus kembali ke tombol pembuka */
+  }
+  tombolBuka.onclick = function () { if (panel.hidden) buka(); else tutup(); };
+  document.getElementById("cbTutup").onclick = tutup;
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !panel.hidden) tutup(); });
   document.getElementById("cbForm").onsubmit = function (e) {
     e.preventDefault(); var t = input.value.trim(); input.value = ""; kirim(t);
   };
@@ -337,13 +347,37 @@
 
   PST.sesi().then(function (s) { petugas = !!(s && s.jenis === "pegawai"); }).catch(function () {});
 
+  /* API untuk tombol "Tanya PST" di mana pun (beranda, situs indikator, glosarium):
+     ASISTEN.buka() membuka panel, ASISTEN.tanya(teks) membuka dan langsung bertanya. */
+  function buka() {
+    panel.hidden = false; tombolBuka.setAttribute("aria-expanded", "true");
+    if (IND === undefined) siapkanIndikator();
+    if (!isi.children.length) sapa();
+    input.focus();
+  }
+  window.ASISTEN = {
+    buka: buka,
+    tutup: tutup,
+    tanya: function (t) { t = String(t || "").trim().slice(0, 300); buka(); if (t) kirim(t); }
+  };
+  /* tombol/tautan mana pun dengan data-tanya="…" (atau data-tanya kosong = buka saja) */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-tanya]"); if (!b) return;
+    e.preventDefault();
+    var t = b.getAttribute("data-tanya");
+    if (t) window.ASISTEN.tanya(t); else buka();
+  });
+
   /* buka otomatis lewat #tanya di URL, mis. dari tautan di halaman lain */
-  if (location.hash === "#tanya") setTimeout(function () { document.getElementById("cbBuka").click(); }, 300);
+  if (location.hash === "#tanya") setTimeout(buka, 300);
 
   /* ?tanya=… dari situs indikator (tombol "Tanya PST" di kartu): buka dan langsung tanyakan */
   var tanyaAwal = (new URLSearchParams(location.search).get("tanya") || "").trim().slice(0, 300);
   if (tanyaAwal) setTimeout(function () {
-    panel.hidden = false; if (!isi.children.length) sapa();
+    /* tanpa memindahkan fokus ke kotak ketik: di HP, papan ketik tidak langsung muncul */
+    panel.hidden = false; tombolBuka.setAttribute("aria-expanded", "true");
+    if (IND === undefined) siapkanIndikator();
+    if (!isi.children.length) sapa();
     kirim(tanyaAwal);
   }, 350);
 })();

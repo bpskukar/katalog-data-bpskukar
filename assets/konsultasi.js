@@ -25,9 +25,10 @@
       var aktif = topikPilih.indexOf(t) !== -1;
       return '<button type="button" data-topik="' + esc(t) + '" aria-pressed="' + aktif + '"' + (!aktif && topikPilih.length >= MAKS_TOPIK ? " disabled" : "") + ">" + esc(t) + "</button>";
     }).join("");
+    var durasi = (ATURAN && ATURAN.durasi) || B.konsultasi.durasi;
     el("kTopikHint").textContent = topikPilih.length >= MAKS_TOPIK
       ? "Sudah dua topik. Lepas salah satu bila ingin mengganti."
-      : "Satu sesi 30 menit cukup untuk satu–dua topik; kalau lebih, ajukan sesi lain setelah yang ini selesai.";
+      : "Satu sesi " + durasi + " menit cukup untuk satu–dua topik; kalau lebih, ajukan sesi lain setelah yang ini selesai.";
   }
   el("kTopik").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-topik]"); if (!b || b.disabled) return;
@@ -99,6 +100,7 @@
     var kata = ["","satu","dua","tiga","empat","lima","enam","tujuh"][a.minHari];
     el("minHariTeks").textContent = a.minHari <= 0 ? "hari ini" : a.minHari === 1 ? "besok" : (kata ? kata + " hari dari sekarang" : a.minHari + " hari dari sekarang");
     el("durasiTeks").textContent = a.durasi;
+    gambarTopik();
     return muatSlot();
   }).then(gambarHari);
 

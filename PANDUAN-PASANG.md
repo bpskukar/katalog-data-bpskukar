@@ -151,13 +151,18 @@ Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperb
 | Pembaruan 04 — angka indikator ditarik otomatis dari Web API BPS (jadwal harian), panel *Sumber otomatis* di tab Indikator | `admin.html`, `assets/app.js`, `assets/indikator-admin.js`, `assets/sumber-otomatis.js` — **plus** `assets/app.js` & `assets/data.js` repositori indikator | jalankan `supabase/perbaikan-04.sql`, aktifkan ekstensi **http**, lalu ikuti bagian *Pembaruan otomatis dari Web API BPS* |
 | Pembaruan 05 — pencarian mengenali singkatan huruf kecil, satu tanda PINTAR di semua tempat, konsultasi 30 menit & paling banyak dua topik | `konsultasi.html`, `assets/*.js`, `assets/og-katalog.png` — **plus** repositori indikator & beranda | jalankan `supabase/perbaikan-05.sql` |
 | Pembaruan 06 — alasan untuk kembali: Angka hari ini & kartu bagikan, Terbit baru + agenda rilis, Glosarium, Bandingkan kab/kota se-Kaltim, pasang sebagai aplikasi (PWA) | `glosarium.html`, `admin.html`, `assets/*` (baru: `glosarium.js`, `terbitan-awal.js`, `terbitan-admin.js`) — **plus** repositori indikator (`kartu.js`, bagian Bandingkan) & beranda (`manifest.webmanifest`, `sw.js`, `luring.html`, `assets/ikon/`) | jalankan `supabase/perbaikan-06.sql`, lalu ikuti bagian *Terbit baru & agenda* di bawah |
+| Pembaruan 07 — asisten PST muncul di semua situs tanpa pindah halaman, teks mode gelap & terang ≥ 4,5:1 di seluruh halaman, koreksi glosarium, aksesibilitas (papan ketik, sasaran sentuh) | semua `.html`, `assets/*` (baru: `asisten.js`, `asisten.css`) — **plus** repositori indikator & beranda | tidak ada (skrip 05 & 06 harus sudah dijalankan) |
 
 Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
 isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.
 Proyek yang **baru** dibuat cukup menjalankan `schema.sql` — isinya sudah memuat semua perbaikan.
-Proyek yang **sudah berjalan** menjalankan skrip perbaikannya berurutan (`perbaikan-01.sql`,
-`perbaikan-02.sql`, lalu `perbaikan-03.sql`) — jangan menjalankan ulang `schema.sql`, karena tabel
-yang sudah ada akan dilewati sehingga sebagian perubahan tidak diterapkan.
+Proyek yang **sudah berjalan** menjalankan skrip perbaikannya berurutan (`perbaikan-01.sql` sampai
+`perbaikan-06.sql`; `perbaikan-04.sql` boleh ditunda sampai kunci Web API ada) — jangan menjalankan
+ulang `schema.sql`, karena tabel yang sudah ada akan dilewati sehingga sebagian perubahan tidak diterapkan.
+Cara memastikan skrip sudah terjalan: buka
+`https://yslpnfzvvhamxrdjhklb.supabase.co/rest/v1/rpc/pengaturan_publik?apikey=<kunci publishable>`
+di peramban — `konsultasi_durasi` harus `30` (perbaikan-05); halaman beranda bagian *Terbit baru*
+tidak lagi bertuliskan *Daftar awal* (perbaikan-06).
 
 > ⚠️ **Setiap kali mengunggah pembaruan, `assets/config.js` ikut tertimpa.** Berkas itu satu-satunya
 > yang memuat kunci Supabase. Setelah mengunggah, buka kembali berkas itu di GitHub dan pastikan
@@ -395,6 +400,30 @@ Manifest dan service worker tinggal di repositori beranda (`bpskukar.github.io`)
 pemasangan mencakup ketiga situs. Setiap kali ada berkas situs yang berubah, naikkan nilai `VERSI`
 di `sw.js` (mis. `pintar-2026-10-01a`) agar salinan lama di perangkat pengunjung dibersihkan.
 Data Supabase tidak pernah disimpan service worker.
+
+## Asisten PST di semua situs & mode gelap (pembaruan 07)
+
+Asisten PST (tombol **Tanya PST** di pojok kanan bawah) kini ada di beranda, situs indikator, dan
+semua halaman katalog, dan membuka panel di halaman yang sama — tidak lagi memindahkan pengunjung
+ke situs katalog. Mesinnya tetap satu (`assets/chat.js` di repositori katalog); situs lain hanya
+memuat `assets/asisten.js` yang mengambil mesin itu dari `/katalog-data-bpskukar/` saat pertama
+dibutuhkan (atau diam-diam saat peramban senggang). Karena ketiga situs berada di satu domain
+`bpskukar.github.io`, tidak ada pengaturan CORS apa pun.
+
+Memasang di halaman baru: tambahkan `<script src="/katalog-data-bpskukar/assets/asisten.js" defer></script>`
+sebelum `</body>`. Tombol atau tautan apa pun dengan atribut `data-tanya="pertanyaan"` membuka
+asisten dan langsung menanyakannya; `data-tanya=""` hanya membuka panel. Dari skrip:
+`ASISTEN.tanya("berapa IPM Kukar?")`, `ASISTEN.buka()`, `ASISTEN.tutup()`. Tautan lama
+`?tanya=…` dan `#tanya` ke situs katalog masih berfungsi. Tombol Escape menutup panel dan
+mengembalikan fokus ke tombol pembuka.
+
+Gaya widget ada di `assets/asisten.css` (berdiri sendiri, ikut tema gelap dari atribut `data-theme`
+yang diatur `pintar.js`). Aturan warna yang dipakai ketiga situs sejak pembaruan ini: warna merek
+sebagai **latar** dan sebagai **teks** memakai variabel berbeda (`--biru` vs `--biru-teks`,
+`--oranye`/`--brand` vs `--oranye-teks`/`--brand-text`, `--hijau` vs `--hijau-teks`), karena
+biru/jingga yang cukup kontras di atas putih tidak cukup kontras sebagai tulisan di mode gelap.
+Semua teks di semua halaman (termasuk tab Ruang Pegawai dan panel asisten) diaudit otomatis
+≥ 4,5:1 di kedua mode; bila menambah warna teks baru, pakai variabel `*-teks` itu.
 
 ## Pemeliharaan
 

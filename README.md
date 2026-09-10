@@ -88,6 +88,11 @@ terdekat yang tersedia; "kenapa beda dengan Dukcapil?" dijawab dengan penjelasan
 kode tiket yang diketik langsung diperiksa. Untuk pegawai yang masuk, tersedia kartu jawaban
 baku (alur melayani, kalimat penolakan) dengan tombol salin.
 
+Sejak pembaruan 07 asisten yang sama muncul di **semua** situs PINTAR (beranda, indikator,
+katalog) dan membuka panel di halaman yang sedang dibaca: situs lain hanya memuat
+`assets/asisten.js`, pemuat kecil yang mengambil mesin asisten dari repositori ini saat pertama
+dibutuhkan. Tombol/tautan apa pun dengan `data-tanya="pertanyaan"` membukanya.
+
 ## Notifikasi WhatsApp
 
 Tiket daring baru, permintaan konsultasi, jadwal ditetapkan, pertanyaan baru di papan tanya,
@@ -119,8 +124,8 @@ Yang mengikatnya:
   keluarga, menu silang, dan satu tombol **tema terang/gelap**. Karena satu domain, pilihan
   tema tersimpan bersama — ganti di satu situs, situs lain ikut, tab yang terbuka pun ikut.
 - **Dari angka ke layanan, satu klik**: setiap kartu indikator punya tautan *Minta data
-  lengkap* (membuka katalog dengan `?q=` terisi) dan *Tanya PST* (membuka asisten dengan
-  `?tanya=` terisi).
+  lengkap* (membuka katalog dengan `?q=` terisi) dan *Tanya PST* (membuka asisten di
+  halaman itu juga, dengan pertanyaannya sudah terkirim).
 - **Asisten PST menjawab angka**: "berapa IPM Kukar 2023?" dijawab dari isi indikator
   yang sama dengan yang tampil di dashboard, lengkap dengan deretnya.
 - **Satu ruang kerja pegawai**: isi situs indikator (angka, grafik, narasi, teks) disunting
@@ -144,6 +149,13 @@ Yang mengikatnya:
 - **Bandingkan kab/kota se-Kaltim** di situs indikator: peringkat Kukar untuk IPM & komponennya, kemiskinan, penduduk (2025, BPS Kaltim).
 - **Pasang sebagai aplikasi**: ikon di layar utama, terbuka cepat, halaman yang pernah dibuka tetap terbaca saat luring.
 
+## Satu asisten di mana pun, mode gelap terbaca (pembaruan 07)
+
+- **Tanya PST tanpa pindah halaman**: tombol asisten ada di beranda, situs indikator, dan semua halaman katalog; *Tanya PST* di kartu indikator langsung menjawab di tempat.
+- **Mode gelap & terang**: semua teks di seluruh halaman (termasuk Ruang Pegawai dan panel asisten) diaudit otomatis ≥ 4,5:1 — warna merek sebagai teks memakai variabel terpisah dari warna merek sebagai latar.
+- **Glosarium dikoreksi** (contoh P0, tahun dasar ADHK, jadwal rilis IPM/TPT/kemiskinan, pembanding Gini) dan angka indikator diperiksa konsistensinya (jumlah triwulanan = tahunan, LPE, IPM dari komponennya, rasio jenis kelamin).
+- **Aksesibilitas**: panel asisten berperan dialog, Escape menutup dan mengembalikan fokus, sasaran sentuh ≥ 24 px, warna bilah alamat peramban mengikuti tema.
+
 ## Susunan berkas
 
 ```
@@ -160,7 +172,9 @@ assets/
   katalog.js            isi katalog: 89 ragam data + 20 kecamatan
   cari.js               mesin pencocokan (dipakai ruang pegawai & chatbot)
   pengetahuan.js        jawaban baku chatbot & kartu jawaban petugas
-  chat.js               widget asisten PST
+  chat.js               widget asisten PST (mesin; dipakai ketiga situs)
+  asisten.js            pemuat asisten untuk beranda & situs indikator (memuat mesin saat dibutuhkan)
+  asisten.css           gaya widget asisten, berdiri sendiri, ikut tema gelap
   glosarium.js          37 istilah statistik (dipakai glosarium, asisten, pencarian beranda)
   terbitan-awal.js      terbitan & agenda awal untuk beranda (cadangan bila server tak terjangkau)
   terbitan-admin.js     tab Terbitan & agenda di ruang pegawai

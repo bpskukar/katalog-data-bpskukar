@@ -47,10 +47,17 @@
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
   function tema() { return root.getAttribute("data-theme") === "dark" ? "dark" : "light"; }
+  /* warna bilah alamat peramban (Android/Chrome) mengikuti bilah PINTAR & tema */
+  function warnaPeramban(t) {
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (!m) { m = document.createElement("meta"); m.setAttribute("name", "theme-color"); (document.head || root).appendChild(m); }
+    m.setAttribute("content", t === "dark" ? "#081A31" : "#0F3B6E");
+  }
   function terapkan(t, simpan) {
     t = t === "dark" ? "dark" : "light";
     root.setAttribute("data-theme", t);
     if (simpan) { try { localStorage.setItem(KUNCI, t); } catch (e) { /* abaikan */ } }
+    warnaPeramban(t);
     perbaruiTombol();
     try { window.dispatchEvent(new CustomEvent("pintar:tema", { detail: { tema: t } })); } catch (e) { /* peramban lama */ }
   }

@@ -86,7 +86,7 @@ bandingkan tenggat dengan waktu selesai sungguhan, lalu tampilkan
 "rata-rata penyelesaian 2,3 hari kerja, 91 persen tepat waktu" di tab Rekap.
 Angka ini yang dicari saat penyusunan laporan kinerja dan penilaian Zona Integritas.
 
-### 9. Chatbot WhatsApp, dimulai dari yang paling sederhana — *tahap pertama dikerjakan sebagai asisten di situs*
+### 9. Chatbot WhatsApp, dimulai dari yang paling sederhana — *tahap pertama dikerjakan sebagai asisten di situs; sejak pembaruan 07 asisten yang sama hadir di ketiga situs PINTAR tanpa pindah halaman*
 
 BPS Kabupaten Sanggau punya KAWAN dan BPS Kuantan Singingi punya CARANO — keduanya
 chatbot WhatsApp untuk layanan statistik. Tidak perlu langsung secanggih itu.

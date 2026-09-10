@@ -15,13 +15,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <script src="assets/pintar.js" data-situs="pegawai"></script>
 <link rel="stylesheet" href="assets/theme.css">
+<link rel="stylesheet" href="assets/asisten.css">
 <style>
 .tabs { display:flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px; margin:22px 0 22px; flex-wrap:wrap; box-shadow:var(--bayang); width:fit-content; max-width:100%; }
 .tabs button {
   font-family:var(--f-disp); font-size:13px; font-weight:500; padding:8px 16px; border-radius:999px;
   background:transparent; border:0; color:var(--ink-2); cursor:pointer; transition:.15s; white-space:nowrap;
 }
-.tabs button:hover { color:var(--biru); background:var(--biru-wash); }
+.tabs button:hover { color:var(--link); background:var(--biru-wash); }
 .tabs button[aria-selected="true"] { color:#fff; background:var(--biru); font-weight:600; }
 .panel[hidden] { display:none; }
 
@@ -29,7 +30,7 @@
 .cocok__i { padding:10px 12px; border-bottom:1px solid var(--line); font-size:13px; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; background:var(--panel); }
 .cocok__i:last-child { border-bottom:0; }
 .cocok__n { font-weight:600; color:var(--ink); }
-.cocok__a { font-size:12px; color:var(--biru); font-weight:500; text-decoration:none; }
+.cocok__a { font-size:12px; color:var(--link); font-weight:500; text-decoration:none; }
 .cocok__a:hover { text-decoration:underline; }
 .cocok__meta { font-size:11px; color:var(--ink-3); }
 .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
@@ -64,7 +65,7 @@
 .rank__nm { flex:1; }
 .rank__nm b { display:block; color:var(--ink); font-size:14.5px; font-family:var(--f-disp); font-weight:600; }
 .rank__nm span { font-size:11.5px; color:var(--ink-3); }
-.rank__p { font-family:var(--f-disp); font-size:1.4rem; font-weight:700; color:var(--biru); font-variant-numeric:tabular-nums; }
+.rank__p { font-family:var(--f-disp); font-size:1.4rem; font-weight:700; color:var(--link); font-variant-numeric:tabular-nums; }
 .rank:nth-child(1) .rank__no { color:var(--oranye); }
 .rank:nth-child(1) .rank__p { color:var(--oranye); }
 
@@ -72,7 +73,7 @@
 .kon { border:1px solid var(--line); background:var(--panel); border-radius:var(--r); box-shadow:var(--bayang); padding:13px 15px; margin-bottom:10px; cursor:pointer; display:grid; grid-template-columns:1fr auto; gap:6px 12px; transition:.15s; }
 .kon:hover { border-color:var(--biru); }
 .kon.is-on { border-color:var(--biru); box-shadow:0 0 0 3px var(--biru-wash); }
-.kon__w { font-family:var(--f-disp); font-size:12.5px; color:var(--biru-tua); font-weight:600; }
+.kon__w { font-family:var(--f-disp); font-size:12.5px; color:var(--biru-teks); font-weight:600; }
 .kon__n { font-size:14px; font-weight:600; }
 .kon__m { font-size:12px; color:var(--ink-3); grid-column:1/-1; }
 @media (max-width:700px){ .bar__l { width:120px; } }
@@ -94,7 +95,7 @@
 .ind-no { color:var(--ink-3); font-size:12px; font-variant-numeric:tabular-nums; padding-top:12px !important; }
 .ind-aksi { white-space:nowrap; }
 .ind-aksi button { width:26px; height:26px; border-radius:6px; border:1px solid var(--line-2); background:var(--panel); color:var(--ink-2); cursor:pointer; margin-right:3px; font-size:13px; line-height:1; }
-.ind-aksi button:hover { border-color:var(--biru); color:var(--biru); }
+.ind-aksi button:hover { border-color:var(--biru); color:var(--link); }
 .ind-aksi button:last-child:hover { border-color:var(--s-tidak); color:var(--s-tidak); }
 .ind-warna { display:inline-flex; align-items:center; gap:6px; }
 .ind-warna input { width:36px; height:30px; padding:2px; border:1px solid var(--line-2); border-radius:6px; background:var(--panel); }
@@ -120,7 +121,7 @@
 .so-status b { display:block; font-size:11.5px; color:var(--ink-3); font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
 .so-var { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px; }
 .so-var:last-child { border-bottom:0; }
-.so-pilih { background:var(--panel); border:1px solid var(--line-2); border-radius:999px; padding:2px 9px; font-size:12px; cursor:pointer; color:var(--biru-tua); margin:2px 2px 2px 0; }
+.so-pilih { background:var(--panel); border:1px solid var(--line-2); border-radius:999px; padding:2px 9px; font-size:12px; cursor:pointer; color:var(--biru-teks); margin:2px 2px 2px 0; }
 .so-pilih:hover { border-color:var(--biru); }
 .so-log { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:start; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
 .so-log:last-child { border-bottom:0; }
@@ -132,10 +133,10 @@
 .tb__j { font-size:13.5px; font-weight:600; color:var(--ink); }
 .tb__m { font-size:12px; color:var(--ink-3); margin-top:2px; }
 .tb__aksi { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; font-size:12.5px; }
-.tb__aksi button { background:none; border:0; padding:0; color:var(--biru); cursor:pointer; font:inherit; font-weight:600; }
-.tb__aksi button.bahaya { color:#b3261e; }
-.tb__jenis { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:1px 7px; border-radius:999px; margin-right:6px; background:var(--biru-wash); color:var(--biru-tua); vertical-align:1px; }
-.tb__jenis.api { background:#E3F5EA; color:var(--hijau); }
+.tb__aksi button { background:none; border:0; padding:0; color:var(--link); cursor:pointer; font:inherit; font-weight:600; }
+.tb__aksi button.bahaya { color:var(--s-tidak); }
+.tb__jenis { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:1px 7px; border-radius:999px; margin-right:6px; background:var(--biru-wash); color:var(--biru-teks); vertical-align:1px; }
+.tb__jenis.api { background:var(--s-ada-bg); color:var(--s-ada); }
 .so-rinci { font-size:12px; color:var(--ink-3); margin-top:3px; }
 @media (max-width:900px){ .ind-wrap { grid-template-columns:minmax(0,1fr); } .ind-nav { flex-direction:row; flex-wrap:wrap; } .ind-nav__grup { flex-basis:100%; } .ind-simpan { padding-right:16px; bottom:70px; } }
 </style>

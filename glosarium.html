@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Glosarium statistik BPS Kutai Kartanegara: arti IPM, TPT, PDRB, garis kemiskinan, P0/P1/P2, dan cara membaca angkanya dengan benar.">
+<meta name="theme-color" content="#2F5FA8">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Glosarium & cara membaca angka · PINTAR Kukar">
+<meta property="og:description" content="Arti IPM, TPT, PDRB, garis kemiskinan, dan cara membaca angkanya — bahasa awam, dari BPS Kutai Kartanegara.">
+<meta property="og:url" content="https://bpskukar.github.io/katalog-data-bpskukar/glosarium.html">
+<meta property="og:locale" content="id_ID">
 <meta property="og:image" content="https://bpskukar.github.io/katalog-data-bpskukar/assets/og-katalog.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -22,13 +28,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <script src="assets/pintar.js" data-situs="katalog"></script>
 <link rel="stylesheet" href="assets/theme.css">
+<link rel="stylesheet" href="assets/asisten.css">
 <style>
 .gl-cari { display:flex; gap:10px; align-items:center; margin-top:-26px; position:relative; z-index:2; }
 .gl-cari input { flex:1; min-width:0; padding:13px 16px; border-radius:14px; border:1px solid var(--line-2); background:var(--panel); color:var(--ink); font:15px var(--f-ui); box-shadow:var(--bayang); }
 .gl-cari input:focus { outline:2px solid var(--biru); outline-offset:1px; }
 .gl-kel { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0 18px; }
 .gl-kel button { padding:7px 12px; background:var(--panel); border:1px solid var(--line-2); border-radius:999px; font:500 12.5px var(--f-ui); color:var(--ink-2); cursor:pointer; }
-.gl-kel button[aria-pressed="true"] { background:var(--biru); border-color:var(--biru); color:#fff; font-weight:600; }
+.gl-kel button[aria-pressed="true"], .gl-kel button[aria-pressed="true"]:hover { background:var(--biru); border-color:var(--biru); color:#fff; font-weight:600; }
 .gl-jml { font-size:13px; color:var(--ink-3); margin-bottom:10px; }
 .gl { border:1px solid var(--line); background:var(--panel); border-radius:var(--r); box-shadow:var(--bayang); margin-bottom:10px; scroll-margin-top:calc(var(--pintar-h) + 80px); }
 .gl summary { list-style:none; cursor:pointer; padding:14px 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
@@ -36,13 +43,13 @@
 .gl summary::after { content:"+"; margin-left:auto; font:600 18px var(--f-disp); color:var(--ink-3); }
 .gl[open] summary::after { content:"–"; }
 .gl__nama { font-family:var(--f-disp); font-weight:600; font-size:15px; color:var(--ink); }
-.gl__singkat { font-family:var(--f-mono); font-size:11.5px; padding:2px 8px; border-radius:999px; background:var(--biru-wash); color:var(--biru-tua); }
+.gl__singkat { font-family:var(--f-mono); font-size:11.5px; padding:2px 8px; border-radius:999px; background:var(--biru-wash); color:var(--biru-teks); }
 .gl__kel { font-size:11.5px; color:var(--ink-3); }
 .gl__isi { padding:0 18px 16px; border-top:1px solid var(--line); }
 .gl__b { display:grid; grid-template-columns:150px 1fr; gap:6px 14px; padding:10px 0; border-bottom:1px dashed var(--line); font-size:14px; line-height:1.6; color:var(--ink-2); }
 .gl__b:last-of-type { border-bottom:0; }
 .gl__b b { font-family:var(--f-disp); font-weight:600; font-size:12.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em; padding-top:3px; }
-.gl__b.keliru b { color:#b3541e; }
+.gl__b.keliru b { color:var(--peringatan-teks); }
 .gl__aksi { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
 .gl__aksi a { font-size:13px; }
 .gl mark { background:#ffe9a8; color:inherit; padding:0 2px; border-radius:3px; }
@@ -149,7 +156,7 @@
       var aksi = [];
       if (g.indikator) aksi.push('<a class="btn btn--sm" href="' + TAUT.indikator + (ANCHOR[KAT_IND[g.indikator]] || "#ringkasan") + '">Lihat angka Kukar →</a>');
       if (g.katalog) aksi.push('<a class="btn btn--ghost btn--sm" href="index.html?q=' + encodeURIComponent(g.katalog) + '">Cari di katalog data →</a>');
-      aksi.push('<a class="btn btn--ghost btn--sm" href="index.html?tanya=' + encodeURIComponent("apa itu " + (g.singkat ? g.singkat.split(/[ \/]+/)[0] : g.istilah) + "?") + '">Tanya asisten →</a>');
+      aksi.push('<a class="btn btn--ghost btn--sm" href="index.html?tanya=' + encodeURIComponent("apa itu " + (g.singkat ? g.singkat.split(/[ \/]+/)[0] : g.istilah) + "?") + '" data-tanya="' + esc("apa itu " + (g.singkat ? g.singkat.split(/[ \/]+/)[0] : g.istilah) + "?") + '">Tanya asisten →</a>');
       aksi.push('<button type="button" class="btn btn--ghost btn--sm" data-salin="' + esc(g.id) + '">Salin tautan</button>');
       return '<details class="gl" id="' + esc(g.id) + '"' + (buka ? " open" : "") + '><summary>' +
         '<span class="gl__nama">' + sorot(g.istilah) + "</span>" + (g.singkat ? '<span class="gl__singkat">' + esc(g.singkat) + "</span>" : "") +
