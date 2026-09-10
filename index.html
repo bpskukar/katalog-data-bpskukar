@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="assets/pintar.js" data-situs="katalog"></script>
 <link rel="stylesheet" href="assets/theme.css">
 
 <style>
@@ -32,7 +33,7 @@
 
 .summary.angkat { margin-top:-30px; position:relative; z-index:2; }
 
-.controls { position:sticky; top:64px; z-index:15; background:var(--bg); padding:14px 0 12px; margin-top:26px; border-bottom:1px solid var(--line); }
+.controls { position:sticky; top:calc(64px + var(--pintar-h, 0px)); z-index:15; background:var(--bg); padding:14px 0 12px; margin-top:26px; border-bottom:1px solid var(--line); }
 .filterrow { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
 .fgroup { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
 .fgroup__lbl { font-family:var(--f-disp); font-size:12px; font-weight:500; color:var(--ink-3); margin-right:2px; }
@@ -82,7 +83,7 @@
   .row .cell.per { grid-row:2; text-align:right; }
   .row .stat { grid-row:1; grid-column:2; }
   .countline { margin-left:0; width:100%; }
-  .controls { top:56px; }
+  .controls { top:calc(56px + var(--pintar-h, 0px)); }
   .summary.angkat { margin-top:-18px; }
 }
 </style>
@@ -141,7 +142,7 @@
     <div class="layanan">
       <a href="konsultasi.html">
         <div class="layanan__ikon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3z"/></svg></div>
-        <b>Konsultasi daring</b><span>Bicara dengan pegawai BPS lewat Zoom. Pilih jadwal sendiri, paling cepat tiga hari ke depan.</span>
+        <b>Konsultasi daring</b><span>Bicara dengan pegawai BPS lewat Zoom. Pilih jadwal sendiri, paling cepat untuk besok.</span>
       </a>
       <a href="sahabat.html">
         <div class="layanan__ikon oranye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg></div>
@@ -151,9 +152,9 @@
         <div class="layanan__ikon hijau"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.2A8 8 0 1 1 21 12z"/></svg></div>
         <b>Tanya asisten PST</b><span>Jawaban cepat dari katalog dan jawaban baku — apakah data ada, cara memintanya, jam layanan.</span>
       </a>
-      <a href="https://pst.bps.go.id/" target="_blank" rel="noopener">
-        <div class="layanan__ikon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <b>Perpustakaan & PST daring</b><span>Layanan resmi BPS: publikasi digital, penjualan produk, dan rekomendasi kegiatan statistik.</span>
+      <a href="/indikator-strategis-bpskukar/" id="kartuIndikator">
+        <div class="layanan__ikon oranye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 6-6"/></svg></div>
+        <b>Indikator strategis</b><span>Angka-angka kunci Kukar: penduduk, PDRB, IPM, kemiskinan — dashboard interaktif dari booklet BPS.</span>
       </a>
     </div>
   </section>
@@ -210,6 +211,9 @@
       Susenas, Sakernas, Podes, Sensus Penduduk 2020, Sensus Pertanian 2023, dan penghitungan PDRB.</p>
     <p><b>Status halaman</b> &mdash; Alat bantu internal PST, bukan publikasi resmi Badan Pusat Statistik.
       Untuk keperluan resmi gunakan publikasi asli dari laman BPS.</p>
+    <p><b>PINTAR Kukar</b> &mdash; Situs ini gerbang layanan dari Pusat Informasi &amp; Layanan Statistik Terpadu BPS Kabupaten Kutai Kartanegara,
+      bersama <a href="/indikator-strategis-bpskukar/">Indikator Strategis</a> (gerbang angka) dan <a href="/">beranda PINTAR</a>.
+      Layanan resmi BPS pusat: <a href="https://pst.bps.go.id">pst.bps.go.id</a>.</p>
   </footer>
 
 </div>
@@ -344,6 +348,40 @@
   document.getElementById("nMohon").textContent = h.mohon;
   document.getElementById("nTidak").textContent = h.tidak + h.prov;
   saring();
+
+  /* tautan dari situs indikator (?q=…): isi kotak cari, gulir ke daftar.
+     Bila tidak ada baris yang cocok persis, pakai pencocokan cerdas. */
+  var qs = new URLSearchParams(location.search), awal = (qs.get("q") || "").trim();
+  if (awal) {
+    var q = document.getElementById("q"); q.value = awal; state.q = awal.toLowerCase(); saring();
+    var ada = PST.qa(".row").some(function (r) { return !r.classList.contains("is-off"); });
+    if (ada) {
+      var pertama = PST.q(".row:not(.is-off)");
+      if (pertama) { pertama.classList.add("is-open"); pertama.setAttribute("aria-expanded", "true"); }
+    }
+    if (!ada && window.CARI) {
+      var cocok = CARI.cocokkan(awal, 5);
+      if (cocok.length) {
+        var nama = cocok.map(function (d) { return d.n.toLowerCase(); }), utama = null;
+        PST.qa(".row").forEach(function (r) {
+          var n = ((DATA[+r.dataset.i] || {}).n || "").toLowerCase();
+          var ok = nama.indexOf(n) !== -1;
+          r.classList.toggle("is-off", !ok);
+          if (n === nama[0]) utama = r;
+        });
+        /* yang paling cocok dibuka rinciannya supaya langsung terlihat */
+        if (utama) { utama.classList.add("is-open"); utama.setAttribute("aria-expanded", "true"); utama.parentNode.insertBefore(utama, utama.parentNode.querySelector(".row:not(.is-off)")); }
+        PST.qa(".grouptitle").forEach(function (g) {
+          var t = false, n = g.nextElementSibling;
+          while (n && n.classList.contains("row")) { if (!n.classList.contains("is-off")) { t = true; break; } n = n.nextElementSibling; }
+          g.classList.toggle("is-off", !t);
+        });
+        document.getElementById("countLine").textContent = cocok.length + " ragam data yang paling mendekati “" + awal + "”";
+        document.getElementById("empty").hidden = true;
+      }
+    }
+    setTimeout(function () { document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
+  }
 })();
 </script>
 <script src="assets/chat.js"></script>

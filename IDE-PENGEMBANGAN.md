@@ -56,7 +56,7 @@ dan pengisian profil jadi lebih lengkap karena orangnya sendiri yang mengisi.
 
 ## Bagian 2 — Menaikkan mutu layanan
 
-### 5. Halaman "angka terkini Kukar" dengan tanggal rilis berikutnya
+### 5. Halaman "angka terkini Kukar" dengan tanggal rilis berikutnya — *sebagian dikerjakan: PINTAR Kukar menyatukan situs Indikator Strategis; angkanya kini dikelola pegawai dan dijawab asisten*
 
 Satu halaman berisi indikator strategis — IPM, persentase penduduk miskin, TPT,
 pertumbuhan ekonomi, jumlah penduduk — lengkap dengan **tanggal rilis terakhir dan
@@ -133,7 +133,7 @@ Terbaik" tiap triwulan. Jaga bobotnya tetap wajar — poin mengukur keaktifan me
 bukan mutu jawaban, dan jangan sampai orang mengejar angka dengan mencatat kunjungan fiktif.
 Karena itu poin jawaban terbaik (7) sengaja dibuat jauh lebih besar daripada poin mencatat (2).
 
-### 14. Daftarkan sebagai inovasi pelayanan publik
+### 14. Daftarkan sebagai inovasi pelayanan publik — *disiapkan: PINTAR Kukar (satu pintu, dua gerbang, alur dari angka ke layanan)*
 
 Sistem ini memenuhi kriteria yang biasa dinilai: memecahkan masalah nyata, terukur,
 dapat direplikasi satker lain, dan berbiaya nyaris nol. Kabupaten lain sudah lebih dulu

@@ -58,6 +58,7 @@
 
   /* ------------------------------------------------------------- otak */
   var CHIPS_AWAL = [
+    ["Berapa IPM Kukar?", "berapa IPM Kukar terbaru?"],
     ["Data apa yang tersedia sampai desa?", "data apa saja yang tersedia sampai level desa"],
     ["Cara minta data", "bagaimana cara meminta data"],
     ["Cek status tiket", "cek status tiket saya"],
@@ -138,6 +139,84 @@
     pesanBot(html, CHIPS_LANJUT);
   }
 
+  /* ------------------------------------ angka indikator strategis (PINTAR) */
+  var IND;   /* undefined = belum dicoba, false = tak tersedia, objek = siap */
+  var SINONIM = {
+    penduduk: ["jumlah penduduk", "populasi", "penduduk kukar"], lpp: ["pertumbuhan penduduk", "laju penduduk"],
+    tpak: ["partisipasi angkatan kerja", "angkatan kerja"], tpt: ["pengangguran", "penganggur"],
+    "pdrb-adhb": ["pdrb", "harga berlaku", "produk domestik"], "pdrb-adhk": ["harga konstan", "pdrb riil"],
+    lpe: ["pertumbuhan ekonomi", "laju ekonomi", "ekonomi tumbuh"], "pdrb-kapita": ["per kapita", "perkapita"],
+    uhh: ["harapan hidup", "umur harapan"], hls: ["harapan lama sekolah", "harapan sekolah"], rls: ["rata rata lama sekolah", "lama sekolah"],
+    ppp: ["pengeluaran per kapita", "daya beli", "pengeluaran riil"], ipm: ["indeks pembangunan manusia", "pembangunan manusia"],
+    gini: ["gini", "ketimpangan pendapatan", "rasio gini"], ikg: ["ketimpangan gender", "gender"],
+    p0: ["penduduk miskin", "kemiskinan", "angka kemiskinan", "persentase miskin", "orang miskin"], rentan: ["rentan miskin", "rentan"],
+    p1: ["kedalaman kemiskinan", "indeks kedalaman"], p2: ["keparahan kemiskinan", "indeks keparahan"], garis: ["garis kemiskinan"]
+  };
+  function siapkanIndikator() {
+    if (!PST.indikatorSiap) { IND = false; return Promise.resolve(false); }
+    return PST.indikatorSiap().then(function (d) { IND = d || false; return IND; }).catch(function () { IND = false; return false; });
+  }
+  /* daftar yang bisa ditanya: kartu indikator + deret yang tidak punya kartu (P1, P2, garis) */
+  function daftarIndikator() {
+    var arr = (IND.indikator || []).slice(), km = IND.kemiskinan || {};
+    var th = (km.label || []).length ? String(km.label[km.label.length - 1]) : "";
+    var akhir = function (a) { return (a || []).length ? a[a.length - 1] : null; };
+    if (!arr.some(function (x) { return x.id === "p1"; }) && km.p1) arr.push({ id: "p1", label: "Indeks Kedalaman Kemiskinan (P1)", abbr: "P1 · Tahun " + th, value: akhir(km.p1), dec: 2, unit: "", note: "Rata-rata jarak pengeluaran penduduk miskin terhadap garis kemiskinan." });
+    if (!arr.some(function (x) { return x.id === "p2"; }) && km.p2) arr.push({ id: "p2", label: "Indeks Keparahan Kemiskinan (P2)", abbr: "P2 · Tahun " + th, value: akhir(km.p2), dec: 2, unit: "", note: "Sebaran pengeluaran di antara penduduk miskin." });
+    if (!arr.some(function (x) { return x.id === "garis"; }) && km.garis) arr.push({ id: "garis", label: "Garis Kemiskinan", abbr: "Tahun " + th, value: akhir(km.garis), dec: 0, unit: "Rp/kapita/bulan", note: "Batas pengeluaran per kapita per bulan; di bawahnya tergolong miskin." });
+    return arr;
+  }
+  function deretUntuk(id) {
+    var km = IND.kemiskinan || {}, pt = IND.pdrbTahun || {}, ipm = IND.ipm || {};
+    return { p0: [km.label, km.p0], p1: [km.label, km.p1], p2: [km.label, km.p2], garis: [km.label, km.garis],
+             ipm: [ipm.label, ipm.nilai], lpe: [pt.label, pt.lpe], "pdrb-adhb": [pt.label, pt.adhb], "pdrb-adhk": [pt.label, pt.adhk] }[id] || null;
+  }
+  function cariIndikator(teks) {
+    if (!IND) return null;
+    var t = " " + teks.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ") + " ";
+    var singkat = (teks.match(/\b(?:[A-Z]{2,6}[0-9]?|[A-Z][0-9])\b/g) || []).map(function (w) { return w.toLowerCase(); });
+    var terbaik = null, skorMaks = 0;
+    daftarIndikator().forEach(function (it) {
+      var skor = 0;
+      var kode = String(it.abbr || "").split(/[ ·]/)[0].toLowerCase();
+      if (singkat.indexOf(it.id) !== -1 || (kode && singkat.indexOf(kode) !== -1)) skor += 5;
+      if (t.indexOf(" " + String(it.label).toLowerCase() + " ") !== -1) skor += 5;
+      (SINONIM[it.id] || []).forEach(function (sn) { if (t.indexOf(sn) !== -1) skor += 3; });
+      String(it.label).toLowerCase().split(/\s+/).forEach(function (w) {
+        if (w.length >= 5 && CARI.HENTI.indexOf(w) === -1 && t.indexOf(w) !== -1) skor += 1;
+      });
+      if (skor > skorMaks) { skorMaks = skor; terbaik = it; }
+    });
+    return skorMaks >= 5 ? { it: terbaik, skor: skorMaks } : null;
+  }
+  function fmtAngka(n, dec) {
+    return Number(n).toLocaleString("id-ID", { minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 });
+  }
+  function jawabIndikator(teks, c) {
+    var it = c.it, tahun = (teks.match(/\b(20\d\d)\b/) || [])[1];
+    var html = "", deret = deretUntuk(it.id);
+    var adaTahun = deret && deret[0] && deret[0].map(String).indexOf(tahun) !== -1;
+    if (tahun && adaTahun) {
+      var i = deret[0].map(String).indexOf(tahun);
+      html += "<b>" + esc(it.label) + " Kutai Kartanegara " + esc(tahun) + ": " + fmtAngka(deret[1][i], it.dec) + (it.unit ? " " + esc(it.unit) : "") + "</b>";
+    } else {
+      html += "<b>" + esc(it.label) + " Kutai Kartanegara: " + fmtAngka(it.value, it.dec) + (it.unit ? " " + esc(it.unit) : "") + "</b>" +
+        (it.abbr ? ' <span class="cb__meta">(' + esc(it.abbr) + ")</span>" : "");
+      if (tahun && deret && deret[0] && deret[0].length) html += '<div class="cb__ket">Tahun ' + esc(tahun) + " tidak ada di deret; yang tersedia " + esc(deret[0][0]) + "–" + esc(deret[0][deret[0].length - 1]) + ".</div>";
+    }
+    if (it.note) html += '<div class="cb__ket">' + esc(it.note) + "</div>";
+    if (deret && deret[0] && deret[0].length > 1 && !(tahun && adaTahun)) {
+      html += '<div class="cb__ket" style="margin-top:6px">' + deret[0].map(function (l, i) { return esc(l) + ": " + fmtAngka(deret[1][i], it.dec); }).join(" · ") + "</div>";
+    }
+    var anchor = { ekonomi: "#ekonomi", manusia: "#manusia", pemerataan: "#kemiskinan", demografi: "#kependudukan", ketenagakerjaan: "#kependudukan" }[it.kat] || "#ringkasan";
+    if (["p0", "p1", "p2", "garis", "rentan"].indexOf(it.id) !== -1) anchor = "#kemiskinan";
+    html += tautanHtml([{ u: PST.TAUTAN.indikator + anchor, l: "Lihat grafik & rinciannya di Indikator Strategis" }]);
+    html += '<div class="cb__ket" style="margin-top:8px;color:var(--ink-3)">Sumber: Booklet Indikator Strategis BPS Kabupaten Kutai Kartanegara. Angka resmi rujuk publikasi aslinya.</div>';
+    var hasil = CARI.cocokkan(it.label + " " + (SINONIM[it.id] || []).join(" "), 2);
+    if (hasil.length) html += '<div class="cb__ket" style="margin-top:10px;color:var(--ink-3)">Data lengkapnya di katalog:</div>' + hasil.map(kartuKatalog).join("");
+    pesanBot(html, [["Indikator lain", "berapa IPM, TPT, dan PDRB Kukar?"], ["Minta data lengkap", "bagaimana cara meminta data"], ["Konsultasi", "bisa konsultasi online lewat zoom?"]]);
+  }
+
   function jawab(teks, idButir) {
     var t = teks.trim();
     if (idButir) {
@@ -159,6 +238,12 @@
 
     var p = jawabPengetahuan(t);
     var hasil = CARI.cocokkan(t, 3);
+
+    /* angka indikator strategis: "berapa IPM Kukar 2025?" */
+    if (IND === undefined) { siapkanIndikator().then(function () { jawab(teks, idButir); }); return; }
+    var ci = cariIndikator(t);
+    var niatAngka = /\b(berapa|nilai|angka|persen|persentase|tingkat|indeks|jumlah|capaian|naik|turun)\b/i.test(t) || /\b20\d\d\b/.test(t);
+    if (ci && !idButir && (niatAngka || p.skor < 2)) return jawabIndikator(t, ci);
 
     if (p.b && (p.skor >= 2 || (p.skor === 1 && (!hasil.length || p.b.untuk === "petugas")))) {
       var html = PST.linkify(p.b.jawab) + tautanHtml(p.b.tautan);
@@ -191,6 +276,7 @@
   /* ------------------------------------------------------------- kendali */
   document.getElementById("cbBuka").onclick = function () {
     panel.hidden = !panel.hidden;
+    if (!panel.hidden && IND === undefined) siapkanIndikator();
     if (!panel.hidden && !isi.children.length) sapa();
     if (!panel.hidden) input.focus();
   };
@@ -208,4 +294,11 @@
 
   /* buka otomatis lewat #tanya di URL, mis. dari tautan di halaman lain */
   if (location.hash === "#tanya") setTimeout(function () { document.getElementById("cbBuka").click(); }, 300);
+
+  /* ?tanya=… dari situs indikator (tombol "Tanya PST" di kartu): buka dan langsung tanyakan */
+  var tanyaAwal = (new URLSearchParams(location.search).get("tanya") || "").trim().slice(0, 300);
+  if (tanyaAwal) setTimeout(function () {
+    panel.hidden = false; if (!isi.children.length) sapa();
+    kirim(tanyaAwal);
+  }, 350);
 })();

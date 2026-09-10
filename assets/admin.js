@@ -76,6 +76,7 @@
         if (b.dataset.p === "pTanya") muatTanya();
         if (b.dataset.p === "pKonsul") muatKon();
         if (b.dataset.p === "pProfil") gambarProfil();
+        if (b.dataset.p === "pIndikator" && window.INDIKATOR_ADMIN) window.INDIKATOR_ADMIN.mulai();
       };
     });
   }

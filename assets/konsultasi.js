@@ -79,7 +79,8 @@
 
   PST.aturanKonsultasi().then(function (a) {
     ATURAN = a;
-    el("minHariTeks").textContent = ["","satu","dua","tiga","empat","lima","enam","tujuh"][a.minHari] ? ["","satu","dua","tiga","empat","lima","enam","tujuh"][a.minHari] + " hari" : a.minHari + " hari";
+    var kata = ["","satu","dua","tiga","empat","lima","enam","tujuh"][a.minHari];
+    el("minHariTeks").textContent = a.minHari <= 0 ? "hari ini" : a.minHari === 1 ? "besok" : (kata ? kata + " hari dari sekarang" : a.minHari + " hari dari sekarang");
     el("durasiTeks").textContent = a.durasi;
     return muatSlot();
   }).then(gambarHari);

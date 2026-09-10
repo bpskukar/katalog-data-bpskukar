@@ -72,7 +72,7 @@ yang paling sering membuat petugas menelepon rekannya.
 ## Konsultasi daring lewat Zoom
 
 Sahabat data mengisi formulir — kebutuhan, topik, data diri — lalu memilih jadwal pada
-hari kerja, paling cepat tiga hari dari pengajuan, dari jam sesi yang tersedia. Slot yang
+hari kerja, paling cepat besok (H+1), dari jam sesi yang tersedia. Slot yang
 sudah terisi tidak bisa dipilih. Ia menerima kode `KON-…` untuk memantau statusnya.
 Petugas menetapkan narasumber (disarankan menurut keahlian), tautan Zoom terisi otomatis
 dari profil narasumber, dan konfirmasi dikirim lewat WhatsApp dengan satu tombol.
@@ -100,6 +100,35 @@ Memeriksa status permintaan cukup dengan **kode tiket dan empat digit terakhir n
 tanpa membuat akun. Akun tersedia sebagai pilihan bagi pengguna rutin, untuk melihat
 seluruh riwayat dan mengajukan permintaan baru tanpa datang ke kantor.
 
+## PINTAR Kukar — satu pintu, dua gerbang
+
+Situs ini adalah **gerbang layanan** dari **PINTAR Kukar** (Pusat Informasi & Layanan
+Statistik Terpadu), payung yang menyatukan dua situs BPS Kukar di satu domain:
+
+| Situs | Peran | Alamat |
+|---|---|---|
+| Beranda PINTAR | pintu masuk: pencarian terpadu angka + data, angka sorotan, tautan layanan | `bpskukar.github.io/` |
+| Indikator Strategis | gerbang **angka** (dashboard booklet, warna oranye) | `bpskukar.github.io/indikator-strategis-bpskukar/` |
+| Katalog Data & PST (repositori ini) | gerbang **layanan** (katalog, tiket, konsultasi, asisten, ruang pegawai; warna biru BPS) | `bpskukar.github.io/katalog-data-bpskukar/` |
+
+Yang mengikatnya:
+
+- **Bilah atas bersama** (`assets/pintar.js`, berkas identik di tiga repositori): nama
+  keluarga, menu silang, dan satu tombol **tema terang/gelap**. Karena satu domain, pilihan
+  tema tersimpan bersama — ganti di satu situs, situs lain ikut, tab yang terbuka pun ikut.
+- **Dari angka ke layanan, satu klik**: setiap kartu indikator punya tautan *Minta data
+  lengkap* (membuka katalog dengan `?q=` terisi) dan *Tanya PST* (membuka asisten dengan
+  `?tanya=` terisi).
+- **Asisten PST menjawab angka**: "berapa IPM Kukar 2023?" dijawab dari isi indikator
+  yang sama dengan yang tampil di dashboard, lengkap dengan deretnya.
+- **Satu ruang kerja pegawai**: isi situs indikator (angka, grafik, narasi, teks) disunting
+  dari tab **Indikator** di ruang pegawai, tersimpan di tabel `indikator_konten` dengan
+  riwayat versi yang bisa dipulihkan. Situs indikator membacanya langsung; bila server
+  tidak terjangkau ia memakai salinan terakhir, lalu `assets/data.js`-nya sendiri.
+- **Satu sumber kunci**: situs indikator dan beranda membaca `assets/config.js` milik
+  repositori ini lewat jalur `/katalog-data-bpskukar/assets/config.js`, jadi kunci Supabase
+  cukup diisi di satu tempat.
+
 ## Susunan berkas
 
 ```
@@ -109,6 +138,8 @@ admin.html              ruang pegawai
 sahabat.html            portal konsumen data
 assets/
   config.js             sambungan Supabase & klasifikasi baku BPS  ← satu-satunya yang perlu diisi
+  pintar.js             bilah PINTAR Kukar + tema sinkron (identik di 3 repositori)
+  indikator-admin.js    tab Indikator di ruang pegawai (penyunting isi situs indikator)
   katalog.js            isi katalog: 83 ragam data + 20 kecamatan
   cari.js               mesin pencocokan (dipakai ruang pegawai & chatbot)
   pengetahuan.js        jawaban baku chatbot & kartu jawaban petugas
@@ -121,6 +152,7 @@ assets/
 supabase/schema.sql     tabel, tampilan, pemicu poin, keamanan baris (sudah memuat semua perbaikan)
 supabase/perbaikan-01.sql  pembaruan 01 untuk proyek yang dibuat dengan schema.sql versi awal
 supabase/perbaikan-02.sql  pembaruan 02: konsultasi daring, notifikasi WhatsApp, profil pegawai
+supabase/perbaikan-03.sql  pembaruan 03: isi indikator strategis + riwayat versi, konsultasi H+1
 PANDUAN-PASANG.md       cara memasang, menguji, dan memelihara
 IDE-PENGEMBANGAN.md     usulan pengembangan lanjutan
 ```

@@ -98,7 +98,7 @@ window.BAKU = {
   konsultasi: {
     jam: ["09:00", "10:00", "11:00", "13:30", "14:30"],
     durasi: 45,
-    minHari: 3,
+    minHari: 1,      /* sahabat data boleh memilih jadwal paling cepat besok (H+1) */
     maksHari: 30
   },
   statusKonsultasi: {

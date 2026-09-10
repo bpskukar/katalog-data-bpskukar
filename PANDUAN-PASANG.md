@@ -147,13 +147,14 @@ Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperb
 | Perbaikan 01 — keamanan & keadilan poin, nama petugas di daftar tiket, tautan bisa diklik | `assets/*.js`, `assets/theme.css` | jalankan `supabase/perbaikan-01.sql` sekali |
 | Perbaikan 02 — chatbot, konsultasi daring (Zoom), notifikasi WhatsApp, profil pegawai | semua `.html`, `assets/*` | jalankan `supabase/perbaikan-02.sql` sekali, lalu ikuti bagian *Konsultasi daring* dan *Notifikasi WhatsApp* di bawah |
 | Tampilan portal PST — bilah putih berlogo, hero biru dengan pencarian, kartu layanan, huruf Poppins | semua `.html`, `assets/theme.css`, `assets/app.js`, `assets/admin.js` | tidak ada |
+| Pembaruan 03 — PINTAR Kukar: bilah bersama + tema gelap, tab Indikator di ruang pegawai, asisten menjawab angka, konsultasi H+1 | semua `.html`, `assets/*` (baru: `pintar.js`, `indikator-admin.js`) — **plus** repositori indikator dan repositori beranda `bpskukar.github.io` | jalankan `supabase/perbaikan-03.sql` sekali, lalu ikuti bagian *PINTAR Kukar* di bawah |
 
 Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
 isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.
 Proyek yang **baru** dibuat cukup menjalankan `schema.sql` — isinya sudah memuat semua perbaikan.
-Proyek yang **sudah berjalan** menjalankan skrip perbaikannya berurutan (`perbaikan-01.sql`
-lalu `perbaikan-02.sql`) — jangan menjalankan ulang `schema.sql`, karena tabel yang sudah ada
-akan dilewati sehingga sebagian perubahan tidak diterapkan.
+Proyek yang **sudah berjalan** menjalankan skrip perbaikannya berurutan (`perbaikan-01.sql`,
+`perbaikan-02.sql`, lalu `perbaikan-03.sql`) — jangan menjalankan ulang `schema.sql`, karena tabel
+yang sudah ada akan dilewati sehingga sebagian perubahan tidak diterapkan.
 
 > ⚠️ **Setiap kali mengunggah pembaruan, `assets/config.js` ikut tertimpa.** Berkas itu satu-satunya
 > yang memuat kunci Supabase. Setelah mengunggah, buka kembali berkas itu di GitHub dan pastikan
@@ -169,7 +170,7 @@ atau persetujuan aplikasi. Alurnya:
    centang topik keahliannya, tempel **tautan Zoom pribadi** (Zoom → Profile → Personal
    Meeting ID → *Copy Invitation*, ambil tautannya). Tanpa ini, ia tetap bisa dipilih,
    tetapi tautan Zoom harus diketik manual tiap kali.
-2. Sahabat data mengisi formulir di `konsultasi.html`, memilih jadwal paling cepat H+3
+2. Sahabat data mengisi formulir di `konsultasi.html`, memilih jadwal paling cepat H+1 (besok)
    hari kerja. Ia menerima kode `KON-…`.
 3. Petugas membuka tab **Konsultasi daring**, menetapkan narasumber (yang keahliannya cocok
    ditandai ✓ dan diurutkan teratas; yang sudah ada sesi di jam itu tidak bisa dipilih),
@@ -184,7 +185,7 @@ Mengubah jam sesi, durasi, atau batas H+n: SQL Editor →
 ```sql
 update public.pengaturan set nilai = '09:00,10:00,11:00,13:30,14:30' where kunci = 'konsultasi_jam';
 update public.pengaturan set nilai = '45' where kunci = 'konsultasi_durasi';
-update public.pengaturan set nilai = '3'  where kunci = 'konsultasi_min_hari';
+update public.pengaturan set nilai = '1'  where kunci = 'konsultasi_min_hari';   -- 1 = boleh untuk besok
 update public.pengaturan set nilai = '30' where kunci = 'konsultasi_maks_hari';
 ```
 
@@ -266,6 +267,51 @@ Menambah atau mengubah jawaban: buka `assets/pengetahuan.js`, tiap butir punya `
 pegawai yang sudah masuk, dan di sana ada tombol **salin jawaban** — itulah "kartu jawaban
 baku" untuk petugas piket. Setelah mengubah, unggah berkasnya ke GitHub; tidak perlu
 menyentuh basis data.
+
+## PINTAR Kukar (pembaruan 03)
+
+PINTAR Kukar menyatukan tiga situs di satu domain `bpskukar.github.io`: beranda pintu
+(repositori `bpskukar.github.io`), Indikator Strategis, dan Katalog Data ini. Urutan pemasangan:
+
+1. **Basis data** — SQL Editor → New query → tempel seluruh isi `supabase/perbaikan-03.sql`
+   → Run. Ini membuat tabel `indikator_konten` + `indikator_riwayat` dan mengubah
+   `konsultasi_min_hari` menjadi 1.
+2. **Repositori katalog (ini)** — unggah semua berkas pembaruan. Periksa `assets/config.js`
+   masih berisi kunci.
+3. **Repositori indikator** (`indikator-strategis-bpskukar`) — unggah berkas pembaruannya
+   (`index.html`, `assets/*`). Situs itu kini membaca `/katalog-data-bpskukar/assets/config.js`
+   dan tabel `indikator_konten`; selama tabel kosong ia memakai `assets/data.js`-nya sendiri.
+4. **Repositori beranda** — buat repositori **baru** bernama persis `bpskukar.github.io`
+   (publik), unggah `index.html`, `assets/pintar.js`, `README.md`. GitHub Pages untuk
+   repositori bernama itu otomatis tayang di `https://bpskukar.github.io/` (cek Settings →
+   Pages bila belum: Source = Deploy from a branch, Branch = main, folder = / root).
+5. **Isi awal indikator** — buka Ruang Pegawai → tab **Indikator**. Karena server masih
+   kosong, penyunting menampilkan isi dari `data.js` situs indikator. Tekan
+   **Simpan & terbitkan** — jadilah versi 1. Sejak itu, semua koreksi angka dilakukan di tab
+   ini, bukan dengan mengedit `data.js`.
+
+Cara kerja tab Indikator:
+
+- Kiri: daftar bagian (kartu indikator, sorotan, deret kemiskinan/PDRB/IPM, kartogram,
+  teks, narasi, rekomendasi, sumber). Kanan: tabel/formulir bagian yang dipilih.
+- **Pratinjau** membuka situs indikator dengan isi yang sedang disunting (hanya terlihat di
+  peramban ini, belum terbit). **Simpan & terbitkan** menulis ke server; situs indikator dan
+  beranda menampilkannya begitu dimuat ulang.
+- **Riwayat versi** menampilkan 60 simpanan terakhir (siapa, kapan, catatan) dengan tombol
+  **Pulihkan** — isi versi lama dimuat ke penyunting, lalu disimpan sebagai versi baru.
+- **Unduh/Unggah JSON** untuk cadangan atau menyunting massal.
+- Teks boleh memakai `**tebal**`. Warna diisi kode `#rrggbb`. Nilai angka memakai titik
+  desimal.
+- Hanya pegawai aktif yang bisa menyimpan (dijaga RLS dan pemicu di basis data); siapa pun
+  bisa membaca isi terbit karena memang data publik.
+
+Tema terang/gelap: tombolnya di bilah PINTAR (kanan atas) di ketiga situs. Pilihan tersimpan
+di peramban pengguna dengan kunci `kukar-theme`; karena satu domain, ketiga situs mengikutinya.
+
+Bila nama repositori diubah, sesuaikan tiga hal: objek `TAUTAN` di `assets/pintar.js` (lalu
+salin ke ketiga repositori), tag `<script src="/katalog-data-bpskukar/assets/config.js">` di
+situs indikator dan beranda, serta nilai `indikator_url`/`pintu_url`/`situs_url` di tabel
+`pengaturan`.
 
 ## Pemeliharaan
 

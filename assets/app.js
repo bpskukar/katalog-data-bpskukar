@@ -555,6 +555,90 @@ window.PST = (function () {
       .then(function (r) { if (r.error) throw new Error(r.error.message); return r.data || []; });
   }
 
+  /* ------------------------------------------- isi situs indikator strategis
+     Satu baris JSON di tabel indikator_konten (lihat supabase/perbaikan-03.sql).
+     Dibaca publik; ditulis pegawai lewat tab "Indikator" di ruang pegawai. */
+  var TAUTAN_PINTAR = (window.PINTAR && window.PINTAR.TAUTAN) || {
+    pintu: "/", indikator: "/indikator-strategis-bpskukar/", katalog: "/katalog-data-bpskukar/",
+    konsultasi: "/katalog-data-bpskukar/konsultasi.html", sahabat: "/katalog-data-bpskukar/sahabat.html", pegawai: "/katalog-data-bpskukar/admin.html"
+  };
+
+  function muatIndikator() {
+    if (DEMO) {
+      var d = LS("indikator", null);
+      return Promise.resolve(d && d.data ? d : null);
+    }
+    return sb.from("indikator_konten").select("data,versi,diubah_pada").eq("id", "utama").maybeSingle()
+      .then(function (r) { if (r.error) throw new Error(r.error.message); return r.data || null; });
+  }
+
+  function simpanIndikator(data, catatan) {
+    if (!data || typeof data !== "object" || Array.isArray(data)) return Promise.reject(new Error("Isi data tidak sah."));
+    if (DEMO) {
+      var ses = LS("sesi", null), lama = LS("indikator", null), versi = (lama && lama.versi ? lama.versi : 0) + 1;
+      var baru = { data: data, versi: versi, catatan: catatan || null, diubah_pada: new Date().toISOString(), diubah_oleh: ses ? ses.id : null };
+      SV("indikator", baru);
+      var riw = LS("indikatorRiwayat", []);
+      riw.unshift(Object.assign({ id: uid() }, baru)); SV("indikatorRiwayat", riw.slice(0, 60));
+      return Promise.resolve(baru);
+    }
+    /* update dulu; bila baris 'utama' belum ada (pemasangan pertama), sisipkan.
+       Sengaja bukan upsert: kolom catatan tidak diberi hak baca publik. */
+    return sb.from("indikator_konten").update({ data: data, catatan: catatan || null }).eq("id", "utama").select("versi,diubah_pada")
+      .then(function (r) {
+        if (r.error) throw new Error(terjemah(r.error.message));
+        if (r.data && r.data.length) return r.data[0];
+        return sb.from("indikator_konten").insert({ id: "utama", data: data, catatan: catatan || null }).select("versi,diubah_pada").single()
+          .then(function (r2) { if (r2.error) throw new Error(terjemah(r2.error.message)); return r2.data; });
+      });
+  }
+
+  function riwayatIndikator() {
+    if (DEMO) {
+      var peg = LS("pegawai", []);
+      return Promise.resolve(LS("indikatorRiwayat", []).map(function (r) {
+        var p = peg.filter(function (x) { return x.id === r.diubah_oleh; })[0];
+        return { id: r.id, versi: r.versi, catatan: r.catatan, diubah_pada: r.diubah_pada, nama_pengubah: p ? p.nama : null };
+      }));
+    }
+    return sb.from("v_indikator_riwayat").select("*").order("versi", { ascending: false }).limit(60)
+      .then(function (r) { if (r.error) throw new Error(r.error.message); return r.data || []; });
+  }
+
+  function bacaRiwayatIndikator(id) {
+    if (DEMO) {
+      var r = LS("indikatorRiwayat", []).filter(function (x) { return x.id === id; })[0];
+      return r ? Promise.resolve({ data: r.data, versi: r.versi }) : Promise.reject(new Error("Versi tidak ditemukan."));
+    }
+    return sb.from("indikator_riwayat").select("data,versi").eq("id", id).single()
+      .then(function (r) { if (r.error) throw new Error(r.error.message); return r.data; });
+  }
+
+  /* isi awal: assets/data.js milik situs indikator (satu domain), dimuat saat diperlukan */
+  var janjiAwal = null;
+  function muatIndikatorAwal() {
+    if (window.INDIKATOR_AWAL) return Promise.resolve(window.INDIKATOR_AWAL);
+    if (janjiAwal) return janjiAwal;
+    janjiAwal = new Promise(function (ok, gagal) {
+      var s = document.createElement("script");
+      s.src = TAUTAN_PINTAR.indikator + "assets/data.js";
+      s.onload = function () { window.INDIKATOR_AWAL ? ok(window.INDIKATOR_AWAL) : gagal(new Error("Berkas data.js tidak berisi INDIKATOR_AWAL.")); };
+      s.onerror = function () { janjiAwal = null; gagal(new Error("Tidak bisa memuat " + s.src + " — pastikan situs indikator sudah terpasang di alamat itu.")); };
+      document.head.appendChild(s);
+    });
+    return janjiAwal;
+  }
+
+  /* untuk asisten & beranda: isi terbit, atau cadangan data.js bila belum ada */
+  var janjiIndikator = null;
+  function indikatorSiap() {
+    if (janjiIndikator) return janjiIndikator;
+    janjiIndikator = muatIndikator().then(function (r) { return r && r.data ? r.data : muatIndikatorAwal(); })
+      .catch(function () { return muatIndikatorAwal(); })
+      .catch(function () { janjiIndikator = null; return null; });
+    return janjiIndikator;
+  }
+
   /* ---------------------------------------------------------------- navigasi */
   function nav(aktif, s) {
     var kanan = "";
@@ -567,9 +651,11 @@ window.PST = (function () {
       ["index.html",     "Katalog data"],
       ["konsultasi.html","Konsultasi daring"],
       ["sahabat.html",   "Sahabat data"],
-      ["admin.html",     "Ruang pegawai"]
+      ["admin.html",     "Ruang pegawai"],
+      [TAUTAN_PINTAR.indikator, "Indikator strategis", "luar"]
     ].map(function (x) {
-      return '<a href="' + x[0] + '"' + (x[0] === aktif ? ' aria-current="page"' : "") + ">" + x[1] + "</a>";
+      return '<a href="' + x[0] + '"' + (x[0] === aktif ? ' aria-current="page"' : "") + (x[2] ? ' class="nav__luar" title="Dashboard angka-angka kunci Kukar (situs saudara)"' : "") + ">" + x[1] +
+        (x[2] ? ' <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>' : "") + "</a>";
     }).join("");
     /* Logo resmi: letakkan berkas assets/logo-bps.png (dari aset kantor). Bila tidak
        ada, gambar disembunyikan dan hanya tulisan yang tampil. */
@@ -613,6 +699,9 @@ window.PST = (function () {
     cekKonsultasi:cekKonsultasi, daftarKonsultasi:daftarKonsultasi, ubahKonsultasi:ubahKonsultasi,
     tambahKonsultasiPetugas:tambahKonsultasiPetugas, ubahProfil:ubahProfil,
     tglWita:tglWita, tambahHari:tambahHari, hariKerja:hariKerja,
+    muatIndikator:muatIndikator, simpanIndikator:simpanIndikator, riwayatIndikator:riwayatIndikator,
+    bacaRiwayatIndikator:bacaRiwayatIndikator, muatIndikatorAwal:muatIndikatorAwal, indikatorSiap:indikatorSiap,
+    TAUTAN:TAUTAN_PINTAR,
     nav:nav, pasangKeluar:pasangKeluar, spandukDemo:spandukDemo
   };
 })();
