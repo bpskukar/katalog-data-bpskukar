@@ -259,7 +259,7 @@ Semua kejadian tetap tercatat di `notifikasi_log` dengan keterangan "belum diatu
 ## Chatbot (asisten PST)
 
 Tidak memakai model bahasa — jawabannya berasal dari dua sumber saja: `assets/katalog.js`
-(83 ragam data) dan `assets/pengetahuan.js` (jawaban baku). Karena itu ia tidak pernah
+(89 ragam data) dan `assets/pengetahuan.js` (jawaban baku). Karena itu ia tidak pernah
 mengarang angka, dan tidak butuh server maupun biaya.
 
 Menambah atau mengubah jawaban: buka `assets/pengetahuan.js`, tiap butir punya `kunci`

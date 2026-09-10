@@ -205,6 +205,9 @@
       layak disajikan. Survei berbasis sampel seperti Susenas dan Sakernas dirancang mewakili tingkat
       kabupaten, sehingga angkanya tidak dapat diturunkan ke kecamatan atau desa meskipun respondennya
       tersebar di sana.</p>
+    <p><b>Tautan tabel</b> &mdash; Tautan bertanda “Tabel:” menuju tabel statistik di laman BPS Kukar (diperiksa satu per satu, September 2026);
+      “Tabel Kaltim:” menuju tabel BPS Provinsi Kalimantan Timur yang memuat angka menurut kabupaten/kota. Tabel lain dapat disusun sendiri lewat
+      <a href="https://kukarkab.bps.go.id/id/query-builder">Tabel Dinamis</a> di laman BPS Kukar.</p>
     <p><b>Sumber penyusunan</b> &mdash; Publikasi dan tabel statistik pada
       <a href="https://kukarkab.bps.go.id">kukarkab.bps.go.id</a>,
       <a href="https://pst.bps.go.id">Standar Pelayanan Statistik Terpadu BPS</a>, serta ragam keluaran baku
@@ -228,7 +231,7 @@
 (function () {
   "use strict";
 
-  var MODE_RANCANGAN = true;
+  var MODE_RANCANGAN = false;   /* semua baris sudah diperiksa (Sep 2026); spanduk rancangan disembunyikan */
   var DATA = window.KATALOG.DATA, LABEL = window.KATALOG.LABEL, KEC = window.KATALOG.KECAMATAN;
   var esc = PST.esc;
   var state = { q:"", topik:"all", level:"all" };

@@ -27,8 +27,10 @@ Sistem ini memindahkan pengetahuan itu keluar dari kepala beberapa orang:
 
 ## Isi katalog
 
-83 ragam data pada sebelas topik, masing-masing dengan level wilayah terendah, periode,
-sumber survei, letak di menu laman BPS, dan tautan langsung ke publikasi atau tabelnya.
+89 ragam data pada sebelas topik, masing-masing dengan level wilayah terendah, periode,
+sumber survei, letak di menu laman BPS, dan tautan langsung ke publikasi atau tabelnya —
+124 tautan tabel statistik di laman BPS Kukar dan BPS Provinsi Kaltim diperiksa satu per satu
+(September 2026), sehingga tidak ada lagi baris berstatus *perlu cek*.
 Ditambah tautan 20 publikasi Kecamatan Dalam Angka — satu-satunya sumber rutin
 yang turun sampai level desa.
 
@@ -140,7 +142,7 @@ assets/
   config.js             sambungan Supabase & klasifikasi baku BPS  ← satu-satunya yang perlu diisi
   pintar.js             bilah PINTAR Kukar + tema sinkron (identik di 3 repositori)
   indikator-admin.js    tab Indikator di ruang pegawai (penyunting isi situs indikator)
-  katalog.js            isi katalog: 83 ragam data + 20 kecamatan
+  katalog.js            isi katalog: 89 ragam data + 20 kecamatan
   cari.js               mesin pencocokan (dipakai ruang pegawai & chatbot)
   pengetahuan.js        jawaban baku chatbot & kartu jawaban petugas
   chat.js               widget asisten PST
@@ -175,17 +177,17 @@ yang sedang dipakai. Berguna untuk memperagakan alurnya ke pimpinan lebih dulu.
 
 ## Sebelum katalog dipakai melayani
 
-Lima baris masih ditandai **PERLU CEK** dan harus dipastikan petugas lebih dulu:
+Semua baris sudah diperiksa (September 2026): lima baris yang semula bertanda *perlu cek*
+telah dipastikan — agama (data sektoral Kemenag di Dalam Angka), suku/bahasa (Long Form SP2020,
+tabulasi lewat PST), upah pekerja dan padi KSA (tabel menurut kabupaten/kota di laman BPS
+Provinsi Kaltim), IKG (tabel di laman Kukar), serta inflasi (Kukar bukan cakupan IHK; empat
+kab/kota Kaltim yang dihitung: Samarinda, Balikpapan, Berau, Penajam Paser Utara). Karena itu
+`MODE_RANCANGAN` di `index.html` sudah `false`.
 
-1. Penduduk menurut agama, suku, dan bahasa — kerincian yang boleh disajikan
-2. Rata-rata upah pekerja — tahun terakhir yang dapat dilayani
-3. Indeks Ketimpangan Gender — tahun terakhir yang tersedia di tingkat kabupaten
-4. Inflasi dan Indeks Harga Konsumen — apakah Kukar sudah masuk cakupan penghitungan
-5. Luas panen dan produksi padi — level terendah yang dapat dilayani
-
-Cara memeriksanya: buka `assets/katalog.js`, cari `cek: true`, betulkan isinya, lalu hapus
-penanda itu. Setelah semuanya beres, ubah `MODE_RANCANGAN` menjadi `false` di `index.html`
-agar spanduk rancangan hilang.
+Yang tetap perlu dilakukan petugas secara berkala: bila BPS menerbitkan tabel baru atau
+memindahkan tabel, perbarui tautannya di `assets/katalog.js` (pustaka `P` di bagian atas
+berkas — satu tempat untuk semua tautan). Untuk menandai baris yang belum pasti, beri
+`cek:true` dan nyalakan kembali `MODE_RANCANGAN`.
 
 ## Menambah ragam data
 
