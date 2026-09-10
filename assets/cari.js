@@ -50,7 +50,13 @@ window.CARI = (function () {
     return Math.max(0.35, Math.log(N / d));
   }
 
-  function cocokkan(teks, n) {
+  /* toleransi salah ketik ringan: huruf ganda yang hilang (penganguran → pengangguran) */
+  function ringkas(w) { return w.replace(/([a-z])\1/g, "$1"); }
+
+  function cocokkan(teks, n) { return cocokkanSkor(teks, n).map(function (x) { return x.d; }); }
+
+  /* seperti cocokkan, tetapi mengembalikan skornya juga: [{d, skor}] */
+  function cocokkanSkor(teks, n) {
     /* Singkatan diambil sebelum huruf dikecilkan: IPM, PDRB, TPT, P0, IHK, NTP
        adalah kata kunci terkuat di meja PST tetapi terlalu pendek untuk lolos
        saringan panjang biasa. */
@@ -65,8 +71,8 @@ window.CARI = (function () {
     if (!kata.length) return [];
 
     return K.DATA.map(function (d) {
-      var nama = d.n.toLowerCase();
-      var hay = (d.n + " " + d.t + " " + d.sm + " " + d.d + " " + (d.mn || "")).toLowerCase();
+      var nama = d.n.toLowerCase(), namaR = ringkas(nama);
+      var hay = (d.n + " " + d.t + " " + d.sm + " " + d.d + " " + (d.mn || "")).toLowerCase(), hayR = ringkas(hay);
       var skor = 0, kena = 0;
       kata.forEach(function (w) {
         var pendek = w.length <= 5 && singkat.indexOf(w) !== -1;
@@ -74,9 +80,9 @@ window.CARI = (function () {
         var v = pendek ? [w] : penggal(w);
         var diNama = false, diIsi = false;
         v.forEach(function (x) {
-          var pola = pendek ? new RegExp("\\b" + x + "\\b") : null;
-          if (pendek ? pola.test(nama) : nama.indexOf(x) !== -1) diNama = true;
-          else if (pendek ? pola.test(hay) : hay.indexOf(x) !== -1) diIsi = true;
+          var pola = pendek ? new RegExp("\\b" + x + "\\b") : null, xr = ringkas(x);
+          if (pendek ? pola.test(nama) : (nama.indexOf(x) !== -1 || (x.length >= 5 && namaR.indexOf(xr) !== -1))) diNama = true;
+          else if (pendek ? pola.test(hay) : (hay.indexOf(x) !== -1 || (x.length >= 5 && hayR.indexOf(xr) !== -1))) diIsi = true;
         });
         if (diNama) { skor += b * 3; kena++; }
         else if (diIsi) { skor += b; kena++; }
@@ -85,7 +91,7 @@ window.CARI = (function () {
       return { d: d, skor: skor };
     }).filter(function (x) { return x.skor > 0.9; })
       .sort(function (a, b) { return b.skor - a.skor; })
-      .slice(0, n || 5).map(function (x) { return x.d; });
+      .slice(0, n || 5);
   }
 
 
@@ -100,5 +106,5 @@ window.CARI = (function () {
     return skor;
   }
 
-  return { cocokkan: cocokkan, penggal: penggal, HENTI: HENTI, skorKataKunci: skorKataKunci };
+  return { cocokkan: cocokkan, cocokkanSkor: cocokkanSkor, penggal: penggal, HENTI: HENTI, skorKataKunci: skorKataKunci };
 })();

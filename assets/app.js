@@ -647,15 +647,15 @@ window.PST = (function () {
               (s.jenis === "pegawai" ? "" : " · sahabat data") + '</span>' +
               '<button class="btn btn--ghost btn--sm" id="btnKeluar">Keluar</button>';
     }
+    /* Tautan ke situs saudara (Indikator Strategis, beranda) ada di bilah PINTAR di atas,
+       jadi menu ini hanya memuat halaman situs katalog sendiri. */
     var t = [
-      ["index.html",     "Katalog data"],
-      ["konsultasi.html","Konsultasi daring"],
-      ["sahabat.html",   "Sahabat data"],
-      ["admin.html",     "Ruang pegawai"],
-      [TAUTAN_PINTAR.indikator, "Indikator strategis", "luar"]
+      ["index.html",     "Katalog Data"],
+      ["konsultasi.html","Konsultasi Daring"],
+      ["sahabat.html",   "Sahabat Data"],
+      ["admin.html",     "Ruang Pegawai"]
     ].map(function (x) {
-      return '<a href="' + x[0] + '"' + (x[0] === aktif ? ' aria-current="page"' : "") + (x[2] ? ' class="nav__luar" title="Dashboard angka-angka kunci Kukar (situs saudara)"' : "") + ">" + x[1] +
-        (x[2] ? ' <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>' : "") + "</a>";
+      return '<a href="' + x[0] + '"' + (x[0] === aktif ? ' aria-current="page"' : "") + ">" + x[1] + "</a>";
     }).join("");
     /* Logo resmi: letakkan berkas assets/logo-bps.png (dari aset kantor). Bila tidak
        ada, gambar disembunyikan dan hanya tulisan yang tampil. */

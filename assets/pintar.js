@@ -38,7 +38,7 @@
     ["indikator",  "Indikator Strategis"],
     ["katalog",    "Katalog Data"],
     ["konsultasi", "Konsultasi Daring"],
-    ["sahabat",    "Cek Tiket"]
+    ["sahabat",    "Sahabat Data"]
   ];
 
   /* ------------------------------------------------------------ tema */
@@ -144,7 +144,7 @@
           "<small>Pusat Informasi &amp; Layanan Statistik Terpadu</small></a>" +
         '<nav class="pintar__menu" id="pintarMenu" aria-label="Situs PINTAR Kukar">' + menu + "</nav>" +
         '<div class="pintar__kanan">' +
-          '<button type="button" class="pintar__lain" id="pintarLain" aria-expanded="false" aria-controls="pintarMenu">Layanan ' + IKON.panah + "</button>" +
+          '<button type="button" class="pintar__lain" id="pintarLain" aria-expanded="false" aria-controls="pintarMenu">Menu ' + IKON.panah + "</button>" +
           '<button type="button" class="pintar__tema" id="pintarTema"></button>' +
         "</div>" +
       "</div>";

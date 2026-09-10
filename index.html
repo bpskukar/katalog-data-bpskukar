@@ -6,11 +6,18 @@
 <meta name="description" content="Katalog ketersediaan data BPS Kabupaten Kutai Kartanegara: ragam data, level wilayah terendah, periode, sumber survei, tautan langsung, dan cara memperolehnya.">
 <meta name="theme-color" content="#2F5FA8">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Katalog Ketersediaan Data Kukar">
+<meta property="og:title" content="Katalog Data & Layanan PST · PINTAR Kukar">
 <meta property="og:description" content="Periksa di sini lebih dulu sebelum mengajukan permintaan data ke BPS Kutai Kartanegara.">
 <meta property="og:locale" content="id_ID">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2316181C'/><rect x='22' y='26' width='56' height='13' rx='3' fill='%232F5FA8'/><rect x='22' y='44' width='56' height='13' rx='3' fill='%236B8FC9'/><rect x='22' y='62' width='36' height='13' rx='3' fill='%23A9BEDD'/></svg>">
-<title>Katalog Ketersediaan Data Kukar</title>
+<meta property="og:image" content="https://bpskukar.github.io/katalog-data-bpskukar/assets/og-katalog.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Katalog Data & Layanan PST · PINTAR Kukar">
+<meta name="twitter:description" content="Cari dulu apa yang tersedia di BPS Kutai Kartanegara — unduh, minta data, atau konsultasi lewat Zoom.">
+<meta name="twitter:image" content="https://bpskukar.github.io/katalog-data-bpskukar/assets/og-katalog.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231D5FAD'/><path d='M22 82V46a28 28 0 0 1 56 0v36M40 82V60a10 10 0 0 1 20 0v22M14 82h72' fill='none' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<title>Katalog Data & Layanan PST · PINTAR Kukar</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,6 +61,7 @@
 .row__name { font-weight:600; font-size:14.5px; color:var(--ink); line-height:1.35; }
 .row__src { font-size:12px; color:var(--ink-3); margin-top:2px; }
 .row__flag { display:inline-block; font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--s-mohon); background:var(--s-mohon-bg); border-radius:999px; padding:1px 7px; margin-left:7px; vertical-align:1px; }
+.row__cocok { color:var(--s-ada); background:var(--s-ada-bg); }
 .row__tautan { display:inline-block; font-size:10.5px; font-weight:500; color:var(--s-ada); margin-left:7px; vertical-align:1px; }
 .cell { font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
@@ -302,16 +310,38 @@
 
   /* saring */
   function saring() {
-    var tampil = 0;
+    var tampil = 0, pintar = false;
+    var lolosSaringan = function (row) {
+      return (state.topik === "all" || row.dataset.topik === state.topik) &&
+             (state.level === "all" || row.dataset.level === state.level);
+    };
     PST.qa(".row").forEach(function (row) {
-      var ok =
-        (state.topik === "all" || row.dataset.topik === state.topik) &&
-        (state.level === "all" || row.dataset.level === state.level) &&
-        (!state.q || row.dataset.cari.indexOf(state.q) !== -1);
+      var ok = lolosSaringan(row) && (!state.q || row.dataset.cari.indexOf(state.q) !== -1);
       row.classList.toggle("is-off", !ok);
       if (!ok) { row.classList.remove("is-open"); row.setAttribute("aria-expanded","false"); }
       if (ok) tampil++;
     });
+    /* Pencarian pintar: bila tidak ada yang memuat kata persis, pakai mesin
+       pencocokan yang sama dengan asisten (toleran typo, singkatan, imbuhan). */
+    PST.qa(".row__cocok").forEach(function (b) { b.remove(); });
+    if (!tampil && state.q.length >= 3 && window.CARI) {
+      var hasil = CARI.cocokkanSkor(state.q, 5);
+      /* hanya yang skornya sepadan dengan yang terbaik, supaya daftarnya tetap ringkas */
+      if (hasil.length) hasil = hasil.filter(function (x) { return x.skor >= hasil[0].skor * 0.45; });
+      var nama = hasil.map(function (x) { return x.d.n.toLowerCase(); });
+      if (nama.length) {
+        PST.qa(".row").forEach(function (row) {
+          var n = ((DATA[+row.dataset.i] || {}).n || "").toLowerCase();
+          var ok = lolosSaringan(row) && nama.indexOf(n) !== -1;
+          row.classList.toggle("is-off", !ok);
+          if (ok) {
+            tampil++;
+            if (n === nama[0]) row.querySelector(".row__name").insertAdjacentHTML("beforeend", '<span class="row__flag row__cocok">paling cocok</span>');
+          }
+        });
+        pintar = tampil > 0;
+      }
+    }
     PST.qa(".grouptitle").forEach(function (g) {
       var ada = false, n = g.nextElementSibling;
       while (n && n.classList.contains("row")) {
@@ -320,7 +350,9 @@
       }
       g.classList.toggle("is-off", !ada);
     });
-    document.getElementById("countLine").textContent = tampil + " dari " + DATA.length + " ragam data";
+    document.getElementById("countLine").textContent = pintar
+      ? tampil + " ragam data yang paling mendekati \u201c" + state.q + "\u201d"
+      : tampil + " dari " + DATA.length + " ragam data";
     document.getElementById("empty").hidden = tampil > 0;
   }
 
@@ -352,38 +384,16 @@
   document.getElementById("nTidak").textContent = h.tidak + h.prov;
   saring();
 
-  /* tautan dari situs indikator (?q=…): isi kotak cari, gulir ke daftar.
-     Bila tidak ada baris yang cocok persis, pakai pencocokan cerdas. */
+  /* tautan dari situs indikator (?q=…): isi kotak cari, buka baris paling cocok, gulir ke daftar */
   var qs = new URLSearchParams(location.search), awal = (qs.get("q") || "").trim();
   if (awal) {
     var q = document.getElementById("q"); q.value = awal; state.q = awal.toLowerCase(); saring();
-    var ada = PST.qa(".row").some(function (r) { return !r.classList.contains("is-off"); });
-    if (ada) {
-      var pertama = PST.q(".row:not(.is-off)");
-      if (pertama) { pertama.classList.add("is-open"); pertama.setAttribute("aria-expanded", "true"); }
-    }
-    if (!ada && window.CARI) {
-      var cocok = CARI.cocokkan(awal, 5);
-      if (cocok.length) {
-        var nama = cocok.map(function (d) { return d.n.toLowerCase(); }), utama = null;
-        PST.qa(".row").forEach(function (r) {
-          var n = ((DATA[+r.dataset.i] || {}).n || "").toLowerCase();
-          var ok = nama.indexOf(n) !== -1;
-          r.classList.toggle("is-off", !ok);
-          if (n === nama[0]) utama = r;
-        });
-        /* yang paling cocok dibuka rinciannya supaya langsung terlihat */
-        if (utama) { utama.classList.add("is-open"); utama.setAttribute("aria-expanded", "true"); utama.parentNode.insertBefore(utama, utama.parentNode.querySelector(".row:not(.is-off)")); }
-        PST.qa(".grouptitle").forEach(function (g) {
-          var t = false, n = g.nextElementSibling;
-          while (n && n.classList.contains("row")) { if (!n.classList.contains("is-off")) { t = true; break; } n = n.nextElementSibling; }
-          g.classList.toggle("is-off", !t);
-        });
-        document.getElementById("countLine").textContent = cocok.length + " ragam data yang paling mendekati “" + awal + "”";
-        document.getElementById("empty").hidden = true;
-      }
-    }
-    setTimeout(function () { document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" }); }, 150);
+    var urut = window.CARI ? CARI.cocokkan(awal, 1).map(function (d) { return d.n.toLowerCase(); }) : [];
+    var terbuka = PST.qa(".row:not(.is-off)").filter(function (r) {
+      return urut.length && ((DATA[+r.dataset.i] || {}).n || "").toLowerCase() === urut[0];
+    })[0] || PST.q(".row:not(.is-off)");
+    if (terbuka) { terbuka.classList.add("is-open"); terbuka.setAttribute("aria-expanded", "true"); }
+    setTimeout(function () { (terbuka || document.getElementById("list")).scrollIntoView({ behavior: "smooth", block: terbuka ? "center" : "start" }); }, 150);
   }
 })();
 </script>
