@@ -149,6 +149,10 @@ Yang mengikatnya:
 - **Bandingkan kab/kota se-Kaltim** di situs indikator: peringkat Kukar untuk IPM & komponennya, kemiskinan, penduduk (2025, BPS Kaltim).
 - **Pasang sebagai aplikasi**: ikon di layar utama, terbuka cepat, halaman yang pernah dibuka tetap terbaca saat luring.
 
+## Usulan jawaban untuk petugas (pembaruan 10)
+
+Tiket yang tetap harus ditangani petugas tidak lagi dimulai dari halaman kosong. Saat tiket dibuka, sistem menyusun draf jawaban dari katalog, isi indikator terbit, dan jawaban baku — lengkap dengan tautan dan kalimat sumber — beserta label keyakinannya. Untuk permintaan yang jelas (angka indikator atau ragam data berstatus *Unduh di web*), drafnya langsung diisikan ke kolom catatan penyelesaian sehingga petugas tinggal memeriksa dan mengirim. Draf tidak pernah terkirim sendiri. Tombol *Simpan & kirim ke WhatsApp* menyimpan jawabannya lalu membuka WhatsApp ke nomor pemohon dengan pesan yang sudah tersusun — tanpa gateway, tanpa biaya.
+
 ## Permintaan yang dijawab sendiri (pembaruan 09)
 
 Setiap permintaan data yang masuk lewat asisten diperiksa dulu ke katalog, isi indikator terbit, dan jawaban baku. Kalau datanya **berstatus Unduh di web dan levelnya memenuhi**, asisten menunjukkan tautannya saat itu juga dan permintaannya selesai tanpa tiket. Yang berstatus *Permintaan resmi* diteruskan dengan penjelasan; yang memang tidak tersedia dijelaskan alasannya beserta angka terdekat yang ada. Petugas hanya menerima sisanya — dan tiketnya memuat catatan apa saja yang sudah ditawarkan asisten, supaya tidak diulang. Jumlah permintaan yang terlayani otomatis terlihat di Ruang Pegawai → Pertanyaan asisten.

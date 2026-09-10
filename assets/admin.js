@@ -206,6 +206,43 @@
     }).catch(function (e) { PST.pesan("msgTiket", "err", e.message); });
   }
 
+  /* Usulan jawaban otomatis: disusun asisten dari katalog, isi indikator terbit,
+     dan jawaban baku. Selalu diperiksa petugas — tidak pernah terkirim sendiri. */
+  function usulanTiket(t) {
+    var w = el("dUsulan"); if (!w) return;
+    if (!window.ASISTEN || !ASISTEN.usulan) { w.innerHTML = ""; return; }
+    if (t.status === "selesai" || t.status === "tolak") { w.innerHTML = ""; return; }
+    w.innerHTML = '<div class="usul"><div class="usul__h">Menyusun usulan jawaban…</div></div>';
+    ASISTEN.usulan(t.kebutuhan).then(function (u) {
+      if (!el("dUsulan") || el("dUsulan") !== w) return;              /* rincian sudah ditutup/ganti */
+      if (!u || !u.teks) {
+        w.innerHTML = '<div class="usul usul--kosong">Belum ada usulan jawaban otomatis untuk permintaan ini — tulis jawabannya sendiri di kolom di atas.</div>';
+        return;
+      }
+      w.innerHTML = '<div class="usul"><div class="usul__h"><b>Usulan jawaban otomatis</b>' +
+        '<span class="usul__k ' + esc(u.keyakinan) + '">keyakinan ' + esc(u.keyakinan) + "</span></div>" +
+        '<pre class="usul__t">' + esc(u.teks) + "</pre>" +
+        '<div class="usul__a"><button type="button" id="uPakai">Pakai usulan ini</button>' +
+        '<button type="button" id="uSalin">Salin</button></div>' +
+        '<div class="field__hint" style="margin-top:8px">Disusun dari katalog, isi indikator terbit, dan jawaban baku — <b>bukan jawaban resmi</b>. Periksa, betulkan bila perlu, baru kirim.</div></div>';
+      el("uPakai").onclick = function () {
+        var h = el("dHasil");
+        if (h.value.trim() && !confirm("Catatan penyelesaian sudah terisi. Ganti dengan usulan ini?")) return;
+        h.value = u.teks; h.focus();
+      };
+      el("uSalin").onclick = function () {
+        var b = this;
+        try { navigator.clipboard.writeText(u.teks).then(function () { b.textContent = "tersalin ✓"; setTimeout(function () { b.textContent = "Salin"; }, 2000); }); }
+        catch (e) { b.textContent = "tidak bisa menyalin"; }
+      };
+      /* keyakinan tinggi & belum dijawab: langsung diisikan supaya tinggal diperiksa */
+      if (u.keyakinan === "tinggi" && !String(t.hasil || "").trim() && !el("dHasil").value.trim()) {
+        el("dHasil").value = u.teks;
+        w.insertAdjacentHTML("beforeend", '<div class="field__hint" style="margin-top:4px;color:var(--s-mohon)">Usulan sudah diisikan ke kolom catatan penyelesaian di atas.</div>');
+      }
+    }).catch(function () { if (el("dUsulan") === w) w.innerHTML = ""; });
+  }
+
   function terlambatkah(t) {
     if (!t.tenggat || t.status === "selesai" || t.status === "tolak") return false;
     return new Date(t.tenggat + "T23:59:59") < new Date();
@@ -285,15 +322,35 @@
         '<div class="field"><label class="fl">Ubah catatan penyelesaian</label>' +
           '<textarea id="dHasil" style="min-height:60px" placeholder="Boleh menyertakan tautan — akan bisa diklik oleh sahabat data">' + esc(t.hasil || "") + "</textarea></div>" +
       "</div>" +
+      '<div id="dUsulan"></div>' +
       '<div class="btnrow"><button class="btn btn--sm" id="dSimpan">Simpan perubahan</button>' +
+      (t.no_hp ? '<button class="btn btn--sm" id="dKirim" title="Simpan jawaban lalu buka WhatsApp ke nomor pemohon dengan pesannya sudah terisi">Simpan &amp; kirim ke WhatsApp</button>' : "") +
       '<button class="btn btn--ghost btn--sm" id="dAngkat">Angkat ke papan tanya</button>' +
       '<button class="btn btn--ghost btn--sm" id="dTutup">Tutup rincian</button></div></div>';
+    usulanTiket(t);
 
     el("dSimpan").onclick = function () {
       PST.ubahKunjungan(id, { status: el("dStatus").value, hasil: el("dHasil").value.trim() || null }, SESI.id)
         .then(function () { return muatTiket(); })
         .then(function () { bukaTiket(id); PST.pesan("msgDetail", "ok", "Tersimpan."); })
         .catch(function (e) { PST.pesan("msgDetail", "err", e.message); });
+    };
+    if (el("dKirim")) el("dKirim").onclick = function () {
+      var jawab = el("dHasil").value.trim();
+      if (!jawab) { PST.pesan("msgDetail", "warn", "Isi dulu catatan penyelesaiannya — itu yang dikirim ke pemohon."); el("dHasil").focus(); return; }
+      var w = window.open("", "_blank");                       /* dibuka lebih dulu supaya tidak diblokir peramban */
+      PST.ubahKunjungan(id, { status: el("dStatus").value, hasil: jawab }, SESI.id)
+        .then(function () {
+          var pesan = "Halo Bapak/Ibu " + (t.nama || "") + ",\n\n" +
+            "Permintaan data Anda dengan kode " + t.kode_tiket + " sudah kami tindak lanjuti.\n\n" + jawab +
+            "\n\nStatus permintaan dapat diperiksa kapan saja di " + location.origin + location.pathname.replace(/admin\.html$/, "sahabat.html") +
+            " dengan kode " + t.kode_tiket + " dan empat digit terakhir nomor HP ini.\n\nSalam,\nPST " + ((window.KONFIG && KONFIG.NAMA_SATKER) || "BPS Kabupaten Kutai Kartanegara");
+          var tautan = PST.waLink(t.no_hp, pesan);
+          if (tautan) w.location.href = tautan; else w.close();
+          return muatTiket();
+        })
+        .then(function () { bukaTiket(id); PST.pesan("msgDetail", "ok", "Tersimpan. Jendela WhatsApp dibuka — tinggal tekan kirim."); })
+        .catch(function (e) { try { w.close(); } catch (er) {} PST.pesan("msgDetail", "err", e.message); });
     };
     el("dAngkat").onclick = function () {
       PST.qa('.tabs button').filter(function (b) { return b.dataset.p === "pTanya"; })[0].click();

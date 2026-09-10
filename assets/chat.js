@@ -768,6 +768,62 @@
     return langkahTiket("nama");
   }
 
+  /* ------------------------------- usulan jawaban untuk petugas (tiket masuk)
+     Draf jawaban dalam teks polos, disusun dari sumber yang sama dengan asisten
+     (katalog, isi indikator terbit, jawaban baku). Dipakai Ruang Pegawai supaya
+     petugas tinggal memeriksa, membetulkan bila perlu, lalu mengirim. */
+  function urlPenuh(u) {
+    u = String(u || "");
+    if (/^https?:/.test(u)) return u;
+    if (u.charAt(0) === "/") return location.origin + u;
+    return location.origin + DASAR_KATALOG + u;
+  }
+  function barisKatalog(d) {
+    var t = "• " + d.n + " — " + (d.lv !== "\u2014" ? "level terendah " + d.lv + ", " : "") + d.pd + " (sumber: " + d.sm + ")";
+    (d.ln || []).slice(0, 2).forEach(function (x) { t += "\n  " + x.l + ": " + urlPenuh(x.u); });
+    return t;
+  }
+  function bersih(t) { return String(t || "").replace(/\*\*/g, "").replace(/\s+$/g, ""); }
+  function susunUsulan(teks) {
+    var k = periksaSwalayan(String(teks || "").split(/\n\s*\n/)[0]);   /* catatan asisten di bawah kebutuhan diabaikan */
+    var u = { jenis: k.jenis, keyakinan: "rendah", teks: "" }, isi = "";
+    if (k.jenis === "indikator") {
+      var it = k.ci.it, deret = deretUntuk(it.id), tahun = k.p.ent.tahun[0], idx = -1;
+      if (tahun && deret) idx = deret[0].map(tahunLabel).indexOf(tahun);
+      isi = idx !== -1
+        ? it.label + " Kutai Kartanegara " + tahun + ": " + fmtAngka(deret[1][idx], it.dec) + (it.unit ? " " + it.unit : "") + "."
+        : it.label + " Kutai Kartanegara: " + fmtAngka(it.value, it.dec) + (it.unit ? " " + it.unit : "") + (it.abbr ? " (" + it.abbr + ")" : "") + ".";
+      if (deret && deret[0].length > 1) isi += "\nDeret " + tahunLabel(deret[0][0]) + "\u2013" + tahunLabel(deret[0][deret[0].length - 1]) + ": " +
+        deret[0].map(function (l, i) { return l + " " + fmtAngka(deret[1][i], it.dec); }).join(", ") + ".";
+      if (it.note) isi += "\n" + bersih(it.note);
+      isi += "\n\nGrafik dan rinciannya: " + urlPenuh(T_IND + anchorUntuk(it)) +
+             "\nSumber: Booklet Indikator Strategis BPS Kabupaten Kutai Kartanegara.";
+      u.keyakinan = "tinggi";
+    } else if (k.jenis === "tersedia" || k.jenis === "sudah-ditawarkan") {
+      isi = "Data yang Bapak/Ibu perlukan sudah tersedia dan dapat diunduh langsung:\n\n" +
+        k.pilih.map(function (x) { return barisKatalog(x.d); }).join("\n\n") +
+        "\n\nSilakan diunduh. Bila memerlukan rincian yang belum ada di situ (tahun lain atau pecahan wilayah tertentu), mohon disampaikan kembali.";
+      u.keyakinan = k.jenis === "tersedia" ? "tinggi" : "sedang";
+    } else if (k.jenis === "resmi") {
+      var cara = window.PENGETAHUAN.filter(function (b) { return b.id === "cara"; })[0];
+      isi = "Data yang diminta ada pada kami, namun tidak dapat diunduh langsung sehingga perlu permintaan resmi:\n\n" +
+        k.pilih.map(function (x) { return barisKatalog(x.d); }).join("\n\n") +
+        (cara ? "\n\n" + bersih(cara.jawab) : "");
+      u.keyakinan = "sedang";
+    } else if (k.jenis === "terbatas") {
+      isi = (k.b ? bersih(k.b.jawab) + "\n\n" : "Mohon maaf, data dengan rincian seperti itu belum tersedia pada kami.\n\n") +
+        "Yang paling mendekati dan dapat kami sediakan:\n\n" +
+        k.pilih.map(function (x) { return barisKatalog(x.d); }).join("\n\n");
+      u.keyakinan = "sedang";
+    } else if (k.jenis === "pengetahuan") {
+      isi = bersih(k.b.jawab) +
+        ((k.b.tautan || []).length ? "\n\n" + k.b.tautan.map(function (x) { return x.l + ": " + urlPenuh(x.u); }).join("\n") : "");
+      u.keyakinan = "sedang";
+    }
+    u.teks = isi;
+    return u;
+  }
+
   function selesaiSwalayan() {
     var keb = ALUR.d.kebutuhan, jns = ALUR.d.hasilSwalayan; ALUR = null;
     var tutup = jns === "terbatas"
@@ -1115,7 +1171,14 @@
     buka: buka,
     tutup: tutup,
     tanya: function (t) { t = String(t || "").trim().slice(0, 300); buka(); if (t) kirim(t); },
-    pahami: pahami
+    pahami: pahami,
+    /* draf jawaban untuk petugas — menunggu isi indikator siap lebih dulu */
+    usulan: function (teks) {
+      if (!teks || String(teks).trim().length < 5) return Promise.resolve({ jenis: "kosong", keyakinan: "rendah", teks: "" });
+      var jalan = function () { try { return susunUsulan(teks); } catch (e) { return { jenis: "galat", keyakinan: "rendah", teks: "" }; } };
+      if (IND !== undefined) return Promise.resolve(jalan());
+      return siapkanIndikator().then(jalan, jalan);
+    }
   };
   /* tombol/tautan mana pun dengan data-tanya="…" (atau data-tanya kosong = buka saja) */
   document.addEventListener("click", function (e) {

@@ -154,6 +154,7 @@ Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperb
 | Pembaruan 07 — asisten PST muncul di semua situs tanpa pindah halaman, teks mode gelap & terang ≥ 4,5:1 di seluruh halaman, koreksi glosarium, aksesibilitas (papan ketik, sasaran sentuh) | semua `.html`, `assets/*` (baru: `asisten.js`, `asisten.css`) — **plus** repositori indikator & beranda | tidak ada (skrip 05 & 06 harus sudah dijalankan) |
 | Pembaruan 08 — asisten PST yang lebih pintar & bertindak: salah ketik, bahasa sehari-hari, pertanyaan lanjutan, bandingkan/peringkat/tren kab-kota, angka kecamatan, publikasi & BRS, permintaan data & konsultasi dari obrolan, salin/WhatsApp/👍👎, catatan pertanyaan di Ruang Pegawai; menu bilah PINTAR tiga pintu; tata letak HP kecil; service worker selalu memeriksa versi berkas | semua `.html`, `assets/*` (baru: `paham.js`, `asisten-admin.js`), `supabase/*` — **plus** repositori indikator (`data.js`, `pintar.js`, `style.css`) & beranda (`pintar.js`, `sw.js`, `index.html`) | jalankan `supabase/perbaikan-07.sql`, lalu ikuti bagian *Asisten yang bertindak dan belajar* di bawah |
 | Pembaruan 09 — asisten menjawab sendiri permintaan yang datanya sudah tersedia; petugas hanya menerima yang belum bisa dijawab otomatis | `assets/chat.js`, `assets/asisten-admin.js`, `admin.html`, dokumen | tidak ada |
+| Pembaruan 10 — tiket yang masuk langsung diberi **usulan jawaban otomatis** untuk diperiksa petugas, plus tombol *Simpan & kirim ke WhatsApp* ke nomor pemohon | `assets/chat.js`, `assets/admin.js`, `admin.html`, dokumen | tidak ada |
 
 Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
 isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.
@@ -490,6 +491,32 @@ otomatis* memuat jumlah dan persentasenya terhadap seluruh permintaan yang masuk
 (sisanya menjadi tiket). Saringan **Permintaan data (otomatis / jadi tiket)** menampilkan
 daftarnya, berguna untuk laporan pelayanan dan untuk melihat pola apa yang masih sering
 terpaksa ditangani manual.
+
+## Usulan jawaban untuk tiket, dan mengirimkannya (pembaruan 10)
+
+Begitu sebuah tiket dibuka di **Ruang Pegawai → Daftar tiket**, sistem menyusun **usulan
+jawaban** dari sumber yang sama dengan asisten — katalog, isi indikator terbit, dan jawaban
+baku — lalu menampilkannya dalam kotak biru di bawah kolom catatan penyelesaian, dalam bentuk
+teks siap kirim (sudah memuat tautan lengkap dan kalimat sumber).
+
+Usulan itu diberi label keyakinan. **Tinggi** berarti permintaannya cocok dengan angka indikator
+terbit atau ragam data berstatus *Unduh di web*; dalam hal ini usulannya sekalian diisikan ke
+kolom catatan penyelesaian supaya petugas tinggal membaca, membetulkan seperlunya, lalu
+mengirim. **Sedang** berarti jawabannya perlu pertimbangan (permintaan resmi, data yang memang
+tidak tersedia, atau penjelasan baku) — usulannya ditampilkan tetapi tidak diisikan sendiri.
+Bila tidak ada yang cocok, kotaknya menyatakan belum ada usulan dan petugas menulis sendiri.
+
+Yang perlu dipegang: **usulan itu bukan jawaban resmi.** Ia tidak pernah terkirim sendiri, tidak
+pernah mengubah status tiket, dan selalu melewati petugas. Kalimatnya sengaja disusun dari isi
+yang sudah terbit saja, sehingga tidak mungkin mengarang angka — tetapi ketepatan pilihan ragam
+datanya tetap harus dinilai manusia.
+
+Tombol **Simpan & kirim ke WhatsApp** melakukan dua hal sekaligus: menyimpan status dan catatan
+penyelesaian, lalu membuka WhatsApp ke nomor pemohon dengan pesannya sudah tersusun — sapaan,
+kode tiket, isi jawaban, cara memeriksa status sendiri, dan salam kantor. Petugas tinggal
+menekan kirim. Cara ini tidak memerlukan gateway WhatsApp maupun biaya: yang dipakai tautan
+`wa.me` biasa, dari HP petugas atau WhatsApp Web. Tombolnya hanya muncul bila tiket itu memuat
+nomor HP.
 
 ## Pemeliharaan
 

@@ -152,6 +152,17 @@
 .as__jenis.buruk { background:var(--s-mohon-bg); color:var(--s-mohon); }
 .as__jenis.swalayan { background:var(--s-ada-bg); color:var(--s-ada); }
 .summary--5 { grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr)); }
+/* usulan jawaban otomatis pada rincian tiket */
+.usul { border:1px solid var(--line); border-left:3px solid var(--biru); border-radius:10px; background:var(--sunk); padding:12px 14px; margin-top:14px; }
+.usul--kosong { border-left-color:var(--line-2); color:var(--ink-3); font-size:13px; }
+.usul__h { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; color:var(--ink-2); margin-bottom:8px; }
+.usul__h b { color:var(--biru-teks); font-family:var(--f-disp); }
+.usul__k { font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:2px 8px; border-radius:999px; background:var(--s-lain-bg); color:var(--s-lain); }
+.usul__k.tinggi { background:var(--s-ada-bg); color:var(--s-ada); }
+.usul__k.sedang { background:var(--s-mohon-bg); color:var(--s-mohon); }
+.usul__t { white-space:pre-wrap; font-family:var(--f-ui); font-size:13px; line-height:1.6; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:11px 13px; margin:0; max-height:280px; overflow:auto; }
+.usul__a { display:flex; gap:10px; flex-wrap:wrap; margin-top:9px; }
+.usul__a button { background:none; border:0; padding:0; color:var(--link); cursor:pointer; font:600 12.5px var(--f-ui); min-height:24px; }
 .so-rinci { font-size:12px; color:var(--ink-3); margin-top:3px; }
 @media (max-width:900px){ .ind-wrap { grid-template-columns:minmax(0,1fr); } .ind-nav { flex-direction:row; flex-wrap:wrap; } .ind-nav__grup { flex-basis:100%; } .ind-simpan { padding-right:16px; bottom:70px; } }
 </style>
