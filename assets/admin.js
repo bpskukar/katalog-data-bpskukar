@@ -77,6 +77,7 @@
         if (b.dataset.p === "pKonsul") muatKon();
         if (b.dataset.p === "pProfil") gambarProfil();
         if (b.dataset.p === "pIndikator" && window.INDIKATOR_ADMIN) window.INDIKATOR_ADMIN.mulai();
+        if (b.dataset.p === "pTerbitan" && window.TERBITAN_ADMIN) window.TERBITAN_ADMIN.mulai();
       };
     });
   }
@@ -520,10 +521,13 @@
   }
   el("kfStatus").onchange = gambarKon;
 
+  /* topik permintaan boleh dua, disimpan "A · B"; skor = berapa topik yang masuk keahlian */
+  function daftarTopik(topik) { return String(topik || "").split(" · ").map(function (t) { return t.trim(); }).filter(Boolean); }
   function skorNarasumber(p, topik) {
     if (!topik || !p.keahlian) return 0;
-    return p.keahlian.indexOf(topik) !== -1 ? 1 : 0;
+    return daftarTopik(topik).filter(function (t) { return p.keahlian.indexOf(t) !== -1; }).length;
   }
+  function topikCocok(p, topik) { return daftarTopik(topik).filter(function (t) { return (p.keahlian || []).indexOf(t) !== -1; }).join(" · "); }
 
   function bukaKon(id) {
     var k = KON.filter(function (x) { return x.id === id; })[0]; if (!k) return;
@@ -536,7 +540,7 @@
     var pilihanNara = '<option value="">— belum ditetapkan —</option>' + aktif.map(function (p) {
       var cocok = skorNarasumber(p, k.topik), sibuk = bentrok.indexOf(p.id) !== -1;
       return '<option value="' + esc(p.id) + '" data-zoom="' + esc(p.tautan_zoom || "") + '"' + (k.narasumber_id === p.id ? " selected" : "") + (sibuk ? " disabled" : "") + ">" +
-        esc(p.nama) + (cocok ? " ✓ " + esc(k.topik) : "") + (p.tautan_zoom ? "" : " (belum ada tautan Zoom)") + (sibuk ? " — sudah ada sesi di jam ini" : "") + "</option>";
+        esc(p.nama) + (cocok ? " ✓ " + esc(topikCocok(p, k.topik)) : "") + (p.tautan_zoom ? "" : " (belum ada tautan Zoom)") + (sibuk ? " — sudah ada sesi di jam ini" : "") + "</option>";
     }).join("");
 
     el("detailKon").innerHTML =
@@ -550,8 +554,7 @@
         baris("Diajukan", PST.tgl(k.dibuat, true) + (k.sahabat_id ? " (lewat akun)" : "")) +
       "</table></div>" +
       '<div class="grid grid--2" style="margin-top:14px;gap:12px">' +
-        '<div class="field"><label class="fl">Topik</label><select id="dkTopik">' +
-          '<option value="">— tanpa topik —</option>' + PST.opsi(TOPIK, k.topik) + '<option value="Lainnya"' + (k.topik === "Lainnya" ? " selected" : "") + '>Lainnya</option>' + "</select>" +
+        '<div class="field"><label class="fl">Topik (paling banyak dua)</label><div class="checks" id="dkTopik">' + PST.centang("dkTopik", TOPIK.concat(["Lainnya"]), daftarTopik(k.topik)) + "</div>" +
           '<div class="field__hint">' + (k.topik ? "Diisi sahabat data; boleh disesuaikan setelah membaca kebutuhannya." : "Sahabat data tidak memilih topik. Tetapkan di sini agar saran narasumber muncul dan rekapnya rapi.") + "</div></div>" +
         '<div class="field"><label class="fl">Narasumber</label><select id="dkNara">' + pilihanNara + "</select>" +
           '<div class="field__hint">' + (k.topik ? "Tanda ✓ = keahliannya sesuai topik. Urutan sudah menurut kecocokan." : "Belum bisa disarankan karena permintaan ini tanpa topik — pilih topik dulu, simpan, lalu tanda ✓ akan muncul.") + "</div></div>" +
@@ -567,16 +570,21 @@
       '<a class="btn btn--ghost btn--sm" id="dkWA" target="_blank" rel="noopener">Kirim konfirmasi lewat WhatsApp</a>' +
       '<button class="btn btn--ghost btn--sm" id="dkTutup">Tutup</button></div></div>';
 
+    function nilaiTopik() { return PST.nilaiCentang("dkTopik", el("dkTopik")); }
     el("dkTopik").onchange = function () {
-      var t = this.value || null;
+      var dipilihTopik = nilaiTopik();
+      /* paling banyak dua: kotak lain dikunci bila sudah dua */
+      PST.qa('input[name="dkTopik"]', el("dkTopik")).forEach(function (i) { i.disabled = !i.checked && dipilihTopik.length >= 2; });
+      var t = dipilihTopik.length ? dipilihTopik.join(" · ") : null;
       var nara = el("dkNara"), dipilih = nara.value;
       var urut = aktif.slice().sort(function (a, b) { return skorNarasumber(b, t) - skorNarasumber(a, t) || a.nama.localeCompare(b.nama); });
       nara.innerHTML = '<option value="">— belum ditetapkan —</option>' + urut.map(function (p) {
         var cocok = skorNarasumber(p, t), sibuk = bentrok.indexOf(p.id) !== -1;
         return '<option value="' + esc(p.id) + '" data-zoom="' + esc(p.tautan_zoom || "") + '"' + (dipilih === p.id ? " selected" : "") + (sibuk ? " disabled" : "") + ">" +
-          esc(p.nama) + (cocok ? " ✓ " + esc(t) : "") + (p.tautan_zoom ? "" : " (belum ada tautan Zoom)") + (sibuk ? " — sudah ada sesi di jam ini" : "") + "</option>";
+          esc(p.nama) + (cocok ? " ✓ " + esc(topikCocok(p, t)) : "") + (p.tautan_zoom ? "" : " (belum ada tautan Zoom)") + (sibuk ? " — sudah ada sesi di jam ini" : "") + "</option>";
       }).join("");
     };
+    el("dkTopik").onchange();
     el("dkNara").onchange = function () {
       var o = this.options[this.selectedIndex];
       if (o && o.dataset.zoom && !el("dkZoom").value) el("dkZoom").value = o.dataset.zoom;
@@ -601,7 +609,7 @@
 
     el("dkSimpan").onclick = function () {
       var patch = {
-        topik: el("dkTopik").value || null,
+        topik: nilaiTopik().length ? nilaiTopik().join(" · ") : null,
         narasumber_id: el("dkNara").value || null, status: el("dkStatus").value,
         tanggal: el("dkTanggal").value, jam: el("dkJam").value,
         tautan_zoom: el("dkZoom").value.trim() || null,

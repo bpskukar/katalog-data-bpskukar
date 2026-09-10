@@ -97,7 +97,7 @@ window.BAKU = {
      tidak terbaca; sumber utamanya tabel pengaturan (kunci konsultasi_*). */
   konsultasi: {
     jam: ["09:00", "10:00", "11:00", "13:30", "14:30"],
-    durasi: 45,
+    durasi: 30,      /* satu sesi 30 menit (jeda 30 menit antar-sesi), paling banyak dua topik */
     minHari: 1,      /* sahabat data boleh memilih jadwal paling cepat besok (H+1) */
     maksHari: 30
   },

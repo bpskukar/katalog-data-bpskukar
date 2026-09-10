@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Glosarium statistik BPS Kutai Kartanegara: arti IPM, TPT, PDRB, garis kemiskinan, P0/P1/P2, dan cara membaca angkanya dengan benar.">
+<meta property="og:image" content="https://bpskukar.github.io/katalog-data-bpskukar/assets/og-katalog.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Glosarium & cara membaca angka · PINTAR Kukar">
+<meta name="twitter:description" content="Arti IPM, TPT, PDRB, garis kemiskinan, dan cara membaca angkanya — bahasa awam, dari BPS Kutai Kartanegara.">
+<meta name="twitter:image" content="https://bpskukar.github.io/katalog-data-bpskukar/assets/og-katalog.png">
+<title>Glosarium · PINTAR Kukar</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231D5FAD'/><path d='M22 82V46a28 28 0 0 1 56 0v36M40 82V60a10 10 0 0 1 20 0v22M14 82h72' fill='none' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/assets/ikon/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="PINTAR Kukar">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="assets/pintar.js" data-situs="katalog"></script>
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+.gl-cari { display:flex; gap:10px; align-items:center; margin-top:-26px; position:relative; z-index:2; }
+.gl-cari input { flex:1; min-width:0; padding:13px 16px; border-radius:14px; border:1px solid var(--line-2); background:var(--panel); color:var(--ink); font:15px var(--f-ui); box-shadow:var(--bayang); }
+.gl-cari input:focus { outline:2px solid var(--biru); outline-offset:1px; }
+.gl-kel { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0 18px; }
+.gl-kel button { padding:7px 12px; background:var(--panel); border:1px solid var(--line-2); border-radius:999px; font:500 12.5px var(--f-ui); color:var(--ink-2); cursor:pointer; }
+.gl-kel button[aria-pressed="true"] { background:var(--biru); border-color:var(--biru); color:#fff; font-weight:600; }
+.gl-jml { font-size:13px; color:var(--ink-3); margin-bottom:10px; }
+.gl { border:1px solid var(--line); background:var(--panel); border-radius:var(--r); box-shadow:var(--bayang); margin-bottom:10px; scroll-margin-top:calc(var(--pintar-h) + 80px); }
+.gl summary { list-style:none; cursor:pointer; padding:14px 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.gl summary::-webkit-details-marker { display:none; }
+.gl summary::after { content:"+"; margin-left:auto; font:600 18px var(--f-disp); color:var(--ink-3); }
+.gl[open] summary::after { content:"–"; }
+.gl__nama { font-family:var(--f-disp); font-weight:600; font-size:15px; color:var(--ink); }
+.gl__singkat { font-family:var(--f-mono); font-size:11.5px; padding:2px 8px; border-radius:999px; background:var(--biru-wash); color:var(--biru-tua); }
+.gl__kel { font-size:11.5px; color:var(--ink-3); }
+.gl__isi { padding:0 18px 16px; border-top:1px solid var(--line); }
+.gl__b { display:grid; grid-template-columns:150px 1fr; gap:6px 14px; padding:10px 0; border-bottom:1px dashed var(--line); font-size:14px; line-height:1.6; color:var(--ink-2); }
+.gl__b:last-of-type { border-bottom:0; }
+.gl__b b { font-family:var(--f-disp); font-weight:600; font-size:12.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em; padding-top:3px; }
+.gl__b.keliru b { color:#b3541e; }
+.gl__aksi { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.gl__aksi a { font-size:13px; }
+.gl mark { background:#ffe9a8; color:inherit; padding:0 2px; border-radius:3px; }
+:root[data-theme="dark"] .gl mark { background:#7a5a10; }
+.gl-kosong { color:var(--ink-3); padding:20px; text-align:center; }
+@media (max-width:640px) { .gl__b { grid-template-columns:1fr; gap:2px; } }
+</style>
+</head>
+<body>
+<div id="navbar"></div>
+<div id="spanduk"></div>
+
+<section class="hero hero--tipis"><div class="hero__in"><header class="head" style="padding:0">
+    <div class="head__kicker">BPS Kabupaten Kutai Kartanegara · Pelayanan Statistik Terpadu</div>
+    <h1>Glosarium &amp; cara membaca angka</h1>
+    <p>
+      Arti istilah yang paling sering ditanyakan di meja PST, cara menghitungnya secara ringkas,
+      cara membacanya, dan salah kaprah yang perlu dihindari. Bahasa awam; untuk keperluan
+      resmi rujuk publikasi BPS.
+    </p>
+  </header></div></section>
+<div class="wrap">
+  <div class="gl-cari"><input type="search" id="glCari" placeholder="Cari istilah — misal: ipm, garis kemiskinan, kenapa APK bisa lebih dari 100%" aria-label="Cari istilah"></div>
+  <div class="gl-kel" id="glKel" role="group" aria-label="Kelompok"></div>
+  <div class="gl-jml" id="glJml"></div>
+  <div id="glDaftar"></div>
+
+  <section class="card" style="margin-top:30px">
+    <div class="card__title">Belum ketemu?</div>
+    <div class="grid grid--3" style="font-size:13.5px;color:var(--ink-2);line-height:1.6">
+      <div><b style="color:var(--ink)">Tanya asisten PST</b><br>Ketik pertanyaan seperti “apa bedanya ADHB dan ADHK?” di tombol Tanya PST di kanan bawah.</div>
+      <div><b style="color:var(--ink)">Konsultasi daring</b><br>Untuk cara membaca angka dalam konteks dokumen Anda (RPJMD, skripsi, liputan), <a class="lnk" href="konsultasi.html">ajukan konsultasi</a> 30 menit lewat Zoom.</div>
+      <div><b style="color:var(--ink)">Sumber definisi</b><br>Statistik Indonesia, Booklet Indikator Strategis, Berita Resmi Statistik, dan laman istilah bps.go.id.</div>
+    </div>
+  </section>
+
+  <footer class="colophon"><p id="kontak"></p></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/katalog.js"></script>
+<script src="assets/cari.js"></script>
+<script src="assets/pengetahuan.js"></script>
+<script src="assets/glosarium.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  "use strict";
+  var esc = PST.esc, el = PST.el, K = window.KONFIG, G = window.GLOSARIUM || [];
+  var TAUT = (window.PINTAR && window.PINTAR.TAUTAN) || { indikator: "/indikator-strategis-bpskukar/" };
+  var ANCHOR = { ekonomi: "#ekonomi", manusia: "#manusia", pemerataan: "#kemiskinan", demografi: "#kependudukan", ketenagakerjaan: "#kependudukan" };
+  var KAT_IND = { penduduk: "demografi", lpp: "demografi", tpak: "ketenagakerjaan", tpt: "ketenagakerjaan", "pdrb-adhb": "ekonomi", "pdrb-adhk": "ekonomi", lpe: "ekonomi", "pdrb-kapita": "ekonomi",
+                  uhh: "manusia", hls: "manusia", rls: "manusia", ppp: "manusia", ipm: "manusia", gini: "pemerataan", ikg: "pemerataan", p0: "pemerataan", rentan: "pemerataan" };
+  var KEL = []; G.forEach(function (g) { if (KEL.indexOf(g.kelompok) === -1) KEL.push(g.kelompok); });
+  var kel = "", q = "";
+
+  el("spanduk").innerHTML = PST.spandukDemo();
+  el("kontak").innerHTML = "<b>" + esc(K.NAMA_SATKER) + "</b> &mdash; " + esc(K.ALAMAT) + " · " + esc(K.TELEPON) + " · " + esc(K.JAM_LAYANAN) + ".";
+  PST.sesi().then(function (s) { el("navbar").innerHTML = PST.nav("glosarium.html", s); PST.pasangKeluar(); });
+
+  function sorot(t) {
+    t = esc(t);
+    if (!q || q.length < 2) return t;
+    var pola = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
+    return t.replace(pola, "<mark>$1</mark>");
+  }
+  var HENTI = (window.CARI && CARI.HENTI) || [];
+  var ABAI = ["lebih", "dari", "bisa", "kenapa", "mengapa", "apa", "itu", "yang", "dan", "atau", "di", "ke", "arti", "artinya", "maksud", "pengertian", "definisi", "beda", "bedanya", "cara", "hitung", "menghitung", "membaca", "baca"];
+  function tokens(t) {
+    var luas = window.CARI && CARI.perluas ? CARI.perluas(t) : t;
+    return luas.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
+      .filter(function (w) { return w.length >= 2 && HENTI.indexOf(w) === -1 && ABAI.indexOf(w) === -1 && !/^\d+$/.test(w); })
+      .filter(function (w, i, a) { return a.indexOf(w) === i; });
+  }
+  function skor(g, toks) {
+    if (!toks.length) return 0;
+    var s = 0, ql = q.toLowerCase();
+    var singk = (g.singkat || "").toLowerCase().split(/[ \/]+/).filter(Boolean);
+    var kataIstilah = g.istilah.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/);
+    var teks = (g.definisi + " " + (g.baca || "") + " " + (g.keliru || "") + " " + (g.hitung || "")).toLowerCase();
+    toks.forEach(function (w) {
+      if (g.id === w || singk.indexOf(w) !== -1) s += 10;
+      if (g.kunci.indexOf(w) !== -1) s += 8;
+      if (kataIstilah.indexOf(w) !== -1) s += 5;
+      else if (g.kunci.some(function (k) { return k.indexOf(w) !== -1; })) s += 3;
+      else if (w.length >= 4 && teks.indexOf(w) !== -1) s += 1;
+    });
+    if (ql.length >= 4 && g.istilah.toLowerCase().indexOf(ql) !== -1) s += 6;
+    return s;
+  }
+  function cocok(g, toks) {
+    if (kel && g.kelompok !== kel) return false;
+    if (!q) return true;
+    return skor(g, toks) > 0;
+  }
+  function baris(l, v, kelas) { return v ? '<div class="gl__b' + (kelas ? " " + kelas : "") + '"><b>' + l + "</b><div>" + sorot(v) + "</div></div>" : ""; }
+  function gambar(bukaId) {
+    var toks = tokens(q);
+    var d = G.filter(function (g) { return cocok(g, toks); }).sort(function (a, b) { return skor(b, toks) - skor(a, toks); });
+    el("glJml").textContent = d.length ? d.length + " istilah" + (q ? " untuk “" + q + "”" : "") + (kel ? " · " + kel : "") : "";
+    el("glDaftar").innerHTML = d.length ? d.map(function (g, i) {
+      var buka = bukaId ? g.id === bukaId : (q && i === 0);
+      var aksi = [];
+      if (g.indikator) aksi.push('<a class="btn btn--sm" href="' + TAUT.indikator + (ANCHOR[KAT_IND[g.indikator]] || "#ringkasan") + '">Lihat angka Kukar →</a>');
+      if (g.katalog) aksi.push('<a class="btn btn--ghost btn--sm" href="index.html?q=' + encodeURIComponent(g.katalog) + '">Cari di katalog data →</a>');
+      aksi.push('<a class="btn btn--ghost btn--sm" href="index.html?tanya=' + encodeURIComponent("apa itu " + (g.singkat ? g.singkat.split(/[ \/]+/)[0] : g.istilah) + "?") + '">Tanya asisten →</a>');
+      aksi.push('<button type="button" class="btn btn--ghost btn--sm" data-salin="' + esc(g.id) + '">Salin tautan</button>');
+      return '<details class="gl" id="' + esc(g.id) + '"' + (buka ? " open" : "") + '><summary>' +
+        '<span class="gl__nama">' + sorot(g.istilah) + "</span>" + (g.singkat ? '<span class="gl__singkat">' + esc(g.singkat) + "</span>" : "") +
+        '<span class="gl__kel">' + esc(g.kelompok) + "</span></summary>" +
+        '<div class="gl__isi">' + baris("Definisi", g.definisi) + baris("Cara menghitung", g.hitung) + baris("Cara membaca", g.baca) +
+        baris("Sering keliru", g.keliru, "keliru") + baris("Sumber & rilis", g.sumber) +
+        '<div class="gl__aksi">' + aksi.join("") + "</div></div></details>";
+    }).join("") : '<div class="gl-kosong">Tidak ada istilah yang cocok. Coba kata lain, atau tanyakan ke asisten PST.</div>';
+  }
+  el("glKel").innerHTML = ['<button type="button" data-k="" aria-pressed="true">Semua</button>'].concat(KEL.map(function (k) {
+    return '<button type="button" data-k="' + esc(k) + '" aria-pressed="false">' + esc(k) + "</button>";
+  })).join("");
+  el("glKel").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-k]"); if (!b) return;
+    kel = b.dataset.k;
+    PST.qa("#glKel button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    gambar();
+  });
+  var jeda;
+  el("glCari").addEventListener("input", function () { clearTimeout(jeda); jeda = setTimeout(function () { q = el("glCari").value.trim(); gambar(); }, 120); });
+  el("glDaftar").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-salin]"); if (!b) return;
+    var u = location.origin + location.pathname + "#" + b.dataset.salin;
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { b.textContent = "Tersalin"; setTimeout(function () { b.textContent = "Salin tautan"; }, 1500); }, function () { prompt("Salin tautan ini:", u); });
+  });
+
+  var awalQ = new URLSearchParams(location.search).get("q");
+  if (awalQ) { q = awalQ; el("glCari").value = awalQ; }
+  var hash = (location.hash || "").replace("#", "");
+  gambar(hash || null);
+  if (hash) { var t = document.getElementById(hash); if (t) { t.open = true; setTimeout(function () { t.scrollIntoView({ block: "start" }); }, 50); } }
+  window.addEventListener("hashchange", function () { var h = (location.hash || "").replace("#", ""), t = document.getElementById(h); if (t) { t.open = true; t.scrollIntoView({ block: "start" }); } });
+})();
+</script>
+<script src="assets/chat.js"></script>
+</body>
+</html>

@@ -639,6 +639,138 @@ window.PST = (function () {
     return janjiIndikator;
   }
 
+  /* --------------------------------- pembaruan otomatis dari Web API BPS
+     Lihat supabase/perbaikan-04.sql. Di mode demo hanya tiruan supaya
+     tampilannya bisa dicoba; tidak ada panggilan API sungguhan. */
+  var VAR_DEMO = [
+    { domain:"6400", var_id:501, judul:"Indeks Pembangunan Manusia Menurut Kabupaten/Kota", satuan:"", subjek:"IPM" },
+    { domain:"6400", var_id:502, judul:"Persentase Penduduk Miskin Menurut Kabupaten/Kota", satuan:"Persen", subjek:"Kemiskinan" },
+    { domain:"6400", var_id:503, judul:"Jumlah Penduduk Menurut Kabupaten/Kota dan Jenis Kelamin (Ribu Jiwa)", satuan:"Ribu Jiwa", subjek:"Kependudukan" }
+  ];
+  function rpc(nama, arg) {
+    return sb.rpc(nama, arg || {}).then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); return r.data; });
+  }
+  function bpsStatus() {
+    if (DEMO) return Promise.resolve({ demo:true, kunci_terpasang: !!LS("bpsKey", ""), kunci_awal: LS("bpsKey","") ? LS("bpsKey","").slice(0,4) + "…" : null,
+      domain_prov:"6400", domain_kab:"6403", vervar_kukar:"6403", sinkron_aktif: LS("bpsAktif", true), sinkron_terakhir: LS("bpsTerakhir", null), http_tersedia:true, cron_tersedia:true });
+    return rpc("bps_status");
+  }
+  function aturPengaturan(kunci, nilai) {
+    if (DEMO) { if (kunci === "bps_api_key") SV("bpsKey", nilai); if (kunci === "bps_sinkron_aktif") SV("bpsAktif", nilai === "true"); return Promise.resolve(); }
+    return rpc("atur_pengaturan", { p_kunci: kunci, p_nilai: nilai });
+  }
+  function bpsUjiKunci() {
+    if (DEMO) return LS("bpsKey","") ? Promise.resolve({ ok:true, halaman:{ total: VAR_DEMO.length } }) : Promise.reject(new Error("Kunci belum diisi (mode demo: isi apa saja)."));
+    return rpc("bps_uji_kunci");
+  }
+  /* memuat daftar variabel beberapa halaman per panggilan (batas ±8 detik per RPC) */
+  function bpsMuatVar(domain, lapor) {
+    if (DEMO) { SV("bpsVar", VAR_DEMO); return Promise.resolve(VAR_DEMO.length); }
+    var total = 0;
+    var langkah = function (mulai) {
+      return rpc("bps_muat_var", { p_domain: domain, p_mulai: mulai, p_jumlah: 4 }).then(function (r) {
+        total = r.jumlah_cache || (total + (r.dimuat || 0));
+        if (lapor) lapor(Math.min(mulai + 3, r.total_halaman || mulai), r.total_halaman || 1, total);
+        return r.halaman_berikut ? langkah(r.halaman_berikut) : total;
+      });
+    };
+    return langkah(1);
+  }
+  function daftarVarBps(domain, kata) {
+    kata = (kata || "").trim().toLowerCase();
+    if (DEMO) return Promise.resolve(LS("bpsVar", []).filter(function (v) { return v.domain === domain && (!kata || (v.judul || "").toLowerCase().indexOf(kata) !== -1); }));
+    var qy = sb.from("bps_var_cache").select("*").eq("domain", domain).order("var_id").limit(60);
+    if (kata) qy = qy.ilike("judul", "%" + kata + "%");
+    return qy.then(function (r) { if (r.error) throw new Error(r.error.message); return r.data || []; });
+  }
+  function bpsPratinjau(domain, varId, vervar, turvar, turtahun) {
+    if (DEMO) return Promise.resolve({ var:{ val:varId, label:"Contoh variabel " + varId }, labelvervar:"Kabupaten/Kota",
+      vervar:[{val:6403,label:"Kutai Kartanegara"},{val:6472,label:"Samarinda"}], turvar:[{val:0,label:"Tidak ada"}], turtahun:[{val:0,label:"Tahunan"}],
+      tahun:[{val:123,label:"2023"},{val:124,label:"2024"},{val:125,label:"2025"}], deret:{ "2023": 75.95, "2024": 76.57, "2025": 77.25 },
+      per_wilayah:{ tahun:"2025", wilayah:{ "6403":{ nilai:77.25, tahun:"2025", label:"Kutai Kartanegara" }, "6472":{ nilai:81.4, tahun:"2025", label:"Samarinda" } } } });
+    return rpc("bps_pratinjau", { p_domain: domain, p_var: varId, p_vervar: vervar || null, p_turvar: turvar || null, p_turtahun: turtahun || null });
+  }
+  function daftarSumberApi() {
+    if (DEMO) return Promise.resolve(LS("sumberApi", []));
+    return sb.from("sumber_api").select("*").order("id").then(function (r) { if (r.error) throw new Error(r.error.message); return r.data || []; });
+  }
+  function simpanSumberApi(row) {
+    if (DEMO) {
+      var arr = LS("sumberApi", []), i = arr.findIndex(function (x) { return x.id === row.id; });
+      if (i >= 0) arr[i] = Object.assign({}, arr[i], row); else arr.push(Object.assign({ id: Date.now() % 100000, dibuat: new Date().toISOString() }, row));
+      SV("sumberApi", arr); return Promise.resolve();
+    }
+    var q2 = row.id ? sb.from("sumber_api").update(row).eq("id", row.id) : sb.from("sumber_api").insert(row);
+    return q2.then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); });
+  }
+  function hapusSumberApi(id) {
+    if (DEMO) { SV("sumberApi", LS("sumberApi", []).filter(function (x) { return x.id !== id; })); return Promise.resolve(); }
+    return sb.from("sumber_api").delete().eq("id", id).then(function (r) { if (r.error) throw new Error(r.error.message); });
+  }
+  /* tarik satu pemetaan atau semua (berurutan, satu HTTP per panggilan), lalu terbitkan */
+  function bpsTarik(id, lapor) {
+    if (DEMO) {
+      var n = LS("sumberApi", []).filter(function (x) { return x.aktif !== false && (!id || x.id === id); }).length;
+      SV("bpsTerakhir", new Date().toISOString());
+      var log = LS("sinkronLog", []); log.unshift({ id: Date.now(), waktu: new Date().toISOString(), status: "sama", target: id ? "satu pemetaan" : "semua", pesan: "Mode demo: tidak ada API sungguhan; " + n + " pemetaan diperiksa" });
+      SV("sinkronLog", log.slice(0, 60));
+      return Promise.resolve({ berubah: 0, sama: n, gagal: 0, terbit: false, demo: true });
+    }
+    var hasil = { berubah: 0, sama: 0, gagal: 0, terbit: false, versi: null, gagalRinci: [] };
+    var daftar = id ? Promise.resolve([{ id: id }]) : daftarSumberApi().then(function (r) { return r.filter(function (x) { return x.aktif !== false; }); });
+    return daftar.then(function (arr) {
+      var i = 0;
+      var satu = function () {
+        if (i >= arr.length) return Promise.resolve();
+        var x = arr[i++];
+        if (lapor) lapor(i, arr.length);
+        return rpc("bps_tarik_satu", { p_id: x.id }).then(function (r) {
+          if (r.status === "berubah") hasil.berubah++; else if (r.status === "gagal") { hasil.gagal++; hasil.gagalRinci.push(r.target + ": " + r.pesan); } else hasil.sama++;
+        }).then(satu);
+      };
+      return satu();
+    }).then(function () { return rpc("bps_terbitkan"); }).then(function (t) {
+      hasil.terbit = !!t.terbit; hasil.versi = t.versi || null; hasil.dilewati = false;
+      return hasil;
+    });
+  }
+  function logSinkron() {
+    if (DEMO) return Promise.resolve(LS("sinkronLog", []));
+    return sb.from("v_sinkron_log").select("*").limit(60).then(function (r) { if (r.error) throw new Error(r.error.message); return r.data || []; });
+  }
+
+  /* --------------------------------------------------- terbitan & agenda */
+  /* Daftar terbitan (BRS, publikasi, infografis, berita) + agenda rilis untuk beranda.
+     Mode demo: localStorage "terbitan", dibenihi dari window.TERBITAN_AWAL bila kosong. */
+  function terbitanDemo() {
+    var arr = LS("terbitan", null);
+    if (!arr) { arr = (window.TERBITAN_AWAL || []).map(function (t, i) { return Object.assign({ id: i + 1, sumber: "manual", aktif: true, dibuat: new Date().toISOString() }, t); }); SV("terbitan", arr); }
+    return arr;
+  }
+  function daftarTerbitan() {
+    if (DEMO) return Promise.resolve(terbitanDemo().slice().sort(function (a, b) { return String(b.tanggal).localeCompare(String(a.tanggal)) || b.id - a.id; }));
+    return sb.from("terbitan").select("*").order("tanggal", { ascending: false }).order("id", { ascending: false }).limit(300)
+      .then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); return r.data || []; });
+  }
+  function simpanTerbitan(row) {
+    if (DEMO) {
+      var arr = terbitanDemo(), i = arr.findIndex(function (x) { return x.id === row.id; });
+      if (i >= 0) arr[i] = Object.assign({}, arr[i], row, { diubah: new Date().toISOString() });
+      else arr.push(Object.assign({ id: Date.now() % 1000000, sumber: "manual", aktif: true, dibuat: new Date().toISOString() }, row));
+      SV("terbitan", arr); return Promise.resolve();
+    }
+    var q2 = row.id ? sb.from("terbitan").update(row).eq("id", row.id) : sb.from("terbitan").insert(row);
+    return q2.then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); });
+  }
+  function hapusTerbitan(id) {
+    if (DEMO) { SV("terbitan", terbitanDemo().filter(function (x) { return x.id !== id; })); return Promise.resolve(); }
+    return sb.from("terbitan").delete().eq("id", id).then(function (r) { if (r.error) throw new Error(terjemah(r.error.message)); });
+  }
+  function tarikTerbitan() {
+    if (DEMO) return Promise.resolve({ baru: 0, sama: terbitanDemo().length, gagal: 0, demo: true });
+    return rpc("bps_tarik_terbitan");
+  }
+
   /* ---------------------------------------------------------------- navigasi */
   function nav(aktif, s) {
     var kanan = "";
@@ -651,6 +783,7 @@ window.PST = (function () {
        jadi menu ini hanya memuat halaman situs katalog sendiri. */
     var t = [
       ["index.html",     "Katalog Data"],
+      ["glosarium.html", "Glosarium"],
       ["konsultasi.html","Konsultasi Daring"],
       ["sahabat.html",   "Sahabat Data"],
       ["admin.html",     "Ruang Pegawai"]
@@ -701,6 +834,10 @@ window.PST = (function () {
     tglWita:tglWita, tambahHari:tambahHari, hariKerja:hariKerja,
     muatIndikator:muatIndikator, simpanIndikator:simpanIndikator, riwayatIndikator:riwayatIndikator,
     bacaRiwayatIndikator:bacaRiwayatIndikator, muatIndikatorAwal:muatIndikatorAwal, indikatorSiap:indikatorSiap,
+    bpsStatus:bpsStatus, aturPengaturan:aturPengaturan, bpsUjiKunci:bpsUjiKunci, bpsMuatVar:bpsMuatVar, daftarVarBps:daftarVarBps,
+    bpsPratinjau:bpsPratinjau, daftarSumberApi:daftarSumberApi, simpanSumberApi:simpanSumberApi, hapusSumberApi:hapusSumberApi,
+    bpsTarik:bpsTarik, logSinkron:logSinkron,
+    daftarTerbitan:daftarTerbitan, simpanTerbitan:simpanTerbitan, hapusTerbitan:hapusTerbitan, tarikTerbitan:tarikTerbitan,
     TAUTAN:TAUTAN_PINTAR,
     nav:nav, pasangKeluar:pasangKeluar, spandukDemo:spandukDemo
   };

@@ -148,6 +148,9 @@ Setiap kali ada berkas baru di repositori, ada dua hal yang mungkin perlu diperb
 | Perbaikan 02 — chatbot, konsultasi daring (Zoom), notifikasi WhatsApp, profil pegawai | semua `.html`, `assets/*` | jalankan `supabase/perbaikan-02.sql` sekali, lalu ikuti bagian *Konsultasi daring* dan *Notifikasi WhatsApp* di bawah |
 | Tampilan portal PST — bilah putih berlogo, hero biru dengan pencarian, kartu layanan, huruf Poppins | semua `.html`, `assets/theme.css`, `assets/app.js`, `assets/admin.js` | tidak ada |
 | Pembaruan 03 — PINTAR Kukar: bilah bersama + tema gelap, tab Indikator di ruang pegawai, asisten menjawab angka, konsultasi H+1 | semua `.html`, `assets/*` (baru: `pintar.js`, `indikator-admin.js`) — **plus** repositori indikator dan repositori beranda `bpskukar.github.io` | jalankan `supabase/perbaikan-03.sql` sekali, lalu ikuti bagian *PINTAR Kukar* di bawah |
+| Pembaruan 04 — angka indikator ditarik otomatis dari Web API BPS (jadwal harian), panel *Sumber otomatis* di tab Indikator | `admin.html`, `assets/app.js`, `assets/indikator-admin.js`, `assets/sumber-otomatis.js` — **plus** `assets/app.js` & `assets/data.js` repositori indikator | jalankan `supabase/perbaikan-04.sql`, aktifkan ekstensi **http**, lalu ikuti bagian *Pembaruan otomatis dari Web API BPS* |
+| Pembaruan 05 — pencarian mengenali singkatan huruf kecil, satu tanda PINTAR di semua tempat, konsultasi 30 menit & paling banyak dua topik | `konsultasi.html`, `assets/*.js`, `assets/og-katalog.png` — **plus** repositori indikator & beranda | jalankan `supabase/perbaikan-05.sql` |
+| Pembaruan 06 — alasan untuk kembali: Angka hari ini & kartu bagikan, Terbit baru + agenda rilis, Glosarium, Bandingkan kab/kota se-Kaltim, pasang sebagai aplikasi (PWA) | `glosarium.html`, `admin.html`, `assets/*` (baru: `glosarium.js`, `terbitan-awal.js`, `terbitan-admin.js`) — **plus** repositori indikator (`kartu.js`, bagian Bandingkan) & beranda (`manifest.webmanifest`, `sw.js`, `luring.html`, `assets/ikon/`) | jalankan `supabase/perbaikan-06.sql`, lalu ikuti bagian *Terbit baru & agenda* di bawah |
 
 Cara menjalankan skrip pembaruan basis data: buka SQL Editor → New query → tempel seluruh
 isi berkasnya → Run. Semua skrip pembaruan aman dijalankan ulang dan tidak menghapus data.
@@ -313,6 +316,86 @@ salin ke ketiga repositori), tag `<script src="/katalog-data-bpskukar/assets/con
 situs indikator dan beranda, serta nilai `indikator_url`/`pintu_url`/`situs_url` di tabel
 `pengaturan`.
 
+## Pembaruan otomatis dari Web API BPS (pembaruan 04)
+
+Angka di situs Indikator Strategis bisa ditarik langsung dari **tabel dinamis Web API BPS**
+sehingga pegawai tidak perlu mengetik ulang setiap rilis. Pembagiannya:
+
+| Otomatis (dari API, tiap hari 02.00 WITA) | Tetap manual (Penyunting isi) |
+|---|---|
+| Angka kartu indikator + tahun pada keterangannya (mis. "IPM · Tahun 2026") | Catatan singkat, label kecil ("Turun dari 7,28%"), ikon, warna |
+| Deret grafik tahunan: kemiskinan (P0/P1/P2/garis), IPM, PDRB tahunan (ADHB/ADHK/LPE) | Judul & keterangan grafik, PDRB triwulanan |
+| Kartogram Kaltim: angka kemiskinan dan penduduk per kabupaten/kota | Sorotan (kotak berwarna), narasi, rekomendasi, pengantar, sumber |
+
+Setiap penarikan yang menemukan angka baru menerbitkan **versi baru** dengan catatan
+"Otomatis: Web API BPS …" — tercatat di *Riwayat versi* (bisa dipulihkan) dan di *Log sinkron*.
+Angka yang dipetakan ke API selalu mengikuti API: bila pegawai mengubahnya manual, penarikan
+berikutnya mengembalikannya (ubah pemetaannya, atau matikan pemetaan itu, bila memang ingin manual).
+
+Pemasangan:
+
+1. **Kunci API** — daftar gratis di <https://webapi.bps.go.id/developer/> dengan surel kantor,
+   klik tautan aktivasi yang dikirim ke surel, masuk, lalu **Profil → Aplikasi → Tambah aplikasi**
+   (nama: *PINTAR Kukar*, URL: `https://bpskukar.github.io`) → **Generate Key**. Kuncinya adalah
+   deretan huruf-angka di kolom **App ID** pada daftar aplikasi. Satu kunci untuk satu kantor.
+2. **Ekstensi http** — Supabase Dashboard → **Database → Extensions** → cari `http` → aktifkan
+   (schema `extensions`). Ini yang memungkinkan basis data memanggil API BPS langsung.
+   Pastikan **pg_cron** juga aktif (sudah dipakai pengingat harian).
+3. **SQL** — SQL Editor → New query → tempel seluruh `supabase/perbaikan-04.sql` → Run.
+4. **Ruang Pegawai → Indikator → Sumber otomatis (Web API BPS)** — sebagai admin: tempel kunci →
+   *Simpan kunci* → *Uji kunci* (harus menyebut jumlah variabel). Bagian *Sambungan* harus
+   menunjukkan http aktif dan jadwal aktif.
+5. **Muat daftar variabel** untuk domain **6400 (Provinsi Kaltim)** — tabel provinsi memuat
+   angka per kabupaten/kota, sehingga Kukar tinggal dipilih. Butuh ½–2 menit (dimuat per
+   4 halaman). Lakukan juga untuk 6403 bila ingin memakai tabel milik BPS Kukar.
+6. **Petakan** — ketik kata kunci (mis. `pembangunan manusia`), tekan *Pakai* pada variabel yang
+   tepat, pilih *Bagian isi situs* (mis. *Kartu · Indeks Pembangunan Manusia* atau *Deret IPM ·
+   nilai*), tekan **Pratinjau angka**: periksa deret Kukar-nya, pilih turunan bila tabel punya
+   jenis kelamin/total, cocokkan satuan (isi *pengali* 1000 bila API dalam ribu dan situs dalam
+   jiwa). **Simpan pemetaan**. Satu variabel boleh dipakai dua pemetaan (kartu dan deret).
+7. **Tarik sekarang (semua)** — penarikan pertama menerbitkan versi baru; buka situs indikator
+   dan bandingkan. Setelah itu jadwal harian bekerja sendiri.
+
+Bila tabel BPS menambah tahun baru, deret di grafik otomatis bertambah kolomnya (seri lain yang
+belum ada angkanya dibiarkan kosong sampai pemetaannya juga ditarik). Bila suatu pemetaan gagal
+(misalnya variabel dipindah BPS), status *gagal* muncul di log dan pemetaan lain tetap jalan.
+
+Keamanan: kunci API hanya tersimpan di tabel `pengaturan` (tidak terbaca publik) dan hanya dipakai
+dari dalam basis data; peramban tidak pernah memegangnya. Kunci, jadwal, dan domain hanya bisa diubah
+admin; pemetaan bisa diatur semua pegawai aktif.
+
+## Alasan untuk kembali (pembaruan 06)
+
+Beranda PINTAR kini punya isi yang berubah dari hari ke hari, dan tiap situs punya alat yang
+membuat orang kembali:
+
+| Fitur | Di mana | Yang perlu dilakukan kantor |
+|---|---|---|
+| **Angka hari ini** — satu fakta berganti tiap hari dari isi indikator terbit, tombol WhatsApp & unduh kartu | Beranda | Tidak ada; ikut berubah bila angka indikator diperbarui |
+| **Kartu angka siap bagikan** — PNG 1080×1080 dengan deret & sumber BPS | Situs indikator (tombol *Bagikan kartu* di tiap kartu), beranda | Tidak ada |
+| **Terbit baru & agenda rilis** | Beranda; dikelola di Ruang Pegawai → *Terbitan & agenda* | Jalankan `perbaikan-06.sql`; isi agenda; bila Web API aktif (pembaruan 04), BRS/publikasi/infografis ditarik otomatis tiap malam |
+| **Glosarium & cara membaca angka** — 37 istilah, asisten PST menjawab "apa itu…", "apa bedanya…" | `glosarium.html`; tautan *Apa ini?* di tiap kartu indikator | Tambah/ubah istilah di `assets/glosarium.js`, unggah ulang |
+| **Bandingkan kab/kota se-Kaltim** — IPM & komponennya, kemiskinan, penduduk 2025 per kabupaten/kota | Situs indikator, bagian *Bandingkan* | Angka per kab/kota disunting di tab Indikator → *Kabupaten/kota Kaltim*; tahun & angka provinsi di *Pembanding kab/kota*; bisa juga ditarik Web API (target *Kab/kota · …*) |
+| **Pasang sebagai aplikasi** — ikon di layar utama, sebagian bisa dibaca luring | Semua situs (tombol *Pasang* di bilah, spanduk di beranda) | Tidak ada; berkas `manifest.webmanifest`, `sw.js`, `luring.html`, `assets/ikon/` ada di repositori beranda |
+
+### Terbit baru & agenda
+
+1. Jalankan `supabase/perbaikan-06.sql` (boleh sebelum atau sesudah perbaikan-04).
+2. Ruang Pegawai → **Terbitan & agenda**: tambah agenda rilis mendatang (jenis *Agenda*, tanggal,
+   judul, tautan). Agenda yang lewat tanggalnya otomatis hilang dari beranda.
+3. Bila kunci Web API terpasang, tombol **Tarik dari Web API** mengambil BRS, publikasi, infografis,
+   dan berita terbaru BPS Kukar (halaman pertama tiap jenis); jadwal harian 02.00 WITA mengulanginya.
+   Baris dari API hanya bisa disembunyikan atau diberi ringkasan.
+4. Beranda membaca `v_terbitan` langsung (tanpa masuk). Bila server tak terjangkau, dipakai salinan
+   terakhir di peramban, lalu `assets/terbitan-awal.js`.
+
+### Pasang sebagai aplikasi (PWA)
+
+Manifest dan service worker tinggal di repositori beranda (`bpskukar.github.io`) sehingga satu
+pemasangan mencakup ketiga situs. Setiap kali ada berkas situs yang berubah, naikkan nilai `VERSI`
+di `sw.js` (mis. `pintar-2026-10-01a`) agar salinan lama di perangkat pengunjung dibersihkan.
+Data Supabase tidak pernah disimpan service worker.
+
 ## Pemeliharaan
 
 | Kapan | Yang dilakukan |
@@ -323,6 +406,8 @@ situs indikator dan beranda, serta nilai `indikator_url`/`pintu_url`/`situs_url`
 | Tiap triwulan | Unduh rekap CSV dari tab Rekap, bandingkan dengan hasil SKD |
 | Ada pegawai pindah | Ubah `aktif` menjadi `false` di tabel `pegawai`, jangan dihapus |
 | Jawaban baku berubah | Ubah `assets/pengetahuan.js`, unggah ulang |
+| Istilah baru untuk glosarium | Tambah butir di `assets/glosarium.js`, unggah ulang |
+| Ada berkas situs yang diubah | Naikkan `VERSI` di `sw.js` (repositori beranda) |
 | Token gateway WA diganti | `update public.pengaturan set nilai = '…' where kunci = 'wa_token'` |
 
 ## Cadangan data

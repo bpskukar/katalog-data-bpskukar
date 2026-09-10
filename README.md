@@ -130,6 +130,19 @@ Yang mengikatnya:
 - **Satu sumber kunci**: situs indikator dan beranda membaca `assets/config.js` milik
   repositori ini lewat jalur `/katalog-data-bpskukar/assets/config.js`, jadi kunci Supabase
   cukup diisi di satu tempat.
+- **Angka diperbarui sendiri**: bagian yang dipetakan ke tabel dinamis **Web API BPS**
+  (angka kartu, deret grafik tahunan, kartogram) ditarik tiap hari pukul 02.00 WITA dari
+  dalam basis data dan diterbitkan otomatis bila ada rilis baru; narasi dan sorotan tetap
+  ditulis pegawai. Panel *Sumber otomatis* di tab Indikator mengatur pemetaannya.
+
+## Alasan untuk kembali (pembaruan 06)
+
+- **Angka hari ini** di beranda: satu fakta berganti tiap hari, dihitung dari isi indikator terbit; bisa dikirim ke WhatsApp atau diunduh sebagai kartu gambar.
+- **Kartu angka siap bagikan**: tiap indikator bisa diunduh sebagai PNG 1080×1080 berlogo PINTAR dengan deret dan sumber BPS.
+- **Terbit baru & agenda rilis** di beranda: BRS, publikasi, infografis BPS Kukar (ditarik Web API atau diisi pegawai) dan jadwal rilis mendatang.
+- **Glosarium & cara membaca angka** (`glosarium.html`): 37 istilah — definisi, cara menghitung, cara membaca, salah kaprah, sumber; asisten PST menjawab "apa itu IPM?", "apa bedanya ADHB dan ADHK?".
+- **Bandingkan kab/kota se-Kaltim** di situs indikator: peringkat Kukar untuk IPM & komponennya, kemiskinan, penduduk (2025, BPS Kaltim).
+- **Pasang sebagai aplikasi**: ikon di layar utama, terbuka cepat, halaman yang pernah dibuka tetap terbaca saat luring.
 
 ## Susunan berkas
 
@@ -138,14 +151,19 @@ index.html              katalog publik
 konsultasi.html         formulir konsultasi daring
 admin.html              ruang pegawai
 sahabat.html            portal konsumen data
+glosarium.html          glosarium & cara membaca angka
 assets/
   config.js             sambungan Supabase & klasifikasi baku BPS  ← satu-satunya yang perlu diisi
   pintar.js             bilah PINTAR Kukar + tema sinkron (identik di 3 repositori)
   indikator-admin.js    tab Indikator di ruang pegawai (penyunting isi situs indikator)
+  sumber-otomatis.js    panel Sumber otomatis: pemetaan ke variabel Web API BPS, tarik sekarang, log
   katalog.js            isi katalog: 89 ragam data + 20 kecamatan
   cari.js               mesin pencocokan (dipakai ruang pegawai & chatbot)
   pengetahuan.js        jawaban baku chatbot & kartu jawaban petugas
   chat.js               widget asisten PST
+  glosarium.js          37 istilah statistik (dipakai glosarium, asisten, pencarian beranda)
+  terbitan-awal.js      terbitan & agenda awal untuk beranda (cadangan bila server tak terjangkau)
+  terbitan-admin.js     tab Terbitan & agenda di ruang pegawai
   konsultasi.js         logika formulir konsultasi
   theme.css             sistem tampilan bersama
   app.js                lapisan data (Supabase, dengan cadangan mode demo)
@@ -155,6 +173,9 @@ supabase/schema.sql     tabel, tampilan, pemicu poin, keamanan baris (sudah memu
 supabase/perbaikan-01.sql  pembaruan 01 untuk proyek yang dibuat dengan schema.sql versi awal
 supabase/perbaikan-02.sql  pembaruan 02: konsultasi daring, notifikasi WhatsApp, profil pegawai
 supabase/perbaikan-03.sql  pembaruan 03: isi indikator strategis + riwayat versi, konsultasi H+1
+supabase/perbaikan-04.sql  pembaruan 04: penarikan otomatis dari Web API BPS (http, pg_cron)
+supabase/perbaikan-05.sql  pembaruan 05: konsultasi 30 menit
+supabase/perbaikan-06.sql  pembaruan 06: tabel terbitan & agenda, penarikan BRS/publikasi dari Web API
 PANDUAN-PASANG.md       cara memasang, menguji, dan memelihara
 IDE-PENGEMBANGAN.md     usulan pengembangan lanjutan
 ```

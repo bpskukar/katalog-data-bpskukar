@@ -60,8 +60,14 @@
     { id: "generasi", nama: "Komposisi generasi", jenis: "tabel", kolom: [["nama", "Generasi", "text"], ["nilai", "Persen", "number"], ["ket", "Keterangan", "text"], ["warna", "Warna", "color"]] },
     { id: "demografiStat", nama: "Angka demografi", jenis: "tabel", kolom: [["label", "Keterangan", "text"], ["value", "Nilai (teks)", "text"]] },
     { id: "wilayah", nama: "Kabupaten/kota Kaltim", jenis: "tabel", ket: "Kartogram. Baris/kolom = posisi kotak (1–5 / 1–3). Centang “Kukar” pada Kutai Kartanegara.",
-      kolom: [["nama", "Nama", "text"], ["kode", "Kode", "text"], ["laki", "Laki-laki (ribu)", "number"], ["perempuan", "Perempuan (ribu)", "number"],
-              ["miskin", "Miskin (%)", "number"], ["row", "Baris", "number"], ["col", "Kolom", "number"], ["home", "Kukar", "bool"]] },
+      kolom: [["nama", "Nama", "text"], ["kode", "Kode", "text"], ["bps", "Kode BPS", "text"], ["laki", "Laki-laki (ribu)", "number"], ["perempuan", "Perempuan (ribu)", "number"],
+              ["miskin", "Miskin (%)", "number"], ["ipm", "IPM", "number?"], ["uhh", "UHH (th)", "number?"], ["hls", "HLS (th)", "number?"], ["rls", "RLS (th)", "number?"], ["ppp", "Pengeluaran/kapita (ribu Rp)", "number?"],
+              ["tpt", "TPT (%)", "number?"], ["lpe", "LPE (%)", "number?"], ["pdrbKapita", "PDRB/kapita (juta Rp)", "number?"], ["gini", "Gini", "number?"],
+              ["row", "Baris", "number"], ["col", "Kolom", "number"], ["home", "Kukar", "bool"]] },
+    { id: "banding", nama: "Pembanding kab/kota", jenis: "formulir", ket: "Bagian “Bandingkan”: tahun tiap angka dan angka Provinsi Kaltim sebagai pembanding. Angka per kabupaten/kota diisi di “Kabupaten/kota Kaltim”. Kosongkan yang belum ada — indikator tanpa angka tidak ditampilkan.",
+      kolom: [["tahunIpm", "Tahun IPM & komponen", "text"], ["tahunMiskin", "Tahun kemiskinan", "text"], ["tahunPenduduk", "Tahun penduduk", "text"], ["tahunTpt", "Tahun TPT", "text"], ["tahunLpe", "Tahun LPE", "text"], ["tahunPdrbKapita", "Tahun PDRB/kapita", "text"], ["tahunGini", "Tahun Gini", "text"],
+              ["provIpm", "Kaltim: IPM", "number?"], ["provUhh", "Kaltim: UHH", "number?"], ["provHls", "Kaltim: HLS", "number?"], ["provRls", "Kaltim: RLS", "number?"], ["provPpp", "Kaltim: pengeluaran/kapita", "number?"], ["provMiskin", "Kaltim: miskin (%)", "number?"],
+              ["provTpt", "Kaltim: TPT (%)", "number?"], ["provLpe", "Kaltim: LPE (%)", "number?"], ["provPdrbKapita", "Kaltim: PDRB/kapita", "number?"], ["provGini", "Kaltim: Gini", "number?"], ["sumber", "Sumber (kalimat)", "textarea"]] },
     { grup: "Teks & narasi" },
     { id: "teks.hero", nama: "Judul & pembuka", jenis: "formulir", ket: "Teks paling atas. **dua bintang** = huruf tebal (di judul menjadi warna oranye).",
       kolom: [["judul", "Judul utama", "text"], ["lede", "Kalimat pembuka", "textarea"], ["mini", "Empat angka di panel kanan (ID indikator, pisahkan koma)", "daftar"]] },
@@ -95,10 +101,12 @@
         'Tekan <b>Muat dari berkas awal</b>, periksa, lalu <b>Simpan &amp; terbitkan</b>.</div>';
       return;
     }
+    var meta = (KERJA && KERJA.meta) || {};
     s.innerHTML = '<div class="msg msg--info" style="margin:0"><b>Versi ' + esc(INFO.versi) + '</b> terbit' +
       (INFO.diubah_pada ? " · " + esc(PST.tgl(INFO.diubah_pada, true)) : "") +
-      (INFO.nama_pengubah ? " · " + esc(INFO.nama_pengubah) : "") +
-      (INFO.catatan ? '<br><span style="font-size:12px">“' + esc(INFO.catatan) + "”</span>" : "") + "</div>";
+      (INFO.nama_pengubah ? " · " + esc(INFO.nama_pengubah) : (INFO.catatan && /^Otomatis/.test(INFO.catatan) ? " · sistem" : "")) +
+      (INFO.catatan ? '<br><span style="font-size:12px">“' + esc(INFO.catatan) + "”</span>" : "") +
+      (meta.sinkron_terakhir ? '<br><span style="font-size:12px">Web API BPS terakhir: ' + esc(PST.tgl(meta.sinkron_terakhir, true)) + "</span>" : "") + "</div>";
   }
 
   function gambarNav() {
@@ -122,6 +130,31 @@
     if (b.jenis === "peta")     w.innerHTML = kepala + editorPeta(b);
     if (b.jenis === "pasangan") w.innerHTML = kepala + editorPasangan(b);
     pasangKendali(w);
+    tandaiOtomatis(SUMBER_API);
+  }
+  /* lencana "API" di baris kartu/deret yang diisi otomatis dari Web API BPS */
+  var SUMBER_API = [];
+  function tandaiOtomatis(daftar) {
+    SUMBER_API = daftar || SUMBER_API;
+    if (!BAGIAN_AKTIF) return;
+    PST.qa(".ind-api", el("indEditor")).forEach(function (n) { n.remove(); });
+    var aktif = SUMBER_API.filter(function (x) { return x.aktif !== false; }).map(function (x) { return x.target; });
+    if (BAGIAN_AKTIF.id === "indikator") {
+      PST.qa("input[data-j$='.id']", el("indEditor")).forEach(function (inp) {
+        if (aktif.indexOf("kartu:" + inp.value) !== -1) inp.insertAdjacentHTML("afterend", '<span class="ind-api" title="Nilai diisi otomatis dari Web API BPS">API</span>');
+      });
+    } else {
+      var seri = aktif.filter(function (t) { return t.indexOf("deret:" + BAGIAN_AKTIF.id + ":") === 0; }).map(function (t) { return t.split(":")[2]; });
+      if (seri.length) PST.qa(".ind-tbl thead th", el("indEditor")).forEach(function (th) {
+        var b = BAGIAN_AKTIF.seri && BAGIAN_AKTIF.seri.filter(function (s) { return s[1] === th.textContent; })[0];
+        if (b && seri.indexOf(b[0]) !== -1) th.insertAdjacentHTML("beforeend", '<span class="ind-api" title="Deret diisi otomatis dari Web API BPS">API</span>');
+      });
+      if (BAGIAN_AKTIF.id === "wilayah" && aktif.some(function (t) { return t.indexOf("wilayah:") === 0; }))
+        PST.qa(".ind-tbl thead th", el("indEditor")).forEach(function (th) {
+          var kolom = { "Miskin (%)": "miskin", "Laki-laki (ribu)": "laki", "Perempuan (ribu)": "perempuan" }[th.textContent];
+          if (kolom && aktif.indexOf("wilayah:" + kolom) !== -1) th.insertAdjacentHTML("beforeend", '<span class="ind-api">API</span>');
+        });
+    }
   }
   function md(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
 
@@ -138,7 +171,7 @@
     }
     if (tipe === "bool") return '<input type="checkbox" class="ind-in"' + a + (nilai ? " checked" : "") + ">";
     if (tipe === "color") return '<span class="ind-warna"><input type="color" class="ind-in"' + a + ' value="' + esc(/^#[0-9a-fA-F]{6}$/.test(nilai || "") ? nilai : "#ED7014") + '"><code>' + esc(nilai || "") + "</code></span>";
-    if (tipe === "number") return '<input type="text" inputmode="decimal" class="ind-in ind-in--angka"' + a + ' value="' + esc(nilai == null ? "" : nilai) + '">';
+    if (tipe === "number" || tipe === "number?") return '<input type="text" inputmode="decimal" class="ind-in ind-in--angka"' + a + ' value="' + esc(nilai == null ? "" : nilai) + '"' + (tipe === "number?" ? ' placeholder="–"' : "") + '>';
     if (tipe === "daftar") return '<input type="text" class="ind-in"' + a + ' value="' + esc(Array.isArray(nilai) ? nilai.join(", ") : (nilai || "")) + '">';
     return '<input type="text" class="ind-in"' + a + ' value="' + esc(nilai == null ? "" : nilai) + '">';
   }
@@ -228,6 +261,7 @@
         var t = inp.dataset.t, v;
         if (t === "bool") v = inp.checked;
         else if (t === "number") v = inp.value.trim() === "" ? 0 : angka(inp.value);
+        else if (t === "number?") v = inp.value.trim() === "" ? null : angka(inp.value);   /* kosong = tidak ada data */
         else if (t === "daftar") v = inp.value.split(",").map(function (x) { return x.trim(); }).filter(Boolean);
         else v = inp.value;
         if (t === "color") { var c = inp.parentNode.querySelector("code"); if (c) c.textContent = v; }
@@ -261,7 +295,7 @@
         if (b.jenis === "deret") { var o = ambil(KERJA, b.id); o.label.push(""); b.seri.forEach(function (s) { o[s[0]].push(0); }); }
         else if (b.jenis === "pasangan") ambil(KERJA, b.id).push(["", ""]);
         else {
-          var baru = {}; b.kolom.forEach(function (k) { baru[k[0]] = k[2] === "number" ? 0 : k[2] === "bool" ? false : k[2] === "pasangan" ? [] : k[2] === "color" ? "#ED7014" : ""; });
+          var baru = {}; b.kolom.forEach(function (k) { baru[k[0]] = k[2] === "number" ? 0 : k[2] === "number?" ? null : k[2] === "bool" ? false : k[2] === "pasangan" ? [] : k[2] === "color" ? "#ED7014" : ""; });
           ambil(KERJA, b.id).push(baru);
         }
         tandaiKotor(true); bukaBagian(b.id);
@@ -308,6 +342,7 @@
     if (!BAGIAN_AKTIF) BAGIAN_AKTIF = BAGIAN.filter(function (b) { return b.id; })[0];
     bukaBagian(BAGIAN_AKTIF.id);
     tandaiKotor(sumber !== "server");
+    if (!SUMBER_API.length && PST.daftarSumberApi) PST.daftarSumberApi().then(function (r) { tandaiOtomatis(r); }).catch(function () {});
   }
 
   function muat() {
@@ -395,10 +430,25 @@
   }
 
   /* -------------------------------------------------------------- pasang */
+  function pasangSub() {
+    PST.qa(".ind-sub button").forEach(function (b) {
+      b.onclick = function () {
+        PST.qa(".ind-sub button").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); });
+        el("subPenyunting").hidden = b.dataset.sub !== "penyunting";
+        el("subOtomatis").hidden = b.dataset.sub !== "otomatis";
+        if (b.dataset.sub === "otomatis" && window.SUMBER_OTOMATIS) PST.sesi().then(function (s) { window.SUMBER_OTOMATIS.mulai(KERJA, s); });
+      };
+    });
+  }
+  function muatUlang() {
+    if (KOTOR && !confirm("Ada perubahan belum disimpan di penyunting. Muat ulang isi terbaru dari server dan buang perubahan itu?")) return;
+    muat();
+  }
+
   function mulai() {
     if (el("indNav").dataset.siap) return;
     el("indNav").dataset.siap = "1";
-    gambarNav();
+    gambarNav(); pasangSub();
     el("indSimpan").onclick = simpan;
     el("indPratinjau").onclick = function () { if (KERJA) pratinjau(); };
     el("indRiwayatBtn").onclick = gambarRiwayat;
@@ -417,5 +467,5 @@
     muat();
   }
 
-  window.INDIKATOR_ADMIN = { mulai: mulai };
+  window.INDIKATOR_ADMIN = { mulai: mulai, muatUlang: muatUlang, tandaiOtomatis: tandaiOtomatis };
 })();

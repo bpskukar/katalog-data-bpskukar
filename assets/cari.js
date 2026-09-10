@@ -53,17 +53,53 @@ window.CARI = (function () {
   /* toleransi salah ketik ringan: huruf ganda yang hilang (penganguran → pengangguran) */
   function ringkas(w) { return w.replace(/([a-z])\1/g, "$1"); }
 
+  /* Singkatan yang dikenal beserta kepanjangannya. Orang mengetik "ipm" sama
+     seringnya dengan "IPM", jadi singkatan dikenali tanpa memandang huruf besar-
+     kecil, dan kepanjangannya ikut dicari (uhh → umur harapan hidup). */
+  var ALIAS = {
+    ipm: "indeks pembangunan manusia", ipg: "indeks pembangunan gender", ikg: "indeks ketimpangan gender", idg: "indeks pemberdayaan gender",
+    pdrb: "produk domestik regional bruto", adhb: "atas dasar harga berlaku", adhk: "atas dasar harga konstan",
+    lpe: "laju pertumbuhan ekonomi", lpp: "laju pertumbuhan penduduk", tpt: "tingkat pengangguran terbuka", tpak: "tingkat partisipasi angkatan kerja",
+    uhh: "umur harapan hidup", ahh: "angka harapan hidup", hls: "harapan lama sekolah", rls: "rata-rata lama sekolah", ppp: "pengeluaran per kapita disesuaikan",
+    ihk: "indeks harga konsumen", ntp: "nilai tukar petani", gini: "gini ratio ketimpangan pendapatan", ikk: "indeks kemahalan konstruksi",
+    p0: "persentase penduduk miskin", p1: "indeks kedalaman kemiskinan", p2: "indeks keparahan kemiskinan", gk: "garis kemiskinan",
+    brs: "berita resmi statistik",
+    sp: "sensus penduduk", sp2020: "sensus penduduk", se: "sensus ekonomi", st: "sensus pertanian", st2023: "sensus pertanian",
+    susenas: "survei sosial ekonomi nasional", sakernas: "survei angkatan kerja nasional", podes: "potensi desa", umk: "upah minimum", umr: "upah minimum",
+    sdgs: "pembangunan berkelanjutan", tpb: "pembangunan berkelanjutan", ipd: "indeks pembangunan desa", idm: "indeks desa membangun",
+    lf: "long form", ihpb: "indeks harga perdagangan besar", pst: "pelayanan statistik terpadu"
+  };
+  var SINGKATAN = (function () {
+    var s = {};
+    Object.keys(ALIAS).forEach(function (k) { s[k] = 1; });
+    K.DATA.forEach(function (d) {
+      ((d.n + " " + d.t + " " + d.sm + " " + d.d + " " + (d.mn || "")).match(/\b(?:[A-Z]{2,6}[0-9]?|[A-Z][0-9])\b/g) || [])
+        .forEach(function (w) { s[w.toLowerCase()] = 1; });
+    });
+    return s;
+  })();
+  /* singkatan dalam teks, huruf besar atau kecil, sudah dikecilkan: "ipm", "p0" */
+  function singkatan(teks) {
+    var s = {};
+    (teks.match(/\b(?:[A-Z]{2,6}[0-9]?|[A-Z][0-9])\b/g) || []).forEach(function (w) { s[w.toLowerCase()] = 1; });
+    teks.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).forEach(function (w) { if (SINGKATAN[w]) s[w] = 1; });
+    return Object.keys(s);
+  }
+  /* teks + kepanjangan singkatan yang dikenali */
+  function perluas(teks) {
+    var tambah = singkatan(teks).map(function (w) { return ALIAS[w] || ""; }).filter(Boolean);
+    return tambah.length ? teks + " " + tambah.join(" ") : teks;
+  }
+
   function cocokkan(teks, n) { return cocokkanSkor(teks, n).map(function (x) { return x.d; }); }
 
   /* seperti cocokkan, tetapi mengembalikan skornya juga: [{d, skor}] */
   function cocokkanSkor(teks, n) {
-    /* Singkatan diambil sebelum huruf dikecilkan: IPM, PDRB, TPT, P0, IHK, NTP
-       adalah kata kunci terkuat di meja PST tetapi terlalu pendek untuk lolos
-       saringan panjang biasa. */
-    var singkat = (teks.match(/\b(?:[A-Z]{2,6}[0-9]?|[A-Z][0-9])\b/g) || [])
-      .map(function (w) { return w.toLowerCase(); });
+    /* Singkatan (IPM, PDRB, TPT, P0, IHK, NTP) adalah kata kunci terkuat di meja
+       PST tetapi terlalu pendek untuk lolos saringan panjang biasa. */
+    var singkat = singkatan(teks);
 
-    var kata = teks.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
+    var kata = perluas(teks).toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
       .filter(function (w) { return w.length >= 4 && HENTI.indexOf(w) === -1; });
     kata = singkat.concat(kata)
       .filter(function (w, i, a) { return a.indexOf(w) === i; })
@@ -76,13 +112,19 @@ window.CARI = (function () {
       var skor = 0, kena = 0;
       kata.forEach(function (w) {
         var pendek = w.length <= 5 && singkat.indexOf(w) !== -1;
-        var b = pendek ? 3.2 : bobot(w);
+        var b = pendek ? 4.5 : bobot(w);
         var v = pendek ? [w] : penggal(w);
         var diNama = false, diIsi = false;
-        v.forEach(function (x) {
-          var pola = pendek ? new RegExp("\\b" + x + "\\b") : null, xr = ringkas(x);
-          if (pendek ? pola.test(nama) : (nama.indexOf(x) !== -1 || (x.length >= 5 && namaR.indexOf(xr) !== -1))) diNama = true;
-          else if (pendek ? pola.test(hay) : (hay.indexOf(x) !== -1 || (x.length >= 5 && hayR.indexOf(xr) !== -1))) diIsi = true;
+        v.forEach(function (x, i) {
+          /* singkatan: kata utuh. kata asli: boleh berimbuhan di depan (miskin ⊂ kemiskinan,
+             kerja ⊂ ketenagakerjaan) tetapi harus berakhir di akhiran/akhir kata (beras ⊄ berasal).
+             potongan imbuhan: hanya di awal kata atau setelah awalan (ikan ⊂ perikanan, ⊄ pendidikan) */
+          var pola, xr = ringkas(x);
+          if (pendek) pola = new RegExp("\\b" + x + "\\b");
+          else if (i > 0) pola = new RegExp("\\b(?:keter|peng|peny|pem|pen|per|meng|meny|mem|men|ber|ter|ke|di|pe|se|be)?" + x);
+          else pola = new RegExp("(?:" + x + (x.length >= 5 && xr !== x ? "|" + xr : "") + ")(?:kannya|annya|kan|nya|isasi|an|i)?\\b");
+          if (pola.test(nama) || (!pendek && i === 0 && x.length >= 5 && pola.test(namaR))) diNama = true;
+          else if (pola.test(hay) || (!pendek && i === 0 && x.length >= 5 && pola.test(hayR))) diIsi = true;
         });
         if (diNama) { skor += b * 3; kena++; }
         else if (diIsi) { skor += b; kena++; }
@@ -106,5 +148,6 @@ window.CARI = (function () {
     return skor;
   }
 
-  return { cocokkan: cocokkan, cocokkanSkor: cocokkanSkor, penggal: penggal, HENTI: HENTI, skorKataKunci: skorKataKunci };
+  return { cocokkan: cocokkan, cocokkanSkor: cocokkanSkor, penggal: penggal, HENTI: HENTI, skorKataKunci: skorKataKunci,
+           singkatan: singkatan, perluas: perluas, ALIAS: ALIAS };
 })();

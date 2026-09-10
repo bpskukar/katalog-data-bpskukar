@@ -18,7 +18,24 @@
   });
 
   var TOPIK = []; window.KATALOG.DATA.forEach(function (d) { if (TOPIK.indexOf(d.t) === -1) TOPIK.push(d.t); });
-  el("kTopik").innerHTML = '<option value="">— pilih topik —</option>' + PST.opsi(TOPIK) + '<option value="Lainnya">Lainnya</option>';
+  /* topik: tombol pilih, paling banyak dua (satu sesi 30 menit); disimpan "A · B" */
+  var MAKS_TOPIK = 2, topikPilih = [];
+  function gambarTopik() {
+    el("kTopik").innerHTML = TOPIK.concat(["Lainnya"]).map(function (t) {
+      var aktif = topikPilih.indexOf(t) !== -1;
+      return '<button type="button" data-topik="' + esc(t) + '" aria-pressed="' + aktif + '"' + (!aktif && topikPilih.length >= MAKS_TOPIK ? " disabled" : "") + ">" + esc(t) + "</button>";
+    }).join("");
+    el("kTopikHint").textContent = topikPilih.length >= MAKS_TOPIK
+      ? "Sudah dua topik. Lepas salah satu bila ingin mengganti."
+      : "Satu sesi 30 menit cukup untuk satu–dua topik; kalau lebih, ajukan sesi lain setelah yang ini selesai.";
+  }
+  el("kTopik").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-topik]"); if (!b || b.disabled) return;
+    var t = b.dataset.topik, i = topikPilih.indexOf(t);
+    if (i !== -1) topikPilih.splice(i, 1); else if (topikPilih.length < MAKS_TOPIK) topikPilih.push(t);
+    gambarTopik();
+  });
+  gambarTopik();
   el("kGuna").innerHTML = '<option value=""></option>' + PST.opsi(B.pemanfaatan);
   el("kKategori").innerHTML = '<option value=""></option>' + PST.opsi(B.kategoriInstansi);
 
@@ -92,7 +109,7 @@
     var d = {
       nama: el("kNama").value.trim(), no_hp: el("kHp").value.trim(), email: el("kEmail").value.trim() || null,
       kategori_instansi: el("kKategori").value || null, nama_instansi: el("kInstansi").value.trim() || null,
-      pemanfaatan: el("kGuna").value || null, topik: el("kTopik").value || null,
+      pemanfaatan: el("kGuna").value || null, topik: topikPilih.length ? topikPilih.join(" · ") : null,
       kebutuhan: el("kKebutuhan").value.trim(), tanggal: pilih.tanggal, jam: pilih.jam
     };
     el("btnAjukan").disabled = true; PST.pesan("msgKon", "info", "Mengirim…");

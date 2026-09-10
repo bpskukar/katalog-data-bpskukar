@@ -56,7 +56,7 @@ dan pengisian profil jadi lebih lengkap karena orangnya sendiri yang mengisi.
 
 ## Bagian 2 — Menaikkan mutu layanan
 
-### 5. Halaman "angka terkini Kukar" dengan tanggal rilis berikutnya — *sebagian dikerjakan: PINTAR Kukar menyatukan situs Indikator Strategis; angkanya kini dikelola pegawai dan dijawab asisten*
+### 5. Halaman "angka terkini Kukar" dengan tanggal rilis berikutnya — *dikerjakan: PINTAR Kukar menyatukan situs Indikator Strategis; angka dikelola pegawai/Web API; beranda memuat "Angka hari ini", "Terbit baru", dan agenda rilis (pembaruan 06)*
 
 Satu halaman berisi indikator strategis — IPM, persentase penduduk miskin, TPT,
 pertumbuhan ekonomi, jumlah penduduk — lengkap dengan **tanggal rilis terakhir dan

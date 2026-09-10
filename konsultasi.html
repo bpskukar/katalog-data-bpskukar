@@ -13,6 +13,10 @@
 <meta name="twitter:image" content="https://bpskukar.github.io/katalog-data-bpskukar/assets/og-katalog.png">
 <title>Konsultasi Daring · PINTAR Kukar</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231D5FAD'/><path d='M22 82V46a28 28 0 0 1 56 0v36M40 82V60a10 10 0 0 1 20 0v22M14 82h72' fill='none' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/assets/ikon/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="PINTAR Kukar">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -35,6 +39,11 @@
 .jam button:hover:not(:disabled) { border-color:var(--biru); color:var(--biru); }
 .jam button[aria-pressed="true"] { background:var(--s-ada); border-color:var(--s-ada); color:#fff; }
 .jam button:disabled { text-decoration:line-through; color:var(--ink-3); cursor:not-allowed; background:var(--sunk); }
+.topik { display:flex; flex-wrap:wrap; gap:7px; margin-top:4px; }
+.topik button { padding:7px 12px; background:var(--panel); border:1px solid var(--line-2); border-radius:999px; font:500 12.5px var(--f-ui); color:var(--ink-2); cursor:pointer; transition:.15s; }
+.topik button:hover:not(:disabled) { border-color:var(--biru); color:var(--biru); }
+.topik button[aria-pressed="true"] { background:var(--biru); border-color:var(--biru); color:#fff; font-weight:600; }
+.topik button:disabled { opacity:.45; cursor:not-allowed; }
 .cocok { border:1px solid #BFE6CD; background:var(--s-ada-bg); border-radius:var(--r-s); padding:12px 14px; margin-top:8px; font-size:13px; }
 .cocok b { color:var(--s-ada); display:block; margin-bottom:6px; }
 .cocok a { color:var(--biru); font-size:12.5px; font-weight:500; text-decoration:none; }
@@ -57,7 +66,7 @@
       Berbicara langsung dengan pegawai BPS lewat Zoom tanpa datang ke kantor. Gratis.
       Ceritakan dulu kebutuhan Anda supaya kami menyiapkan narasumber yang tepat, lalu pilih
       jadwal — paling cepat <b id="minHariTeks">besok</b>, hari kerja,
-      <span id="durasiTeks">45</span> menit per sesi.
+      <span id="durasiTeks">30</span> menit per sesi, paling banyak dua topik.
     </p>
   </header></div></section>
 <div class="wrap">
@@ -74,7 +83,9 @@
           <div class="field__hint">Semakin jelas, semakin tepat narasumber yang kami siapkan.</div>
         </div>
         <div id="cocokKat"></div>
-        <div class="field" style="margin-top:12px"><label class="fl" for="kTopik">Topik utama</label><select id="kTopik"></select></div>
+        <div class="field" style="margin-top:12px"><span class="fl" id="kTopikLabel">Topik — pilih paling banyak dua</span>
+          <div class="topik" id="kTopik" role="group" aria-labelledby="kTopikLabel"></div>
+          <div class="field__hint" id="kTopikHint">Satu sesi 30 menit cukup untuk satu–dua topik; kalau lebih, ajukan sesi lain setelah yang ini selesai.</div></div>
         <div class="field"><label class="fl" for="kGuna">Pemanfaatan</label><select id="kGuna"></select></div>
       </div>
 
@@ -123,6 +134,7 @@
 <script src="assets/katalog.js"></script>
 <script src="assets/cari.js"></script>
 <script src="assets/pengetahuan.js"></script>
+<script src="assets/glosarium.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/konsultasi.js"></script>
 <script src="assets/chat.js"></script>

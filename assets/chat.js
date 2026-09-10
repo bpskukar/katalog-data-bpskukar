@@ -173,13 +173,15 @@
   }
   function cariIndikator(teks) {
     if (!IND) return null;
-    var t = " " + teks.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ") + " ";
-    var singkat = (teks.match(/\b(?:[A-Z]{2,6}[0-9]?|[A-Z][0-9])\b/g) || []).map(function (w) { return w.toLowerCase(); });
+    /* singkatan dikenali huruf besar maupun kecil (ipm = IPM), kepanjangannya ikut dicari */
+    var luas = CARI.perluas ? CARI.perluas(teks) : teks;
+    var t = " " + luas.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ") + " ";
+    var tok = teks.toLowerCase().replace(/[^a-z0-9\s-]/g, " ").split(/\s+/).filter(Boolean);
     var terbaik = null, skorMaks = 0;
     daftarIndikator().forEach(function (it) {
       var skor = 0;
       var kode = String(it.abbr || "").split(/[ ·]/)[0].toLowerCase();
-      if (singkat.indexOf(it.id) !== -1 || (kode && singkat.indexOf(kode) !== -1)) skor += 5;
+      if (tok.indexOf(it.id) !== -1 || (kode && kode.length <= 5 && CARI.HENTI.indexOf(kode) === -1 && tok.indexOf(kode) !== -1)) skor += 5;
       if (t.indexOf(" " + String(it.label).toLowerCase() + " ") !== -1) skor += 5;
       (SINONIM[it.id] || []).forEach(function (sn) { if (t.indexOf(sn) !== -1) skor += 3; });
       String(it.label).toLowerCase().split(/\s+/).forEach(function (w) {
@@ -210,11 +212,47 @@
     }
     var anchor = { ekonomi: "#ekonomi", manusia: "#manusia", pemerataan: "#kemiskinan", demografi: "#kependudukan", ketenagakerjaan: "#kependudukan" }[it.kat] || "#ringkasan";
     if (["p0", "p1", "p2", "garis", "rentan"].indexOf(it.id) !== -1) anchor = "#kemiskinan";
-    html += tautanHtml([{ u: PST.TAUTAN.indikator + anchor, l: "Lihat grafik & rinciannya di Indikator Strategis" }]);
+    var glos = GLOS.filter(function (g) { return g.id === it.id || g.indikator === it.id; })[0];
+    html += tautanHtml([{ u: PST.TAUTAN.indikator + anchor, l: "Lihat grafik & rinciannya di Indikator Strategis" }].concat(glos ? [{ u: "glosarium.html#" + glos.id, l: "Apa itu " + (glos.singkat ? glos.singkat.split(/[ \/]+/)[0] : glos.istilah) + " & cara membacanya" }] : []));
     html += '<div class="cb__ket" style="margin-top:8px;color:var(--ink-3)">Sumber: Booklet Indikator Strategis BPS Kabupaten Kutai Kartanegara. Angka resmi rujuk publikasi aslinya.</div>';
     var hasil = CARI.cocokkan(it.label + " " + (SINONIM[it.id] || []).join(" "), 2);
     if (hasil.length) html += '<div class="cb__ket" style="margin-top:10px;color:var(--ink-3)">Data lengkapnya di katalog:</div>' + hasil.map(kartuKatalog).join("");
     pesanBot(html, [["Indikator lain", "berapa IPM, TPT, dan PDRB Kukar?"], ["Minta data lengkap", "bagaimana cara meminta data"], ["Konsultasi", "bisa konsultasi online lewat zoom?"]]);
+  }
+
+  /* ------------------------------------------------- glosarium (definisi) */
+  var GLOS = window.GLOSARIUM || [];
+  var NIAT_DEFINISI = /\b(apa itu|apa arti|apa maksud|artinya|arti|pengertian|definisi|maksud(?:nya)?|apa bedanya|bedanya|beda|perbedaan|cara menghitung|dihitung|rumus|cara membaca|membaca|maksudnya apa|itu apa|kenapa|mengapa)\b/i;
+  function cariGlosarium(teks, n) {
+    if (!GLOS.length) return [];
+    var tl = " " + teks.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ") + " ";
+    var tok = tl.trim().split(" ");
+    return GLOS.map(function (g) {
+      var skor = 0;
+      var singk = (g.singkat || "").toLowerCase().split(/[ \/]+/).filter(Boolean);
+      if (tok.indexOf(g.id) !== -1) skor += 8;
+      singk.forEach(function (x) { if (tok.indexOf(x) !== -1) skor += 8; });
+      if (tl.indexOf(" " + g.istilah.toLowerCase() + " ") !== -1) skor += 8;
+      g.kunci.forEach(function (k) { if (k.length >= 3 && tl.indexOf(" " + k + " ") !== -1) skor += k.indexOf(" ") !== -1 ? 6 : 4; });
+      return { g: g, skor: skor };
+    }).filter(function (x) { return x.skor >= 4; }).sort(function (a, b) { return b.skor - a.skor; }).slice(0, n || 2);
+  }
+  function jawabGlosarium(teks, cocok) {
+    var tanyaHitung = /\b(hitung|dihitung|rumus)\b/i.test(teks), tanyaBeda = /\b(beda|bedanya|perbedaan)\b/i.test(teks);
+    var html = cocok.map(function (c) {
+      var g = c.g, h = "<b>" + esc(g.istilah) + (g.singkat ? " (" + esc(g.singkat) + ")" : "") + "</b><div class=\"cb__ket\">" + esc(g.definisi) + "</div>";
+      if ((tanyaHitung || cocok.length === 1) && g.hitung) h += '<div class="cb__ket" style="margin-top:6px"><b>Cara menghitung:</b> ' + esc(g.hitung) + "</div>";
+      if (cocok.length === 1 && g.baca) h += '<div class="cb__ket" style="margin-top:6px"><b>Cara membaca:</b> ' + esc(g.baca) + "</div>";
+      if (cocok.length === 1 && g.keliru) h += '<div class="cb__ket" style="margin-top:6px"><b>Sering keliru:</b> ' + esc(g.keliru) + "</div>";
+      return '<div style="margin-bottom:8px">' + h + "</div>";
+    }).join("");
+    var tautan = cocok.map(function (c) { return { u: "glosarium.html#" + c.g.id, l: "Selengkapnya: " + c.g.istilah }; });
+    if (cocok.length === 1 && cocok[0].g.indikator) tautan.push({ u: PST.TAUTAN.indikator, l: "Lihat angka Kukar di Indikator Strategis" });
+    html += tautanHtml(tautan);
+    if (petugas) html += '<button type="button" class="cb__salin" data-salin="' + esc(cocok.map(function (c) { return c.g.istilah + ": " + c.g.definisi; }).join("\n")) + '">salin jawaban</button>';
+    var lanjut = [["Cara membacanya", "bagaimana cara membaca " + (cocok[0].g.singkat ? cocok[0].g.singkat.split(/[ \/]+/)[0] : cocok[0].g.istilah) + "?"], ["Berapa angkanya di Kukar", "berapa " + (cocok[0].g.singkat ? cocok[0].g.singkat.split(/[ \/]+/)[0] : cocok[0].g.istilah) + " Kukar?"], ["Buka glosarium", "buka glosarium"]];
+    if (tanyaBeda && cocok.length < 2) lanjut.unshift(["Buka glosarium", "buka glosarium"]);
+    pesanBot(html, lanjut);
   }
 
   function jawab(teks, idButir) {
@@ -234,6 +272,13 @@
     if (kodeTunggu && /^\d{4}$/.test(t)) { var k = kodeTunggu; kodeTunggu = null; return cekKode(k, t); }
     if (/\b(cek|status|periksa)\b/i.test(t) && /\btiket\b/i.test(t)) {
       return pesanBot("Ketik kode tiket Anda — bentuknya <span class='kode'>PST-2609-0042</span> untuk permintaan data atau <span class='kode'>KON-2609-0007</span> untuk konsultasi daring — lalu empat digit terakhir nomor HP Anda. Boleh sekaligus dalam satu pesan.");
+    }
+
+    if (/^buka glosarium$/i.test(t)) return pesanBot("Glosarium memuat " + GLOS.length + " istilah beserta cara membaca dan salah kaprahnya." + tautanHtml([{ u: "glosarium.html", l: "Buka glosarium & cara membaca angka" }]), CHIPS_LANJUT);
+    /* definisi/arti/beda/cara menghitung → glosarium, sebelum angka & pengetahuan */
+    if (!idButir && NIAT_DEFINISI.test(t)) {
+      var gl = cariGlosarium(t, /\b(beda|bedanya|perbedaan)\b/i.test(t) ? 2 : 1);
+      if (gl.length) return jawabGlosarium(t, gl);
     }
 
     var p = jawabPengetahuan(t);

@@ -57,7 +57,7 @@ window.PENGETAHUAN = [
 
   { id:"konsultasi", kunci:["konsultasi","zoom","online","daring","video call","meeting","janji","jadwal konsultasi","bicara dengan","ngobrol","tanya langsung","narasumber"],
     tanya:"Bisa konsultasi online lewat Zoom?",
-    jawab:"Bisa, gratis. Isi formulir konsultasi daring: ceritakan kebutuhan Anda supaya kami menyiapkan narasumber yang tepat, lalu pilih jadwal — paling cepat besok (H+1), pada hari kerja pukul 09.00–14.30 WITA. Anda mendapat kode KON untuk memantau statusnya; tautan Zoom muncul di situ setelah jadwal ditetapkan petugas.",
+    jawab:"Bisa, gratis. Isi formulir konsultasi daring: ceritakan kebutuhan Anda supaya kami menyiapkan narasumber yang tepat, pilih paling banyak dua topik, lalu pilih jadwal — paling cepat besok (H+1), hari kerja pukul 09.00–14.30 WITA, 30 menit per sesi. Anda mendapat kode KON untuk memantau statusnya; tautan Zoom muncul di situ setelah jadwal ditetapkan petugas.",
     tautan:[{u:"konsultasi.html",l:"Ajukan konsultasi daring"}] },
 
   { id:"akun", kunci:["daftar akun","buat akun","login","masuk","akun","password","lupa sandi","registrasi"],

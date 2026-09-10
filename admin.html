@@ -6,6 +6,10 @@
 <meta name="robots" content="noindex">
 <title>Ruang Pegawai · PINTAR Kukar</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231D5FAD'/><path d='M22 82V46a28 28 0 0 1 56 0v36M40 82V60a10 10 0 0 1 20 0v22M14 82h72' fill='none' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/assets/ikon/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="PINTAR Kukar">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -107,6 +111,32 @@
 .ind-riw { display:grid; grid-template-columns:44px 1fr auto; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
 .ind-riw span { color:var(--ink-2); font-size:12.5px; }
 .ind-riw i { color:var(--ink-3); }
+.ind-sub { display:flex; gap:6px; margin-bottom:12px; }
+.ind-sub button { font-family:var(--f-disp); font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:999px; border:1px solid var(--line-2); background:var(--panel); color:var(--ink-2); cursor:pointer; }
+.ind-sub button[aria-selected="true"] { background:var(--biru-tua); border-color:var(--biru-tua); color:#fff; }
+.ind-api { display:inline-block; font-family:var(--f-disp); font-size:9.5px; font-weight:700; letter-spacing:.05em; color:var(--s-ada); background:var(--s-ada-bg); border-radius:999px; padding:1px 6px; margin-left:4px; vertical-align:middle; }
+.so-status { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; font-size:13px; }
+.so-status > div { background:var(--sunk); border-radius:var(--r-s); padding:10px 12px; }
+.so-status b { display:block; font-size:11.5px; color:var(--ink-3); font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
+.so-var { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.so-var:last-child { border-bottom:0; }
+.so-pilih { background:var(--panel); border:1px solid var(--line-2); border-radius:999px; padding:2px 9px; font-size:12px; cursor:pointer; color:var(--biru-tua); margin:2px 2px 2px 0; }
+.so-pilih:hover { border-color:var(--biru); }
+.so-log { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:start; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.so-log:last-child { border-bottom:0; }
+.tb-daftar { display:flex; flex-direction:column; gap:8px; max-height:640px; overflow:auto; }
+.tb { display:grid; grid-template-columns:54px 1fr; gap:10px; border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--panel); }
+.tb.mati { opacity:.55; }
+.tb__t { text-align:center; font-family:var(--f-mono); font-size:11px; color:var(--ink-3); line-height:1.3; }
+.tb__t b { display:block; font-family:var(--f-disp); font-size:17px; color:var(--ink); }
+.tb__j { font-size:13.5px; font-weight:600; color:var(--ink); }
+.tb__m { font-size:12px; color:var(--ink-3); margin-top:2px; }
+.tb__aksi { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; font-size:12.5px; }
+.tb__aksi button { background:none; border:0; padding:0; color:var(--biru); cursor:pointer; font:inherit; font-weight:600; }
+.tb__aksi button.bahaya { color:#b3261e; }
+.tb__jenis { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:1px 7px; border-radius:999px; margin-right:6px; background:var(--biru-wash); color:var(--biru-tua); vertical-align:1px; }
+.tb__jenis.api { background:#E3F5EA; color:var(--hijau); }
+.so-rinci { font-size:12px; color:var(--ink-3); margin-top:3px; }
 @media (max-width:900px){ .ind-wrap { grid-template-columns:minmax(0,1fr); } .ind-nav { flex-direction:row; flex-wrap:wrap; } .ind-nav__grup { flex-basis:100%; } .ind-simpan { padding-right:16px; bottom:70px; } }
 </style>
 </head>
@@ -151,6 +181,7 @@
       <button role="tab" data-p="pTanya"   aria-selected="false">Papan tanya</button>
       <button role="tab" data-p="pKonsul"  aria-selected="false">Konsultasi daring</button>
       <button role="tab" data-p="pIndikator" aria-selected="false">Indikator</button>
+      <button role="tab" data-p="pTerbitan" aria-selected="false">Terbitan &amp; agenda</button>
       <button role="tab" data-p="pRekap"   aria-selected="false">Rekap kebutuhan</button>
       <button role="tab" data-p="pPeringkat" aria-selected="false">Peringkat petugas</button>
       <button role="tab" data-p="pProfil"  aria-selected="false">Profil saya</button>
@@ -307,8 +338,13 @@
           </div>
         </aside>
         <div>
+          <div class="ind-sub" role="tablist">
+            <button type="button" role="tab" data-sub="penyunting" aria-selected="true">Penyunting isi</button>
+            <button type="button" role="tab" data-sub="otomatis" aria-selected="false">Sumber otomatis (Web API BPS)</button>
+          </div>
           <div id="indMsg"></div>
           <div id="indRiwayat" class="card" hidden style="margin-bottom:14px"></div>
+          <div id="subPenyunting">
           <div class="card" id="indEditor"><div class="empty">Memuat…</div></div>
           <div class="ind-simpan">
             <input type="text" id="indCatatan" placeholder="Catatan perubahan (mis. koreksi P0 2025 sesuai rilis Juli)" maxlength="300">
@@ -316,6 +352,98 @@
             <button type="button" class="btn btn--ghost btn--sm" id="indBatal">Buang perubahan</button>
             <button type="button" class="btn btn--sm" id="indSimpan" disabled>Simpan &amp; terbitkan</button>
           </div>
+          </div>
+
+          <div id="subOtomatis" hidden>
+            <p class="sec__note">Angka yang dipetakan di sini ditarik dari <b>tabel dinamis Web API BPS</b> setiap hari pukul 02.00 WITA dan diterbitkan otomatis bila ada angka baru
+              (versi baru + catatan “Otomatis”). Yang bisa otomatis: angka kartu, deret grafik tahunan, dan kartogram. Narasi, sorotan, dan rekomendasi tetap ditulis pegawai.</p>
+            <div id="soMsg"></div>
+            <div class="card" style="margin-bottom:14px"><div class="card__title">Sambungan</div><div id="soStatus"><div class="empty" style="padding:10px">Memuat…</div></div></div>
+
+            <div class="grid grid--2" style="align-items:start">
+              <div class="card">
+                <div class="card__title">1 · Cari variabel BPS</div>
+                <div class="btnrow" style="margin-bottom:10px">
+                  <select id="soDomain" style="width:auto"><option value="6400">6400 · Provinsi Kaltim (per kab/kota)</option><option value="6403">6403 · Kabupaten Kukar</option></select>
+                  <button type="button" class="btn btn--ghost btn--sm" id="soMuatVar">Muat daftar variabel</button>
+                </div>
+                <input type="search" id="soCari" placeholder="cari: ipm, miskin, penduduk, pdrb…">
+                <div id="soHasilVar" style="margin-top:8px;max-height:320px;overflow:auto"></div>
+              </div>
+              <div class="card" id="soForm">
+                <div class="card__title">2 · Petakan ke bagian isi</div>
+                <div class="field"><label class="fl" for="soTarget">Bagian isi situs yang diisi</label><select id="soTarget"></select></div>
+                <div class="grid grid--2" style="gap:10px">
+                  <div class="field"><label class="fl" for="soDomainPeta">Domain</label><select id="soDomainPeta"><option value="6400">6400 · Prov. Kaltim</option><option value="6403">6403 · Kukar</option></select></div>
+                  <div class="field"><label class="fl" for="soVar">ID variabel</label><input type="number" id="soVar" placeholder="mis. 501"></div>
+                </div>
+                <div class="field"><label class="fl" for="soVarLabel">Nama variabel (otomatis terisi)</label><input type="text" id="soVarLabel"></div>
+                <div class="grid grid--3" style="gap:10px">
+                  <div class="field"><label class="fl" for="soVervar">Wilayah (vervar)</label><input type="text" id="soVervar" placeholder="kosong = Kukar"></div>
+                  <div class="field"><label class="fl" for="soTurvar">Turunan variabel</label><input type="text" id="soTurvar" placeholder="kosong = total"></div>
+                  <div class="field"><label class="fl" for="soTurtahun">Turunan tahun</label><input type="text" id="soTurtahun" placeholder="kosong = Tahunan"></div>
+                </div>
+                <div class="grid grid--2" style="gap:10px">
+                  <div class="field"><label class="fl" for="soPengali">Pengali satuan</label><input type="text" id="soPengali" value="1" inputmode="decimal"></div>
+                  <div class="field"><label class="fl" for="soCatatan">Catatan</label><input type="text" id="soCatatan" placeholder="opsional"></div>
+                </div>
+                <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2);margin-bottom:12px"><input type="checkbox" id="soAktif" checked style="width:auto"> Aktif (ikut jadwal harian)</label>
+                <div class="btnrow">
+                  <button type="button" class="btn btn--ghost btn--sm" id="soPratinjau">Pratinjau angka</button>
+                  <button type="button" class="btn btn--sm" id="soSimpan">Simpan pemetaan</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="soBatal" hidden>Batal ubah</button>
+                </div>
+                <div id="soPratinjauHasil" style="margin-top:12px"></div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:14px">
+              <div class="btnrow" style="justify-content:space-between"><div class="card__title" style="margin:0">3 · Pemetaan aktif</div>
+                <button type="button" class="btn btn--sm" id="soTarikSemua">Tarik sekarang (semua)</button></div>
+              <div id="soDaftar" style="margin-top:12px"></div>
+            </div>
+            <div class="card" style="margin-top:14px">
+              <div class="btnrow" style="justify-content:space-between"><div class="card__title" style="margin:0">Log sinkron</div>
+                <button type="button" class="btn btn--ghost btn--sm" id="soSegarLog">Segarkan</button></div>
+              <div id="soLog" style="margin-top:8px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- terbitan & agenda ---- -->
+    <div class="panel" id="pTerbitan" hidden>
+      <h2 class="sec">Terbit baru &amp; agenda rilis</h2>
+      <p class="sec__note">Daftar ini tampil di <a class="lnk" href="/" target="_blank" rel="noopener">beranda PINTAR Kukar</a> (“Yang baru dari BPS Kukar”). Baris berlabel <b>API</b> ditarik otomatis
+        dari Web API BPS tiap malam (bila kunci API terpasang) — boleh disembunyikan atau diberi ringkasan, tidak bisa diubah judulnya. Baris manual dan agenda rilis mendatang diisi di sini.</p>
+      <div class="grid grid--2" style="align-items:start">
+        <div class="card">
+          <div class="card__title" id="tbJudulForm">Tambah terbitan / agenda</div>
+          <div id="msgTerbitan"></div>
+          <form id="formTerbitan">
+            <input type="hidden" id="tbId">
+            <div class="grid grid--2" style="gap:12px">
+              <div class="field"><label class="fl" for="tbJenis">Jenis</label><select id="tbJenis">
+                <option value="agenda">Agenda rilis (mendatang)</option><option value="brs">Berita Resmi Statistik</option><option value="publikasi">Publikasi</option>
+                <option value="infografis">Infografis</option><option value="tabel">Tabel</option><option value="berita">Berita / pengumuman</option></select></div>
+              <div class="field"><label class="fl" for="tbTanggal">Tanggal rilis / jadwal</label><input type="date" id="tbTanggal" required></div>
+            </div>
+            <div class="field"><label class="fl" for="tbJudul">Judul</label><input type="text" id="tbJudul" required maxlength="300" placeholder="mis. Rilis Profil Kemiskinan Kaltim September 2026"></div>
+            <div class="field"><label class="fl" for="tbRingkas">Ringkasan (opsional)</label><textarea id="tbRingkas" style="min-height:56px" maxlength="600" placeholder="satu-dua kalimat untuk pembaca beranda"></textarea></div>
+            <div class="field"><label class="fl" for="tbTautan">Tautan (opsional)</label><input type="url" id="tbTautan" placeholder="https://kukarkab.bps.go.id/…"></div>
+            <div class="btnrow"><button class="btn btn--sm" type="submit" id="tbSimpan">Simpan</button><button class="btn btn--ghost btn--sm" type="button" id="tbBatal" hidden>Batal</button></div>
+          </form>
+          <div class="field__hint" style="margin-top:12px">Agenda yang tanggalnya sudah lewat otomatis hilang dari beranda; hapus atau ubah tanggalnya bila jadwal bergeser.</div>
+        </div>
+        <div class="card">
+          <div class="card__title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Daftar
+            <span style="margin-left:auto;display:flex;gap:6px;align-items:center">
+              <select id="tbSaring" class="btn btn--ghost btn--sm" style="padding-block:4px"><option value="">Semua</option><option value="agenda">Agenda</option><option value="api">Dari API</option><option value="manual">Manual</option><option value="sembunyi">Disembunyikan</option></select>
+              <button type="button" class="btn btn--ghost btn--sm" id="tbTarik" title="Tarik BRS, publikasi, infografis, dan berita terbaru dari Web API BPS sekarang">Tarik dari Web API</button>
+            </span></div>
+          <div id="msgTerbitanDaftar"></div>
+          <div id="tbDaftar" class="tb-daftar"><div class="empty">Memuat…</div></div>
         </div>
       </div>
     </div>
@@ -390,9 +518,13 @@
 <script src="assets/katalog.js"></script>
 <script src="assets/cari.js"></script>
 <script src="assets/pengetahuan.js"></script>
+<script src="assets/glosarium.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/admin.js"></script>
+<script src="assets/terbitan-awal.js"></script>
 <script src="assets/indikator-admin.js"></script>
+<script src="assets/terbitan-admin.js"></script>
+<script src="assets/sumber-otomatis.js"></script>
 <script src="assets/chat.js"></script>
 </body>
 </html>
