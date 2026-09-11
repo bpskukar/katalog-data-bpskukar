@@ -67,7 +67,17 @@ window.CARI = (function () {
     sp: "sensus penduduk", sp2020: "sensus penduduk", se: "sensus ekonomi", st: "sensus pertanian", st2023: "sensus pertanian",
     susenas: "survei sosial ekonomi nasional", sakernas: "survei angkatan kerja nasional", podes: "potensi desa", umk: "upah minimum", umr: "upah minimum",
     sdgs: "pembangunan berkelanjutan", tpb: "pembangunan berkelanjutan", ipd: "indeks pembangunan desa", idm: "indeks desa membangun",
-    lf: "long form", ihpb: "indeks harga perdagangan besar", pst: "pelayanan statistik terpadu"
+    lf: "long form", ihpb: "indeks harga perdagangan besar", pst: "pelayanan statistik terpadu",
+    /* Desa Cantik & turunannya */
+    descan: "desa cinta statistik desa cantik", cantik: "desa cinta statistik desa cantik",
+    dtsen: "data tunggal sosial dan ekonomi nasional", dtks: "data terpadu kesejahteraan sosial",
+    p3ke: "pensasaran percepatan penghapusan kemiskinan ekstrem", regsosek: "registrasi sosial ekonomi",
+    fasih: "aplikasi pengumpulan data bps", sid: "sistem informasi desa", "siks-ng": "sistem informasi kesejahteraan sosial",
+    gsbpm: "proses bisnis statistik", sds: "standar data statistik", sdsn: "standar data statistik nasional",
+    sdi: "satu data indonesia", cawi: "pengisian daring", lke: "lembar kerja evaluasi",
+    se2026: "sensus ekonomi", pbi: "penerima bantuan iuran", jkn: "jaminan kesehatan nasional",
+    pkh: "program keluarga harapan", bpnt: "bantuan pangan non tunai", bansos: "bantuan sosial",
+    kda: "kecamatan dalam angka"
   };
   var SINGKATAN = (function () {
     var s = {};
@@ -165,6 +175,19 @@ window.CARI = (function () {
     return skor;
   }
 
+  /* panjang (huruf) kunci terpanjang yang kena — dipakai sebagai pemutus seri
+     supaya butir yang spesifik ("desa cantik kukar") menang atas yang umum
+     ("desa cantik") saat skornya sama. */
+  function panjangKunciKena(teks, daftarKunci) {
+    var t = " " + String(teks).toLowerCase().replace(/[^a-z0-9\s]/g, " ") + " ", pj = 0;
+    daftarKunci.forEach(function (k) {
+      k = k.toLowerCase();
+      if ((t.indexOf(" " + k + " ") !== -1 || (k.length >= 5 && t.indexOf(k) !== -1)) && k.length > pj) pj = k.length;
+    });
+    return pj;
+  }
+
   return { cocokkan: cocokkan, cocokkanSkor: cocokkanSkor, penggal: penggal, HENTI: HENTI, skorKataKunci: skorKataKunci,
+           panjangKunciKena: panjangKunciKena,
            singkatan: singkatan, perluas: perluas, ALIAS: ALIAS };
 })();

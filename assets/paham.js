@@ -58,6 +58,21 @@ window.PAHAM = (function () {
   /* [pola, tambahan istilah BPS]. Tambahan disisipkan ke teks pencarian (tidak
      mengganti kata asli), sehingga katalog/indikator/glosarium ikut cocok. */
   var AWAM = [
+    /* ---- Desa Cantik & program bantuan: bahasa sehari-hari → istilah baku ---- */
+    [/\b(desa cantik|descan|des ?cantik|kelurahan cantik|cinta statistik)\b/, "desa cinta statistik desa cantik pembinaan"],
+    [/\b(agen statistik|duta statistik|komunitas statistik|kader statistik)\b/, "agen statistik desa cantik"],
+    [/\b(monografi|profil desa|desa dalam angka|publikasi desa)\b/, "monografi profil desa publikasi statistik desa"],
+    [/\b(dtsen|data tunggal|desil|pemeringkatan kesejahteraan)\b/, "dtsen data tunggal sosial ekonomi desil"],
+    [/\b(bansos|bantuan sosial|pkh|sembako|bpnt|blt|pbi|kis|kartu sehat|bantuan pemerintah)\b/, "bantuan sosial dtsen desil"],
+    [/\b(ga dapat bantuan|gak dapat bantuan|tidak dapat bantuan|tidak dapat bansos|dicoret|diputus|tidak menerima lagi|kok tidak dapat)\b/, "usulan bantuan sanggahan dtsen cek bansos"],
+    [/\b(cek ?bansos|siks ?ng|siks-ng|usulan bansos|sanggahan)\b/, "usulan pembaruan data dtsen bantuan sosial"],
+    [/\b(sensus ekonomi|se ?2026|pendataan usaha|pendataan ekonomi)\b/, "sensus ekonomi 2026"],
+    [/\b(fasih|aplikasi pendataan|aplikasi petugas|capi)\b/, "fasih aplikasi pengumpulan data"],
+    [/\b(sobat ?bps|mitra bps|jadi petugas|daftar petugas|rekrutmen petugas)\b/, "mitra statistik sobat bps petugas"],
+    [/\b(satu data|sdi|standar data|metadata|walidata)\b/, "satu data indonesia standar data statistik"],
+    [/\b(kelas baca angka|belajar statistik|belajar angka|materi pelatihan|modul belajar|soal latihan)\b/, "kelas statistik desa belajar"],
+    [/\b(sid|sistem informasi desa|website desa|web desa)\b/, "website desa data statistik"],
+    /* ---- lainnya ---- */
     [/\b(nganggur\w*|pengangur\w*|penganggur\w*|tidak (punya|ada) (kerja|pekerjaan)|belum (dapat )?kerja|cari kerja)\b/, "pengangguran tpt tingkat pengangguran terbuka"],
     [/\b(orang|warga|rakyat|masyarakat|keluarga|rumah tangga) miskin\b|\bkemiskinan\b|\bmiskin\b/, "penduduk miskin kemiskinan p0"],
     [/\b(harga(-| )harga|harga naik|kenaikan harga|harga barang|mahal|inflasi)\b/, "inflasi indeks harga konsumen ihk"],

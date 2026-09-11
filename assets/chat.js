@@ -167,11 +167,15 @@
   }
 
   function jawabPengetahuan(teks) {
-    var terbaik = null, skor = 0;
+    var terbaik = null, skor = 0, panjang = 0;
     window.PENGETAHUAN.forEach(function (b) {
       if (b.untuk === "petugas" && !petugas) return;
       var s = CARI.skorKataKunci(teks, b.kunci);
-      if (s > skor) { skor = s; terbaik = b; }
+      if (!s) return;
+      /* seri dimenangkan butir yang kuncinya paling spesifik, bukan yang
+         kebetulan lebih dulu di daftar — "desa cantik kukar" > "desa cantik" */
+      var pj = CARI.panjangKunciKena ? CARI.panjangKunciKena(teks, b.kunci) : 0;
+      if (s > skor || (s === skor && pj > panjang)) { skor = s; terbaik = b; panjang = pj; }
     });
     return { b: terbaik, skor: skor };
   }
@@ -1080,7 +1084,17 @@
     var lanjutan = !ci && KONTEKS.indikator && n.lanjutan && (e.tahun.length || e.wilayah.length || e.prov || e.kecamatan.length || n.banding || n.peringkat || n.tren || n.angka);
     if (lanjutan) ci = { it: KONTEKS.indikator, skor: 4 };
     var niatAngka = n.angka || n.banding || n.peringkat || n.tren || e.wilayah.length || e.prov;
-    if (ci && !idButir && (niatAngka || pk.skor < 2 || lanjutan)) {
+    /* Jawaban baku yang SANGAT kuat menang atas penelusuran angka. Skor >= 5 berarti
+       beberapa frasa kunci (bukan satu kata) dari kalimat penanya sendiri kena —
+       mis. "kapan sensus ekonomi 2026" kena "sensus ekonomi", "sensus ekonomi 2026",
+       dan "kapan sensus ekonomi". Tanpa aturan ini, kata tahun di kalimat itu membuatnya
+       dikira pertanyaan angka lanjutan. */
+    /* "kenapa/mengapa/kok/apa bedanya" menuntut penjelasan, bukan angka — jawaban baku
+       yang cukup kuat harus menang. Tanpa ini, "kenapa jumlah penduduk BPS beda dengan
+       Dukcapil" dijawab dengan angka jumlah penduduk, bukan alasan perbedaannya. */
+    var bakuKuat = pk.b && (pk.skor >= 5 ||
+      (pk.skor >= 2 && /\b(kenapa|mengapa|kok|apa beda|apa bedanya|bedanya|perbedaan)\b/i.test(p.teks)));
+    if (ci && !idButir && !bakuKuat && (niatAngka || pk.skor < 2 || (lanjutan && pk.skor < 3))) {
       if (e.kecamatan.length && ci.it.id === "penduduk") return jawabKecamatan(p);
       if (e.kecamatan.length && !e.kukar) return jawabKecamatan(p);
       if (n.peringkat && metaBanding(ci.it.id)) return jawabPeringkat(p, ci.it);
@@ -1101,7 +1115,10 @@
       return pesanBot(catatanKoreksi(p) + "Peringkat apa yang ingin dilihat? Yang tersedia: <b>" + esc(ada2.join(", ")) + "</b>.", ada2.slice(0, 4).map(function (l) { return [l, "Kukar peringkat berapa " + l + " di Kaltim?"]; }), { jenis: "banding", skor: 0, tanya: p.asli });
     }
 
-    if (pk.b && (pk.skor >= 2 || (pk.skor === 1 && (!hasil.length || pk.b.untuk === "petugas")))) {
+    /* satu kata kunci saja sudah cukup bila katalog tidak punya kecocokan yang kuat —
+       "apa itu DTSEN" tidak boleh dijawab dengan baris katalog yang kebetulan mirip */
+    if (pk.b && (pk.skor >= 2 || (pk.skor === 1 && (!hasil.length || pk.b.untuk === "petugas" ||
+        !hasil.some(function (x) { return x.kuat; }))))) {
       var html = catatanKoreksi(p) + PST.linkify(pk.b.jawab) + tautanHtml(pk.b.tautan);
       if (hasil.length && pk.b.id !== "cara" && pk.b.id !== "jam") {
         html += ket("Ragam data yang mungkin Anda maksud:", "margin-top:10px;color:var(--cb-ink-3)") + hasil.slice(0, 2).map(function (x) { return kartuKatalog(x.d); }).join("");

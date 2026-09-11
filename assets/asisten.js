@@ -34,6 +34,7 @@
     [function () { return !!window.KATALOG; }, DASAR + "assets/katalog.js"],
     [function () { return !!window.CARI; }, DASAR + "assets/cari.js"],
     [function () { return !!window.PENGETAHUAN; }, DASAR + "assets/pengetahuan.js"],
+    [function () { return !!window.PENGETAHUAN_DESCAN; }, DASAR + "assets/descan-tahu.js"],
     [function () { return !!window.GLOSARIUM; }, DASAR + "assets/glosarium.js"],
     [function () { return !!window.TERBITAN_AWAL; }, DASAR + "assets/terbitan-awal.js", true],
     [function () { return !!window.PAHAM; }, DASAR + "assets/paham.js"],
