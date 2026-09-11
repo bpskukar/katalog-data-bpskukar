@@ -6,12 +6,15 @@
      bpskukar.github.io                  (beranda pintu)
      indikator-strategis-bpskukar        (angka)
      katalog-data-bpskukar               (layanan PST)
+     desa-cantik-bpskukar                (Desa Cantik & kelas statistik desa)
    Bila diubah, salin ke ketiganya.
 
    Pemasangan (di <head>, sebelum stylesheet situs):
      <script src="assets/pintar.js" data-situs="katalog"></script>
-   Nilai data-situs: pintu | indikator | katalog | konsultasi | sahabat | glosarium | pegawai
-   (empat yang terakhir menyalakan butir "Katalog Data & Layanan PST" di menu)
+   Nilai data-situs: pintu | indikator | katalog | konsultasi | sahabat | glosarium |
+                     pegawai | descan | kelas
+   (konsultasi/sahabat/glosarium/pegawai menyalakan butir "Katalog Data & Layanan PST";
+    kelas menyalakan butir "Desa Cantik")
 
    Cara kerja tema: pilihan disimpan di localStorage dengan kunci 'kukar-theme'.
    Ketiga situs berada di satu domain (bpskukar.github.io), jadi penyimpanan
@@ -25,7 +28,7 @@
   var skrip = document.currentScript;
   var situs = (skrip && skrip.getAttribute("data-situs")) || "";
   /* menu utama hanya tiga situs; halaman konsultasi, sahabat, glosarium, ruang pegawai = bagian situs katalog */
-  var aktif = /^(konsultasi|sahabat|pegawai|glosarium)$/.test(situs) ? "katalog" : situs;
+  var aktif = /^(konsultasi|sahabat|pegawai|glosarium)$/.test(situs) ? "katalog" : (situs === "kelas" ? "descan" : situs);
 
   var TAUTAN = {
     pintu:      "/",
@@ -33,14 +36,17 @@
     katalog:    "/katalog-data-bpskukar/",
     konsultasi: "/katalog-data-bpskukar/konsultasi.html",
     sahabat:    "/katalog-data-bpskukar/sahabat.html",
-    pegawai:    "/katalog-data-bpskukar/admin.html"
+    pegawai:    "/katalog-data-bpskukar/admin.html",
+    descan:     "/desa-cantik-bpskukar/",
+    kelas:      "/desa-cantik-bpskukar/kelas.html"
   };
   /* Satu butir per situs; menu di dalam tiap situs (Konsultasi, Sahabat Data, Glosarium,
      Ruang Pegawai) ada di bilah situsnya sendiri supaya tidak ganda. */
   var MENU = [
     ["pintu",      "Beranda"],
     ["indikator",  "Indikator Strategis"],
-    ["katalog",    "Katalog Data &amp; Layanan PST"]
+    ["katalog",    "Katalog Data &amp; Layanan PST"],
+    ["descan",     "Desa Cantik"]
   ];
 
   /* ------------------------------------------------------------ tema */
